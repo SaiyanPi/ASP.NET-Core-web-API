@@ -1,3 +1,4 @@
+using SecondApi2;
 using SecondApi2.Services;
 
 var builder = WebApplication.CreateBuilder(args); // this is the entry point of the application.
@@ -18,9 +19,18 @@ var builder = WebApplication.CreateBuilder(args); // this is the entry point of 
 //      - a service is created the first time it is requested or when providing the implementation
 //        instance to the service container. and all subsequent requests will use the same instance.
 
-builder.Services.AddScoped<IPostService, PostsService>(); 
-builder.Services.AddSingleton<IDemoService, DemoService>(); 
+//  GROUP REGISTRATION:
+//  as our projects grow, we may have more and more services. if we register all services in the Program
+//  this will be very large. for this case we can use group registration to register multiple services
+//  at once. for eg, we can create LifetimeServicesCollectionExtension.cs to register all services
+//  at once in the program file.
 
+builder.Services.AddScoped<IPostService, PostsService>(); 
+builder.Services.AddScoped<IDemoService, DemoService>();
+// builder.Services.AddScoped<IScopedService, ScopedService>();
+// builder.Services.AddTransient<ITransientService, TransientService>();
+// builder.Services.AddSingleton<ISingletonService, SingletonService>();
+builder.Services.AddLifetimeServices(); // group-registration
 
 // Add services to the container.
 
