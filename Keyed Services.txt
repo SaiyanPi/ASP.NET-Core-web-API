@@ -1,0 +1,57 @@
+KEYED SERVICES:
+
+- Introduced in ASP.NET Core 8.0
+- this feature allows developers to register services with the key, allowing them to access
+    the service with that key.
+- this makes easier to manage multiple services that implement the same interface within an
+    application, as the key can be used to identify and access the service.
+
+            public interface IDataService
+            {
+                string GetData();
+            }
+
+        -> this IDataService interface has 2 implementatiuons
+        1) SqlDatabaseService
+        2) CosmosDatabaseService
+
+            public class SqlDatabaseService : IDataService
+            {
+                public string GetData()
+                {
+                    return "Data from SQL Database";
+                }
+            }
+            public class CosmosDatabaseService : IDataService
+            {
+                public string GetData()
+                {
+                    return "Data from Cosmos Database";
+                }
+            }
+
+        -> we can register them in the service container using different keys
+
+            builder.Services.AddKeyedScoped<IDataService, SqlDatabaseService>("sqlDatabaseService");
+            builder.Services.AddKeyedScoped<IDataService, CosmosDatabaseService>("cosmosDatabaseService");
+
+        -> then we can inject the service by using  the 'FromKeyedServices' attribute.
+
+            [ApiController]
+            [Route("[controller]")]
+            public class KeyedServicesController : ControllerBase
+            {
+                [HttpGet("sql")]
+                public ActionResult GetSqlData([FromKeyedServices("sqlDatabaseService")]
+                IDataService dataService) =>
+                    Content(dataService.GetData());
+
+                [HttpGet("cosmos")]
+                public ActionResult GetCosmosData([FromKeyedServices("cosmosDatabaseService")]
+                IDataService dataService) =>
+                    Content(dataService.GetData());
+            }
+
+        -> Keyed services can be used to register SINGLETON or TRANSIENT services as well like:
+            builder.Services.AddKeyedSingleton<IDataService, SqlDatabaseService>("sqlDatabaseService");
+            builder.Services.AddKeyedTransient<IDataService, CosmosDatabaseService>("cosmosDatabaseService");

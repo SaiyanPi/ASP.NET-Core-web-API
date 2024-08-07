@@ -1,0 +1,42 @@
+ACTION INJECTION:
+
+- sometimes, one controller may need many services but may not need all of them for all actions.
+    if we inject all the dependencies from the constructor, the constructor method will be large.
+
+- for this case, we can use action injection to inject dependencies only when needed.
+
+- for example's sake let's say we need to inject Transient service dependencies using 
+    action injection then,
+
+        [ApiController]
+        [Route("[controller]")]
+        public class LifetimeController : ControllerBase
+        {
+            // SERVICES
+            private  ITransientService _transientService;
+            
+
+            public LifetimeController(//)
+            {
+             // CONSTRUCTOR INJECTION
+            }
+
+            //ACTION INJECTION
+            [HttpGet]
+            public ActionResult Get([FromServices] ITransientService transientService) 
+            {
+                _transientService = transientService;
+                var transientServiceMessage = _transientService.SayWassup();
+                
+                return Content($"{transientServiceMessage}");
+            }
+        }
+
+
+        -> here, [FromServices] attribute enables the service container to inject dependencies when
+            needed without using constructor injection.
+        -> this kind of action injection only works for actions in the controller. It does not support
+            normal classes.
+        -> Additionally, since ASP.NET Core 7.0, the [FromServices] attribute 
+            can be omitted as the framework will automatically attempt to resolve any complex type
+            parameters registered in the DI container.

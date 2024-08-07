@@ -29,4 +29,13 @@ public class LifetimeController : ControllerBase
             $"{scopedServiceMessage} {Environment.NewLine} {transientServiceMessage} {Environment.NewLine} {singletonServiceMessage}"
         );
     }
+
+    // ACTION INJECTION: 
+    // [HttpGet]
+    // public ActionResult Get([FromServices] ITransientService transientService)
+    // {
+    //     _transientService = transientService;
+    //     var transientServiceMessage = _transientService.SayWassup();
+    //     return Content($"{transientServiceMessage}");
+    // }
 }

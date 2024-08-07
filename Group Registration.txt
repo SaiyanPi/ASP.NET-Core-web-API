@@ -1,0 +1,28 @@
+GROUP REGISTRATION:
+
+- as the project grows, we may have more and more services. If we register all services in Program.cs
+  this file will be very large. for this case we can use group registration to register multiple
+  services at once.
+  
+- we can create a class extension.
+          public static class LifetimeServicesCollectionExtensions
+          {
+          }
+
+- inside the class we can create an extension method for the IServiceCollection interface and use it
+  to register all services at once.
+          public static class LifetimeServicesCollectionExtensions
+          {
+            public static IServiceCollection AddLifetimeServices(this
+            IServiceCollection services)
+            {
+              services.AddScoped<IScopedService, ScopedService>();
+              services.AddTransient<ITransientService, TransientService>();
+              services.AddSingleton<ISingletonService, SingletonService>();
+              return services;
+            }
+          }
+
+- now inside the service container, we can register extension containing group of services like:
+
+            builder.Services.AddLifetimeServices();
