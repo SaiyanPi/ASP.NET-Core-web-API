@@ -1,0 +1,23 @@
+RESOLVING THE SERVICE WHEN THE APP STARTS:
+
+- if we need SERVICE in the program.cs file, we cannot use constructor injection.
+
+- for this we can resolve a scoped service for a limited duration at app startup.
+
+- for example, let's say we want to display a message from SayWassup() method from
+    DemoService from program/app startup to close, therefore we want an access to 
+    SERVICE(DemoService) in program.cs file.
+
+            var app = builder.Build();
+
+            using (var serviceScope = app.Services.CreateScope())
+            {
+                var services = serviceScope.ServiceProvider;
+                var demoService = services.GetRequiredService<IDemoService>();
+                var message = demoService.SayWassup();
+                Console.WriteLine(message);
+            }
+
+            -> preceding code creates a scope and resolves the IDemoService service
+                from the service container. After the scope is disposed of, the service
+                will be disposed of as well.

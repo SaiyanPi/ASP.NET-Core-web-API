@@ -13,6 +13,7 @@ public class DemoController : ControllerBase
         _demoService = demoService;
     }
 
+    [HttpGet]
     public ActionResult Get()
     {
         return Content(_demoService.SayWassup()); 

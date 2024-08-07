@@ -1,0 +1,24 @@
+DI TIPS:
+
+1) when designing SERVICES, make the SERVICES as stateless as possible. do not use static classes
+    and members unless you have to do so. If you need to use a global state, consider using a
+    SINGLETON SERVICE instead.
+
+2) Carefully design dependency relationship between services. Do not create a cyclic dependency.
+
+3) Do not use 'new' to create a service instance in another service.
+    for example, if a service A depends on service B, the instance of service B should be injected
+    into service A with DI. Do not use new to create service B, otherwise service A will be tightly
+    coupled with service B.
+
+4) use a DI container to manage the lifetime of services. if a service implements the IDosposable
+    interface, the DI container will dispose of the service when the scope is disposed of. Do not 
+    manually dispose of it.
+
+5) When registering a service, do not use new to create an instance of the service. For example,
+    services.AddSingleton(new ExampleService()); registers a service instance
+    that is not managed by the service container. So, the DI framework will not be able to dispose
+    of the service automatically.
+
+6) Avoid using the service locator pattern. If DI can be used, do not use the GetService()
+    method to obtain a service instance.

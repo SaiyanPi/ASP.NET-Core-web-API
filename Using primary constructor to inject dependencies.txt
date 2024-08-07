@@ -1,0 +1,47 @@
+USING PRIMARY CONSTRUCTOR TO INJECT DEPENDENCIES:
+
+- beginning with .NET 8 & c# 12, we can use the primary constructor to inject dependencies.
+
+                                    (without using primary constructor)
+                                    
+                public class PostsController : ControllerBase
+                {
+                    private readonly IPostService _postsService; // initializing dependencies
+                    public PostsController(IPostService postsService) // injecting dependencies
+                    {
+                        _postsService = postsService;
+                    }
+
+                    [HttpGet("{id}")]
+                    public async Task<ActionResult<PostsController>> GetPost(int id){
+                        var post = await _postsService.GetPost(id);
+                        if(post == null){
+                            return NotFound();
+                        }
+                        return Ok(post);
+                    }
+                    //
+                    //
+                }
+
+                                    (using primary constructor)
+
+                public class PostsController(IPostService postService) : ControllerBase
+                { 
+                    // NO NEED TO DEFINE PRIVATE FIELD TO STORE THE SERVICES (initialize dependencies)
+                    // NO NEED TO DEFINE CONSTRUCTOR (inject dependencies)
+
+                    [HttpGet("{id}")]
+                    public async Task<ActionResult<PostsController>> GetPost(int id){
+                        var post = await postService.GetPost(id);
+                        if(post == null){
+                            return NotFound();
+                        }
+                        return Ok(post);
+                    }
+                //
+                //
+                }
+                
+- parameters passed to the cleass declaration cannot be used as a properties or member.
+    for example, 'postService' cannot be used as a property or member using 'this.postService'.

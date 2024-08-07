@@ -45,7 +45,13 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-
+using (var serviceScope = app.Services.CreateScope())
+{
+    var services = serviceScope.ServiceProvider;
+    var demoService = services.GetRequiredService<IDemoService>();
+    var message = demoService.SayWassup();
+    Console.WriteLine(message);
+}
 
 
 // Configure the HTTP request pipeline.
