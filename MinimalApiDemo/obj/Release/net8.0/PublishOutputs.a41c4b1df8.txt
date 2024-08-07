@@ -1,0 +1,12 @@
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\MinimalApiDemo.exe
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\appsettings.Development.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\appsettings.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\MinimalApiDemo.dll
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\MinimalApiDemo.deps.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\MinimalApiDemo.runtimeconfig.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\MinimalApiDemo.pdb
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\Microsoft.AspNetCore.OpenApi.dll
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\Microsoft.OpenApi.dll
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\zlams\source\REST API\MinimalApiDemo\out\Swashbuckle.AspNetCore.SwaggerUI.dll

@@ -1,0 +1,17 @@
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\MinimalApiDemo.exe
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\out\web.config
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\appsettings.Development.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\appsettings.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\out\appsettings.Development.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\out\appsettings.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\out\MinimalApiDemo.deps.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\out\MinimalApiDemo.runtimeconfig.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\MinimalApiDemo.dll
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\MinimalApiDemo.deps.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\MinimalApiDemo.runtimeconfig.json
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\MinimalApiDemo.pdb
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\Microsoft.AspNetCore.OpenApi.dll
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\Microsoft.OpenApi.dll
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\zlams\source\REST API\MinimalApiDemo\bin\Release\net8.0\publish\Swashbuckle.AspNetCore.SwaggerUI.dll
