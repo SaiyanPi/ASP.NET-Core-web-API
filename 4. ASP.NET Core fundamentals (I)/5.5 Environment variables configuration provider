@@ -1,0 +1,24 @@
+ENVIRONMENT VARIABLES CONFIGURATION PROVIDER:
+
+
+- .NET and ASP.NET Core define some environment variables that can be used to configure the application.
+
+- these specific variables have a prefix of DOTNET_, DOTNETCORE_, OR ASPNETCORE_.
+    -> variable with DOTNET_ and DOTNETCORE_ prefix are used to configure the .NET runtime
+    -> variable with ASPNETCORE_ prefix are used to configure ASP.NET Core.
+        for eg, ASPNETCORE_ENVIRONMENT variable is used to set the environment name.
+
+- environment variables have a higher priority than the appsetting.json file, hence overrides the
+
+    appsetting.json file
+    -> PowerShell cmd to set environment variable:
+        $Env:Database__Type="SQLite"
+
+    -> PowerShell cmd to check if the environment variable is set correctly:
+        $Env:Database__Type
+
+- now if we make a request to any previous endpoints we will see a response contains "SQLite"
+    despite of different value in appsetting.json.
+
+- once the application is closed and rerunned again, the response will be from the
+    appsetting.json file.

@@ -1,0 +1,10 @@
+SUMMARY OF THE OPTIONS FEATRURE:
+
+
+
+
+                              |   Server lifetime Reloadable    |   configuration   |    Named options
+------------------------------------------------------------------------------------------------------------                                  
+IOptions<TOption>                           Singleton                   No                  No
+IOptionsSnapshot<TOption>                   Scope                       Yes                 Yes
+IOptionsMonitor<TOption>                    Singleton                   Yes                 Yes

@@ -1,0 +1,29 @@
+GROUP OPTIONS REGISTRATION:
+
+- previously in "with DI' section we've seen GROUP REGISTRATION.
+- group registration is also available for the options feature.
+    1) just like in the lifetime group registration, create a class extension.
+
+        namespace ConfigurationDemo
+        {
+            public static class OptionsCollectionExtensions
+            {
+                public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration configuration)
+                {
+                    // options
+                    services.Configure<DatabaseOption>(configuration.GetSection(DatabaseOption.SectionName));
+                    //named options
+                    services.Configure<DatabaseOptions>(DatabaseOptions.SystemDatabaseSectionName,
+                        configuration.GetSection($"{DatabaseOptions.SectionName}{DatabaseOptions.SystemDatabaseSectionName}"));
+                    services.Configure<DatabaseOptions>(DatabaseOptions.BusinessDatabaseSectionName,
+                        configuration.GetSection($"{DatabaseOptions.SectionName}:" +
+                        $"{DatabaseOptions.BusinessDatabaseSectionName}"));
+
+                    return services;
+                }
+            }
+        }
+
+    2) register the options in the program file.
+
+        builder.Services.AddConfig(builder.Configuration);

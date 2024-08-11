@@ -1,0 +1,110 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\zlams\\source\\REST API\\4. ASP.NET Core fundamentals (I)\\ConfigurationDemo\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6869851D-A2CF-4B6F-81C6-E00276B6A0E3}|ConfigurationDemo.csproj|c:\\users\\zlams\\source\\rest api\\4. asp.net core fundamentals (i)\\configurationdemo\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{6869851D-A2CF-4B6F-81C6-E00276B6A0E3}|ConfigurationDemo.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6869851D-A2CF-4B6F-81C6-E00276B6A0E3}|ConfigurationDemo.csproj|c:\\users\\zlams\\source\\rest api\\4. asp.net core fundamentals (i)\\configurationdemo\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6869851D-A2CF-4B6F-81C6-E00276B6A0E3}|ConfigurationDemo.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6869851D-A2CF-4B6F-81C6-E00276B6A0E3}|ConfigurationDemo.csproj|c:\\users\\zlams\\source\\rest api\\4. asp.net core fundamentals (i)\\configurationdemo\\optionscollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6869851D-A2CF-4B6F-81C6-E00276B6A0E3}|ConfigurationDemo.csproj|solutionrelative:optionscollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6869851D-A2CF-4B6F-81C6-E00276B6A0E3}|ConfigurationDemo.csproj|c:\\users\\zlams\\source\\rest api\\4. asp.net core fundamentals (i)\\configurationdemo\\databaseoption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6869851D-A2CF-4B6F-81C6-E00276B6A0E3}|ConfigurationDemo.csproj|solutionrelative:databaseoption.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6869851D-A2CF-4B6F-81C6-E00276B6A0E3}|ConfigurationDemo.csproj|c:\\users\\zlams\\source\\rest api\\4. asp.net core fundamentals (i)\\configurationdemo\\controllers\\configurationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6869851D-A2CF-4B6F-81C6-E00276B6A0E3}|ConfigurationDemo.csproj|solutionrelative:controllers\\configurationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DatabaseOption.cs",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\4. ASP.NET Core fundamentals (I)\\ConfigurationDemo\\DatabaseOption.cs",
+              "RelativeDocumentMoniker": "DatabaseOption.cs",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\4. ASP.NET Core fundamentals (I)\\ConfigurationDemo\\DatabaseOption.cs",
+              "RelativeToolTip": "DatabaseOption.cs",
+              "ViewState": "AQIAABUAAAAAAAAAAAAAACEAAAACAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-11T07:59:23.622Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\4. ASP.NET Core fundamentals (I)\\ConfigurationDemo\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\4. ASP.NET Core fundamentals (I)\\ConfigurationDemo\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AQIAAAkAAAAAAAAAAAAAAAsAAAAZAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-08-11T08:13:03.737Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\4. ASP.NET Core fundamentals (I)\\ConfigurationDemo\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\4. ASP.NET Core fundamentals (I)\\ConfigurationDemo\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AQIAABgAAAAAAAAAAAAAACcAAAAVAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-11T07:59:16.333Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "OptionsCollectionExtensions.cs",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\4. ASP.NET Core fundamentals (I)\\ConfigurationDemo\\OptionsCollectionExtensions.cs",
+              "RelativeDocumentMoniker": "OptionsCollectionExtensions.cs",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\4. ASP.NET Core fundamentals (I)\\ConfigurationDemo\\OptionsCollectionExtensions.cs",
+              "RelativeToolTip": "OptionsCollectionExtensions.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-11T10:25:18.057Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ConfigurationController.cs",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\4. ASP.NET Core fundamentals (I)\\ConfigurationDemo\\Controllers\\ConfigurationController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ConfigurationController.cs",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\4. ASP.NET Core fundamentals (I)\\ConfigurationDemo\\Controllers\\ConfigurationController.cs",
+              "RelativeToolTip": "Controllers\\ConfigurationController.cs",
+              "ViewState": "AQIAADgAAAAAAAAAAAAIwGkAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-11T08:02:28.669Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

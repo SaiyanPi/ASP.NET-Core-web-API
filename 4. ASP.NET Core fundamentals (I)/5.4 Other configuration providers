@@ -1,0 +1,63 @@
+OTHER CONFIGURATION PROVIDERS:
+
+- so far, we've seen the appsetting.json. from which ASP.NET Core reads the configuration
+    setting using JsonConfigurationProvider by default.
+
+- Besides JsonConfigurationProvider, the ASP.NET Core framework automatically registers
+    the following configuration providers:
+
+    • A user secrets configuration provider is used to read secrets from the local secrets file when
+        the app runs in the Development environment
+    • A non-prefixed environment variables configuration provider is used to read environment
+        variables that do not have a prefix
+    • A command-line configuration provider is used to read command-line arguments
+
+
+# USER SECRET CONFIGURATION PROVIDER =>
+    -> it is not a good practice to store sensetive information in the appsetting.json file
+    -> the user secret feature is only available in the Development environment.
+    -> By default, ASP.NET Core registers the user secret configuration provider after the
+        JSON configuration provider, so it will override the JSON configuration provider
+        if the same configuration key exists in both providers.
+    -> To use user secrets, we need to use the Secret Manager tool to store the secrets in a 
+        local secrets file.
+
+        cmd to initialize a local secrets file:
+        dotnet user-secrets init
+
+    -> this creates a UserSecretsId property with GUID valu(by default) in the .csproj file.
+
+        <Project Sdk="Microsoft.NET.Sdk.Web">
+            <PropertyGroup>
+                //
+                <UserSecretsId>f4721c01-420f-4676-aaf8-1bcb2162b5b1</UserSecretsId>
+            </PropertyGroup>
+            //
+        </Project>
+
+    -> now we can use the secret manager tool to store secrets in the local secrets file.
+
+        cmd to store secrets:
+        dotnet user-secrets set "Database:Type" "PostgreSQL"
+        dotnet user-secrets set "Database:ConnectionString" "This is the database connection string from user secrets"
+
+    -> this creates a new file secrets.json file
+        \AppData\Roaming\Microsoft\UserSecrets\f4721c01-420f-4676-aaf8-1bcb2162b5b1\secrets.json
+        the content of the file will be :
+            {
+                "Database:Type": "PostgreSQL",
+                "Database:ConnectionString": "This is the database connection string
+                from user secrets"
+            }
+
+    -> now if we run the application and send a request to the
+        '/ConfigurationDemo/database-configuration' endpoint, we will see the response containing new
+        database options. and as mentioned previously, it'll override the database options from the
+        appsetting.json.
+        (try requesting the previous endpoints, the response will be from the newly created secrets.json 
+        file)
+
+    ->Commands to operate the local secrets file
+        1) list all the secrets : dotnet user-secrets list
+        2) remove a secret : dotnet user-secrets remove "Database:Type"
+        3) clear all secrets: dotnet user-secrets clear

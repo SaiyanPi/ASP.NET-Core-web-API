@@ -1,0 +1,60 @@
+ROUTE CONSTRAINTS:
+
+- [HttpGet("{id}")] attribute can match a GET request to the /api/posts/1 endpoint.
+
+- But what if the request is GET request to the /api/posts/abc endpoint?
+    -> id parameter is of type int, the framework will try to convert the captured 
+        value to an int value. if the conversion fails, the framework will return a 
+        400 BAD REQUEST response. so a GET request to the /api/posts/abc endpoint will fail.
+
+    -> we can add route constraints to route parameters to restrict the values of the route 
+        parameters.
+
+            [HttpGet("{id:int}")]
+            public async Task<ActionResult<Post>> GetPost(int id)
+            {
+            // Omitted for brevity
+            }
+            * now the id parameter must be an integer.
+            * GET request to the /api/posts/abc endpoint will return a 404 NOT FOUND response
+                because the route does not match.
+
+    -> ASP.NET Core provides a set of built-in route constraints such as:
+        * int = The parameter must be an integer value.
+        * bool
+        * decimal/double/float/long
+        * datetime
+        * guid
+        * minlength(value) = parameter must be string with a minimum length 'value'. for eg,
+            {name: minlength(6)}, which means the name parameter must be a string and the length
+            of the string must be at least 6 characters.
+            similarly there are maxlength(value), length(value), length(min, max) and so on.
+        * min(value) = parameter must be an integer with a minimum value 'value'.
+            similarly there are max(value), range(min, max) and so on.
+        * alpha = The parameter must be a string with one or more letters.
+        * regex(expression) = The parameter must be a string that matches the regular expression.
+        * required: The parameter must be provided in the route;
+            for example, {id:required},
+            which means the id parameter must be provided in the route.
+
+    -> IF THE VALUE OF THE ROUTE PARAMETER DOES NOT MATCH THE ROUTE CONSTRAINT, THE ACTION METHOD
+        WILL NOT ACCEPT THE REQUEST AND A 404 NOT FOUND RESPONSE WILL BE RETURNED.
+
+            [HttpGet("{id:int}")]
+                        |  \
+                        | (route constraint)
+                        |
+                    (route parameter)
+            * if the request is /api/posts/string then 404 NOT FOUND
+
+    -> multiple route constaraints can be applied together.
+
+            [HttpGet("{id:int:range(1, 100)}")]
+            public async Task<ActionResult<Post>> GetPost(int id)
+            {
+            // Omitted for brevity
+            }
+
+            * route constraints can be used to make route more specific.
+            * however, they should not be used to validate input. if the input is invalid, the APIs
+                should return a 400 BAD REQUEST response rather than 404 NOT FOUND response.

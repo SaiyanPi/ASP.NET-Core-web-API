@@ -1,0 +1,79 @@
+ROUTING:
+
+- routing is a mechanism that monitors incoming requests and determineswhich action method
+    is to be invoked for those requests.
+- ASP.NET Core provides 2 ways of routing:
+    1) Conventional routing
+        -> typically used for ASP.NET Core MVC applications
+    2) Attribute Routing
+        -> used for ASp.NET Core web api
+
+    ATTRIBUTE ROUTING:
+    - app.MapControllers();
+        -> this adds endpoints for controller action to the IEndpointRouteBuilder instance without
+            specifying any routes.
+        -> to specify routes, we need to use the [Route] attribute on the controller class and the
+            action method.
+
+                [ApiController]
+                [Route("[controller]")]
+                public class WeatherForecastController : ControllerBase
+                {
+                    // Omitted for brevity
+                }
+                * here [controller] token is a placeholder for the controller name. it will be replaced
+                    with the WeatherForecast.
+                * that means the route for the WeatherForecastController class is '/WeatherForecast'.
+        
+        -> ASP.NET Core has some built-in route tokens such as [controller], [action], [area], [page],
+            and so on. these will be replaced by corresponding values.
+        
+        -> in ASP.NET Core Web APIs, we usually use [Route("api/[controller]")] template to represent
+            API end points.
+                
+                some-posts-whatever
+                * route for the PostsController class is /api/Posts.
+                * whether we use /api as the route prefix or not is up to us. there is no standard
+                    for this.
+        
+        -> some developers perfer to use lowercase for route templates such as /api/posts.
+            to achieve this, the route value can be explicitly specified like: [Route("api/posts")].
+            however, it seems a bit tedious to specify the route value for each controller class.
+            fortunately, ASP.NET core provides a way to configure route value globally like:
+                
+                builder.Services.AddRouting(options => options.LowercaseUrls = true);
+                * this converts all route templates to lowercase.
+        
+        -> multiple routes can be applied to one controller class.
+                
+                [ApiController]
+                [Route("api/[controller]")] 
+                [Route("api/some-posts-whatever")]
+                public class PostsController : ControllerBase
+                {
+                    //
+                } 
+                * this has 2 routes: /api/Posts & /api/some-posts-whatever.
+                * not recommended
+
+        -> in ASP.NET Core web apis, we usually do not use the [action] token because the action
+            name is not included in the route template. 
+                
+                [Route("api/get-posts")] -> NO
+
+        -> similarly we do not use [Route] attribute for action methods. instead, we use the HTTP method
+            to distinguish action methods.
+
+                [ApiController]
+                [Route("api/[controller]")]
+                public class WeatherForecastController : ControllerBase
+                {
+                    [HttpGet] 
+                    public async Task<ActionResult<List<Post>>> GetPosts() //action method
+                    {
+                        var posts = await _postsService.GetAllPosts();
+                        return Ok(posts);
+                    }
+                }
+        
+

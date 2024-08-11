@@ -1,0 +1,53 @@
+# Named Options =>
+
+    -> sometimes we need to use multiple database instances in our application.
+        consider the following scenario
+
+            {
+                "Databases": {
+                    "System": {
+                        "Type": "SQL Server",
+                        "ConnectionString": "This is the database connection string for system db"
+                    },
+                    "Business": {
+                        "Type": "MySQL",
+                        "ConnectionString": "This is the database connection string for business db"
+                    }
+                }
+            }
+
+    -> in such case, rather than creating two classes to represent the 2 database options, we can use the 
+        named options feature.
+
+            public class DatabaseOptions
+            {
+                public const string SystemDatabaseSectionName = "System";
+                public const string BusinessDatabaseSectionName = "Business";
+                public string Type { get; set; } = string.Empty;
+                public string ConnectionString { get; set; } = string.Empty;
+            }
+
+            -> now, register the named options feature in the program file
+
+            builder.Services.Configure<DatabaseOptions>(DatabaseOptions.SystemDatabaseSectionName, 
+            builder.Configuration.GetSection($"{DatabaseOptions.SectionName}:
+            {DatabaseOptions.SystemDatabaseSectionName}"));
+            builder.Services.Configure<DatabaseOptions>(DatabaseOptions.BusinessDatabaseSectionName, 
+            builder.Configuration.GetSection($"{DatabaseOptions.SectionName}:
+            {DatabaseOptions.BusinessDatabaseSectionName}"));
+
+            -> now, we can access the named options:
+
+            [HttpGet]
+            [Route("database-configuration-with-named-options")]
+            public ActionResult GetDatabaseConfigurationWithNamedOptions([FromServices]
+            IOptionsSnapshot<DatabaseOptions> options)
+            {
+                var systemDatabaseOption = options.Get(DatabaseOptions.SystemDatabaseSectionName);
+                var businessDatabaseOption = options.Get(DatabaseOptions.BusinessDatabaseSectionName);
+                return Ok(new 
+                { 
+                    SystemDatabaseOption = systemDatabaseOption,
+                    BusinessDatabaseOption = businessDatabaseOption 
+                });
+            }

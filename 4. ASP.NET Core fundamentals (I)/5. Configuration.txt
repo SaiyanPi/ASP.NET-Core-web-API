@@ -1,0 +1,51 @@
+CONFIGURATION:
+
+- configuration of ASP.NET Core is provided by 'Microsoft.Extension.Configuration' Nuget package.
+
+- a configuration is considered a key-value pair.
+
+- configuration setting are stored in a variety of sources, such as JSON files, 
+    environment variables, and command-line arguments, or in the cloud such as Azure Key Vault.
+
+- in ASP.NET Core, these sources are reffered to as configuration providers. Each configuration providers       
+    is responsible for loading configuration setting from a specific source.
+
+- ASP.NET Core supports a set of configuration providers such as the following:
+    • The file configuration provider, such as, appsettings.json
+    • The User secrets
+    • The environment variables configuration provider
+    • The command-line configuration provider
+    • The Azure App Configuration provider
+    • The Azure Key Vault configuration provider
+
+# appsetting.json =>
+    -> by default, ASP.NET Core apps are configured to read configuration setting from appsetting.json
+        using JsonConfigurationProvider.
+    -> accessing the configuration setting(see ConfigurationDemo)
+    -> using IConfiguration interface, we can access the configuration settings with the configuration[key]
+        format. However, hardcoding the keys is not a good practice. To avoid hardcoding, ASP.NET Core
+        supports the option pattern.
+
+* options pattern =>
+    -> to use options pattern, we need to create a class that represents the configuration settings.
+    -> there are multiple ways to use options pattern (see ConfigurationDemo)
+        1) ConfigurationBinder.Bind() method
+        2) ConfigurationBinder.Get<TOption>() method
+        3) IOptions<TOption> interface
+
+* Others => 
+    4) IOptionsSnapshot<TOption>
+    5) IOptionsMonitor <TOption>
+
+- Difference between IOption<TOption> interface & IOptionsSnapshot</TOption>
+    1) IOption<TOption> => 
+        -> interface provides a 2 way to access options, but it cannot get the latest value if the string 
+            value has been changed when the application is running.
+    2) IOptionsSnapshot<TOption> =>
+        -> interface provides a snapshot of options for the current request. it is useful when we want to
+            get the latest options for the current request.
+    (run ConfigurationDemo and change the 'Type' property(appsetting.json file) while running and make a
+    request for IOption endpoint and do the same thing for IOptionsSnapshot endpoint to see the difference)
+
+# Named options =>
+    

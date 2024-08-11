@@ -1,0 +1,68 @@
+BINDING SOURCE ATTRIBUTES:
+
+-   [HttpGet("{id}")]
+    public async Task<ActionResult<Post>> GetPost(int id)
+
+    * GetPost() method has a parameter named id, which matches the parameter {id} in the route
+    template so the value of id will come from the route, such as 1 in the /api/posts/1 URL.
+    * this is called parameter inference.
+
+- ASP.NET Core offers following binding source attributes:
+    -> [FromBody] = the parameter is from the request body
+    -> [FromForm] = the parameter is from the form data in the request body
+    -> [FromHeader] = The parameter is from the request header
+    -> [FromQuery] = The parameter is from the query strings in the request
+    -> [FromRoute] = The parameter is from the route path
+    -> [FromServices] = The parameter is from the DI container
+
+- for example, we can define a pagination action method as follows:
+
+        [HttpGet("paged")]
+        public async Task<ActionResult<List<Post>>> GetPosts ([FromQuery] int pageIndex,
+        [FromQuery] int pageSize)
+        {
+            //
+        }
+
+        * here, the pageIndex and pageSize parameter should be from query string in the URL,
+            such as /api/posts/paged?pageIndex=1pagedSize=10.
+
+- when an [ApiController] attribute is applied to a controller class, a set of default inference
+    rules will be applied, so we don't need to explicitly add these binding source attributes.
+    
+- default inference rules of those binding source attribues are:
+    1) for complex type parameters, if the type is registered in the DI container, [FromServices]
+        is inferred.
+    2) For complex type parameters that are not registered in the DI container, [FromBody] is
+        inferred. It does not support multiple [FromBody] parameters.
+    3) For types such as IFormFile and IFormFileCollection, [FromForm] is inferred.
+    4) For any parameters that appear in the route, [FromRoute] is inferred.
+    5) For any parameters of simple types, such as int, string, and so on, [FromQuery] is inferred
+
+    * if a parameter can be inferred based on these rules, the binding source attribute can be omitted.
+        Otherwise, we need to explicitly specify the binding source attribute.
+
+
+        [HttpPost]
+        public async Task<ActionResult<Post>> CreatePost(Post post)
+        {
+            //
+        }
+        ** here, the post parameter is a complex type, so [FromBody] inferred that the post
+            should be from the request body. But [FromBody] is not inferred for simple data 
+            types such as int, string, and so on
+
+        [HttpPost("search")]
+        public async Task<ActionResult<Post>> SearchPosts(string keyword)
+        {
+            //
+        }
+        * here, keyword parameter is a simple type, so [FromQuery] inferred that the keywordparameter
+             should be from the query strings in the URL, such as /api/posts/search?keyword=xyz.
+
+        * if we want to force the keyword parameter to be from the request body, we can use the
+        [FromBody] attribute as follows: (NOTE THAT THIS IS A BAD EXAMPLE)
+
+            [HttpPost("search")]
+            public async Task<ActionResult<Post>> SearchPosts([FromBody] string keyword)
+

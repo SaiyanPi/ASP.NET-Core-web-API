@@ -1,0 +1,37 @@
+MAPPING HTTP METHODS TO ACTION METHODS:
+
+1) [HttpGet] maps an HTTP GET method to an action method
+
+2) [HttpPost] maps an HTTP POST method to an action method
+
+3) [HttpPut] maps an HTTP PUT method to an action method
+
+4) [HttpDelete] maps an HTTP DELETE method to an action method
+
+5) [HttpPatch] maps an HTTP PATCH method to an action method
+
+6) [HttpHead] maps an HTTP HEAD method to an action method
+
+
+- In ASP.NET Core APIs, each action must have an HTTP verb attribute. If we do not specify 
+    an HTTP verb attribute, the framework cannot determine which method should be invoked for
+    the incoming request.
+
+- ROUTE PARAMETER:
+    -> route parameter is used to capture the value from incoming request.
+        it is enclosed in curly braces({}).
+
+            [ApiController]
+            [Route("api/[controller]")]
+            public class WeatherForecastController : ControllerBase
+            {
+                [HttpGet("{id}")] 
+                public async Task<ActionResult<Post>> GetPost(int id)         //action method
+                {
+                    //
+                }
+            }
+
+    -> in above code, HttpGet attribute has an {id} route template, which is a route parameter.
+        a GET request to the /api/posts/1 endpoint is mapped to the GetPost(int id) action method,
+        and the value 1 is captured by the {id} route template.
