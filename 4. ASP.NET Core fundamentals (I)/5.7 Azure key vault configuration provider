@@ -1,4 +1,4 @@
-AZURE KEY VAULT CONFIGURATION PROVIDER:
+# AZURE KEY VAULT CONFIGURATION PROVIDER:
 
 
 - cloud-based service that provides secure storage for secrets such as passwords, certificates,

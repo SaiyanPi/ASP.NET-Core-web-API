@@ -1,0 +1,64 @@
+HOW TO CONFIGURE THE APPLICATION TO RUN IN THE PRODUCTION ENVIRONMENT:
+
+- there are several ways to change the environment.
+
+- Create a appsettings.Production.json file.
+    {
+        "Database": {
+        "Type": "PostgreSQL",
+        "ConnectionString": "This is the database connection string from appsettings.Production.json"
+        }
+    }
+    -> this configuration file will be used for the Production environment.
+
+- we will specify the environment as Production to apply this configuration.
+
+1) Using launchSettings.json file =>
+    -> add a new profile 'production' in launchSettings.json as follows:
+
+        "production": {
+            "commandName": "Project",
+            "dotnetRunMessages": true,
+            "launchBrowser": true,
+            "launchUrl": "swagger",
+            "applicationUrl": "https://localhost:7096;http://localhost:5161",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Production"
+            }
+        }
+
+    -> use the run command with specifying the profile and make a request to endpoint
+        https://localhost:7096/Configuration/database-configuration
+
+        dotnet run --launch-profile production
+
+    -> the response will be from the appsettings.Production.json.
+
+2) Using the ASPNETCORE_ENVIRONMENT environment variable =>
+    -> set the ASPNETCORE_ENVIRONMENT environment variable to Production.
+
+        $Env:ASPNETCORE_ENVIRONMENT = "Production"
+
+    -> run the application with: dotnet run --no-launch-profile
+    -> the response will be from the appsettings.Production.json.
+
+3) Using the --environment argument =>
+    -> another way is to set the environment with the --environment argument.
+
+        dotnet run --environment Production
+
+4) Using the launch.json file in VS Code =>
+    -> if you don't see the .vscode folder open command pallet and run the 
+        '.NET: Generate Assets for Build and Debug' command
+    -> inside .vscode folder, set the environment in the launch.json file
+        * add a new configuration following the existing one. (see EnvironmentDemo)
+    -> now we will be able to see the '.NET Core Launch(Production)' option in the RUN AND DEBUG panel
+    -> launch.json file is only used in VS Code RUN AND DEBUG. it is not used when we run the application
+        using the dotnet run.
+
+5) Using the launchSettings.json file in Visual Studio 2022 =>
+    -> open Launch Profiles and change the value of "ASPNETCORE_ENVIRONMENT" into 'Production'.
+    -> restart the application. (no dotnet watch run)
+
+
+

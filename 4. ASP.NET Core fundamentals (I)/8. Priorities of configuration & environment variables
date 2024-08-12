@@ -1,0 +1,28 @@
+UNDERSTANDING THE PRIORITIES OF CONFIGURATION AND ENVIRONMENT VARIABLES
+
+
+- we've seen different ways to read configuration values and environment variables.
+
+            Source                                          |                Priority
+    ______________________________________________________________________________________
+            Command-line arguments                                              1
+            Non-prefixed environment variables                                  2
+            User secrets(Development environment only)                          3
+            appsettings.{Environment}.json                                      4
+            appsettings.json                                                    5
+
+            -> the lowest the number, the higher the prioprity.
+
+- if other configuration providers are registered in the program file, the later registered
+    providers have higher priority than the earlier registered providers.
+
+
+- in terms of environment variables such as ASPNETCORE_ENVIRONMENT, the following table shows
+    the priorities.
+
+            Source                                         |                Priority
+    _________________________________________________________________________________________
+        Command-line arguments                                                   1
+        launchSettings.json (development purposes only)                          2
+        Environment variable in the current process                              3
+        System environment variable                                              4

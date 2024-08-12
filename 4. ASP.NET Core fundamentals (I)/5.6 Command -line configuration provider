@@ -1,8 +1,8 @@
-COMMAND-LINE CONFIGURATION PROVIDER:
+# COMMAND-LINE CONFIGURATION PROVIDER:
 
 - command line arguments have a higher priority than environment variables.
 
-- by defauylt, the configuration setting set on 5the command line override velues set with Other
+- by default, the configuration setting set on 5the command line override values set with Other
     configuration providers.
     cmd to set the value:
         dotnet run Database:Type=MySQL 

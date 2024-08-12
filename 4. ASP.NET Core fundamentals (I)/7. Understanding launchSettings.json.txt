@@ -1,0 +1,36 @@
+UNDERSTANDING launchSettings.json:
+
+
+- it is used to configure the local development environment.
+
+- it is not deployable.
+
+- default launchSettings.json file contains 3 profiles:
+
+    1) http             =   is used to run the application with the HTTP protocol.         
+    2) https            =   is used to run the application with the HTTPS protocol. 
+    3) IIS Express      =   is used to run the application in the IIS Express.
+
+    -> 'commandName' field in the http and https profile is 'Project' this means the KESTRAL SERVER
+        is launched to run the application.
+    -> 'IISExpress' field is 'IIS Express' which means the application expects IIS Express to be the 
+        web server.
+
+- what is KESTREL SERVER ?
+    -> cross-platform web server for ASP.NET Core.
+    -> Kestrel is included and enabled by default in ASP.NET Core project templates.
+    -> ASP.NET Core can also be hosted in IIS Express.
+    -> perfered web server
+
+- What is IIS Express?
+    -> not a cross-platform web server.
+
+- when 'dotnet run', first profile(http) with the "commandName": "Project" is used.
+    and in http profile, "ASPNETCORE_ENVIRONMENT": "Development" so the application runs in the
+    Development environment.
+
+- we can sepcify the profile to use when running the application using:
+    dotnet run --launch-profiles https / dotnet run --launch-profiles http
+    
+    -> Note that this apprach is only available for Kestrel profiles and not IIS Express
+    (dotnet run --launch-profiles IIS Express) cannot do this. 

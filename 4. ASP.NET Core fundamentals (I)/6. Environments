@@ -1,0 +1,9 @@
+ENVIRONMENTS:
+
+- we've seen that ASP.NET Core web api template contains 2 files:
+    1) appsettings.json 
+    2) appsettings.Development.json
+- when we run the application using 'dotnet run', the application runs in the Development environment.
+    so the configuration settings in the appsettings.Development.json file override the configuration
+    setting in the appsettings.json file.
+    (run the EnvironmentDemo and request the endpoint from Thunder Client)

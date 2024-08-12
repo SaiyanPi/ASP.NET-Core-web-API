@@ -1,0 +1,29 @@
+CHECKING THE ENVIRONMENT IN THE CODE:
+
+
+- The three environment names, Development, Staging, and Production, are predefined in the ASP.NET Core
+    framework.
+        public static class Environments
+        {
+            public static readonly string Development = "Development";
+            public static readonly string Staging = "Staging";
+            public static readonly string Production = "Production";
+        }
+
+- 'app.Environment.IsDevelopment()' in the program file checks the current environment. . If the
+    current environment is Development, the Swagger UI page is enabled. Otherwise, it is disable.
+
+- To set the environment in code, use the following code when creating WebApplicationBuilder:
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            EnvironmentName = Environments.Staging
+        });
+
+- If we define our own environment names, we can use the 
+    IHostEnvironment.IsEnvironment(string environmentName) method to check the environment.
+
+- We can use the System.Environment class to get the environment variable in the code, such as
+    ASPNETCORE_ENVIRONMENT.
+        var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        Console.WriteLine($"ASPNETCORE_ENVIRONMENT is {environmentName}");
+        (run EnvironmentDemo)
