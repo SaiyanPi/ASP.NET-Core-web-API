@@ -1,0 +1,109 @@
+HOW TO ASSEMBLE MIDDLEWARE COMPONENTS:
+
+- besides app.Use() and app.Run() methods, the WebApplication class also provides Map(), MapWhen(), and
+     UseWhen() methods to add middleware components to a pipeline.
+
+     methods       |                                 Description
+----------------------------------------------------------------------------------------------------------
+    app.Map()           maps a request path to a sub-request pipeline. the middleware component is 
+                        only executed when the request path matches the specified path.
+----------------------------------------------------------------------------------------------------------
+    app.MapWhen()       Runs a sub-request pipeline when a given predicate is matched.
+----------------------------------------------------------------------------------------------------------
+    app.Use()           Adds an inline delegate to the application’s request pipeline.
+----------------------------------------------------------------------------------------------------------
+    app.UseWhen()       Adds an inline delegate to the application’s request pipeline when a given
+                        predicate is matched. It is rejoined to the main pipeline if it does not
+                        short-circuit or contain terminal middleware.
+----------------------------------------------------------------------------------------------------------
+    app.Run()           Adds a terminal middleware component to the pipeline. It prevents
+                        further middleware components from processing requests.
+----------------------------------------------------------------------------------------------------------
+
+1) app.Map() and app.MapWhen() are used to configure which request path or a predicate should be handled
+    by which middleware component. they handle a request.
+
+2) app.Use() and app.Run() methods are used to add middleware components to the pipeline.
+
+-> one pipeline can have a multiple app.Use() methods but only one app.Run() method.
+    and the app.Run() method must be the last method in the pipeline. (see 2.1 image)
+
+_____________________________________________________________________________________________________________
+LOTTERY EXAMPLE:
+We will develop a lottery application that allows users to call an API to check whether they get the lucky
+number. Lucky numbers are generated randomly. We will add a couple of middleware components to the pipeline.
+    
+    (see program file)
+    app.Map("/lottery", app =>
+    {
+        var random = new Random();
+        var luckyNumber = random.Next(1, 6);
+        app.UseWhen(context => context.Request.QueryString.Value == $"?{luckyNumber.ToString()}", app =>
+        {
+            app.Run(async context =>
+            {
+                await context.Response.WriteAsync($"You win! You got the lucky number {luckyNumber}!");
+            });
+        });
+        app.UseWhen(context => string.IsNullOrWhiteSpace(context.Request.QueryString.Value), app =>
+        {
+            app.Use(async (context, next) =>
+            {
+                var number = random.Next(1, 6);
+                context.Request.Headers.TryAdd("number", number.ToString());
+                await next(context);
+            });
+            app.UseWhen(context => context.Request.Headers["number"] == luckyNumber.ToString(), app =>
+            {
+                app.Run(async context =>
+                {
+                await context.Response.WriteAsync($"You win! You got the lucky number {luckyNumber}!");
+                });
+            });
+        });
+        app.Run(async context =>
+        {
+            var number = "";
+            if (context.Request.QueryString.HasValue)
+            {
+                number = context.Request.QueryString.Value?.Replace("?", "");
+            }
+            else
+            {
+                number = context.Request.Headers["number"];
+            }
+            await context.Response.WriteAsync($"Your number is {number}. Try again!");
+        });
+    });
+    app.Run(async context =>
+    {
+        await context.Response.WriteAsync($"Use the /lottery URL to play.You can choose your number with the format /lottery?1.");
+    });
+
+    Configuration Explanation:
+    1) first, we add app.Map() method to map the /lottery request path to a sub-request pipeline.
+        in this part, there are a couple of things to do.
+        i) We use a Random instance to generate a lucky number. Note that this number is generated
+            only once when the application starts.
+        ii) Next, we add a middleware component to the pipeline using the app.UseWhen() method. this
+            middleware only works when the request has a query string. if the query string value is same
+            as the lucky number, it uses app.Run() to write the response. this branch is done.
+        iii) Next, we add another middleware component when the request does not have a query string.
+            a) The first one generates a random number and adds it to the HTTP header, then passes it
+                to the second sub-middleware.
+            b) The second one uses app.UseWhen() to check the HTTP headers of the request. If the
+                HTTP header contains the lucky number, it uses app.Run() to write the response. This
+                branch is done.
+                This part shows how we use the app.UseWhen() method to rejoin a
+                middleware component to the main pipeline.
+        iv) Next, we add a middleware component to the pipeline using the app.Run() method.
+            This middleware component is used to handle all other requests for the /lottery URL.
+            It writes the response to the client and shows the number that the client has chosen.
+            Note that if the user already got the lucky number, this part will not be executed.
+
+    2) At the end of the program, we have another middleware component using the app.Run() method.
+        This middleware component is used to handle all other requests. It shows how to play the game.
+
+    -> if we run the application and make a request to an endpoint /lottery a couple of times. sometimes
+        we will you win the lottery. If we restart the application, the lucky number may change, because
+        it is generated randomly when the application starts.

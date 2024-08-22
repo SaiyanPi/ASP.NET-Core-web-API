@@ -1,0 +1,70 @@
+STRUCTURED LOGGING:
+
+- in the logging parameter section we've used a message and args parameter in the weatherforecast
+    controller.
+- we used the args parameter to format a message string.
+- we can also use the string concatenation to achieve the same outcome (see LoggingController)
+
+    _logger.LogInformation("This is a logging message with args: Today is {Week}. It is {Time}.", 
+                            DateTime.Now.DayOfWeek, DateTime.Now.ToLongTimeString());
+
+    BUT WE CAN'T HAVE AN ACCESS TO THE VALUES OF THE PARAMETER.
+
+    (run the application and request to an 'structured-logging' endpoint on the Logging controller.
+    see the log messages for difference between logging message with args and logging message with
+    string concatenation on console)
+
+                            (logging message with args)
+        {"Timestamp":"2024-08-15T18:45:20.6146396+05:45","Level":"Information",
+        "MessageTemplate":"This is a logging message with args: Today is {Week}. It is {Time}.",
+        "TraceId":"1f450cb42807b229422252c0a51e0083",
+        //}
+                            (logging message with string concatenation)
+        {"Timestamp":"2024-08-15T18:45:20.6174805+05:45","Level":"Information",
+        "MessageTemplate":"This is a logging message with string concatenation: Today is Thursday. 
+        It is 6:45:20 PM.", "TraceId":"1f450cb42807b229422252c0a51e0083",
+        //}
+        -> note that logging message with args(structured logging) has 'week' and 'time' properties
+        -> while the string concatenation does not have 'week' and 'time' properties.
+        -> structured logging is more flexible and easier to process
+        -> therefore structural logging is recommended instead of string concatenation.
+
+- Modern way to handle logs is to use structured logging instead of a plain string message.
+- structured logging is a way to log messages in a structured format. parameters such as the Day
+    of the week are identifies and structured so that a system can process them meaning we can perform
+    operations like filtering, searching etc on them.
+- Serilog effeciently supports structured logging when we use args parameters instead of string
+    concatenation.
+
+- we've also updated our program file as 
+        //  configure Serilog
+        var logger = new LoggerConfiguration()
+            .WriteTo.File(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs/log.txt"),rollingInterval: RollingInterval.Day, retainedFileCountLimit: 90)
+            .WriteTo.Console(new JsonFormatter())
+            .CreateLogger();
+        builder.Logging.AddSerilog(logger);
+
+        -> Serilog supports multiple sinks in the same logging pipeline.
+        -> we've added the console sink after the file sink to output the log messages on the console
+            as well.
+            (console sink is automatically installed with the Serilog.AspNetCore NuGet package)
+
+
+
+INTEGRATING SEQ WITH SERILOG:
+
+- Seq is a great tool to analyze structured logging messages.
+    i) install Seq:
+        Listen URI http://localhost:5341/
+
+    ii) configure Serilog to send message to Seq. Serilog has a sink for Seq:
+        dotnet add package Serilog.Sinks.Seq
+
+    iii) Uupdate the Serilog configuration in program file:
+        var logger = new LoggerConfiguration()
+        .WriteTo.File(formatter: new JsonFormatter(), Path.
+        Combine(AppDomain.CurrentDomain.BaseDirectory, "logs/log.txt"),
+        rollingInterval: RollingInterval.Day, retainedFileCountLimit: 90)
+        .WriteTo.Console(new JsonFormatter())
+        .WriteTo.Seq("http://localhost:5341")
+        .CreateLogger();

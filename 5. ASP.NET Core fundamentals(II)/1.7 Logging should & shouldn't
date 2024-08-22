@@ -1,0 +1,45 @@
+WHAT SHOULD/SHOULDN'T WE LOG?
+
+- logging is a powerful tool to help us diagnose problems, monitor application, audit a system,
+    and so on.
+- but logging is not free, it consumes resources and may slow down our application.
+- depending on the purpose of logging, we may need to log different information. Generally there
+    are some scenario that we should log:
+    • Input/output validation errors, such as invalid input parameters or invalid response data
+    • Authentication and authorization failures
+    • Application errors, exceptions, and warnings, such as database connection errors, network
+        errors, and so on
+    • Application startup and shutdown
+    • High-risk operations, such as deleting a record from the database, changing a user’s password,
+        transferring money, and so on
+    • Legal compliance, such as auditing, terms of service, personal data consent, and so on
+    • Critical business events, such as a new order being placed, a new user being registered, and so on
+    • Any suspicious activities, such as brute-force attacks, account lockouts, and so on
+
+
+WHAT INFORMATION SHOULD WE LOG?
+
+- if the information in the log message is not sufficient to diagnose the peoblem, it would be 
+    useless. generally we should log the following information:
+    1) When: What time did the event happen?
+    2) Where: What is the application name and version? What is the hostname or IP address?
+        What is the module or component name?
+    3) Who: Which user or client is involved in the event? What is the username, request ID, 
+        or client ID?
+    4) What: What is the event? What severity level does the event have? What is the error message
+        or stack trace? Any other descriptive information?
+- We may need to include more information based on the requirements. For example, for web API
+    applications, we also need to log the request path, HTTP method, headers, status code, and so on.
+    For database applications, we may need to log the SQL statement, parameters, and so on.
+
+
+INFORMATION THAT WE SHOULD NOT LOG:
+
+    • Application source code
+    • Sensitive application information, such as application secrets, passwords, encryption keys,
+        database connection strings, and so on
+    • Sensitive user information, such as personally identifiable information (PII); for example,
+        health status, government identification, and so on
+    • Bank account information, credit card information, and so on
+    • Information that users do not consent to share
+    • Any other information that may violate the law or regulations

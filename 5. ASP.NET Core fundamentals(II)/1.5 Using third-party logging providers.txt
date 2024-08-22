@@ -1,0 +1,61 @@
+THIRD-PARTY LOGGING PROVIDERS:
+
+- the default logging providers including the Console and Debug logging providers can output logging
+    messages in the console window or debug window, which is convenient for development.
+
+- but in the production environment, we may want to send a log message to a file, a databse,
+    or a remote logging service. to achieve this we can use third-party logging services.
+
+- there are many third-party logging frameworks or libraries that work with ASP.NET Core
+    1) Serilog:
+        website = https://serilog.net/
+        Github repo = https://github.com/serilog/serilog-aspnetcore
+    2) NLog:
+        website = https://nlog-project.org/
+        Github repo = https://github.com/NLog/NLog.Extensions.Logging
+    3) log4net:
+        website = https://logging.apache.org/log4net/
+        Github repo = https://github.com/huorswords/Microsoft.Extensions.Logging.Log4Net.AspNetCore
+
+- Some other platforms provide rich features for collecting and analyzing the log messages, such as
+    the following:
+    • Exceptionless (https://exceptionless.com/)
+    • ELK Stack (https://www.elastic.co/elastic-stack/)
+    • Sumo Logic (https://www.sumologic.com/)
+    • Seq (https://datalust.co/seq)
+    • Sentry (https://sentry.io)
+    -> These platforms can provide a dashboard to view log messages. Technically, they are not just
+        logging providers but also platforms for observability that contain logging, tracing, metrics, 
+        and so on.
+
+
+- HOW CAN WE PRINT LOGGING MESSAGE TO A FILE?
+    -> we can use Serilog to write a log messages to a file.
+    1) install 'Serilog.AspNetCore' NuGet package:
+        * to configure the logging system.
+    2) install 'Serilog.Sinks.File' NuGet package:
+        * to write log message to a file.
+    3) update Program file  to configure the logging system:
+        using Serilog;
+
+        var builder = WebApplication.CreateBuilder(args);
+        builder.Logging.ClearProviders();   //i)
+        var logger = new LoggerConfiguration()  //ii)
+        .WriteTo.File(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs/log.txt"),  
+        rollingInterval: RollingInterval.Day, retainedFileCountLimit: 90)
+        .CreateLogger();
+        builder.Logging.AddSerilog(logger);
+
+        * i) first clear the default logging providers
+        * ii) create a Serilog.ILogger instance and add it to the logging system
+        * 'WriteTo.File method is used to configure Serilog.Sinks.File sink. It will write log messages
+            to a file named log.txt in the logs folder
+        * 'rollingInterval' parameter is used to specify the rolling interval
+        * 'retainedFileCountLimit' parameter is used to specify the maximum number of log files to keep
+        * then we can call the CreateLogger() method to create a Serilog.ILogger instance.
+        * finally we call the AddSerilog() method to add Serilog.ILogger instance to the logging system.
+        * no need to change the ILogger service. ILogger service is still injected into a controller.
+            the only difference is that log messages will be written to a file instead of the console
+            window.
+    4) run the application and request the /weatherforecast endpoint. we should be able to see log 
+        messages in the logs/log.txt file

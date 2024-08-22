@@ -1,0 +1,38 @@
+LOGGING LEVEL FOR PRODUCTION ENVIRONMENT:
+
+
+- to specify the logging level for the production environment:
+    1) add appsettings.Production.json file
+    2) override the settings for the Logging section.
+
+
+    (appsettings.Production.json)
+            {
+                "Logging": {
+                    "LogLevel": {
+                        "Default": "Warning",
+                        "Microsoft.AspNetCore": "Information"
+                    }
+                },
+                "AllowedHosts": "*"
+            }
+            -> note that the default logging level is set to Warning.
+
+    (weatherForecastController.cs)
+            public IEnumerable<WeatherForecast> Get()
+            {
+                _logger.LogInformation("this is another information message from logging levels chapter");
+                _logger.LogTrace("This is a trace message from logging levels chapter");
+                _logger.LogError("This is error message from logging levels chapter");
+                _logger.LogDebug("This is debug message from logging levels chapter");
+
+
+                return Enumerable.Range(1, 5).Select(index => new WeatherForecast...
+                //
+            }
+            -> LogInformation, LogDebug, LogTrace are a lower logging level than the Warning logging
+                level. 
+            -> LogError is the only logging level higher than warning logging level.
+            -> this means, when we run the application in production environment, ONLY ERROR LOG MESSAGE
+                SHOULD BE OUTPUTED IN THE CONSOLE.
+                (RUN THE LoggingDemo IN PRODUCTION ENVIRONMENT and SEE THE CONSOLE)

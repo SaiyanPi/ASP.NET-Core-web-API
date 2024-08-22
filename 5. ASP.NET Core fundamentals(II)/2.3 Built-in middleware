@@ -1,0 +1,119 @@
+BUILT-IN MIDDLEWARE:
+
+- in Program file:
+                    if (app.Environment.IsDevelopment())
+                    {
+                        app.UseSwagger();
+                        app.UseSwaggerUI();
+                    }
+
+                    app.UseHttpsRedirection();
+                    app.UseAuthorization();
+
+    -> here are some middleware components to enable swagger, HTTPS redirection, authorization and so on.
+        we can find a full list of built-in middleware here: 
+        https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-8.0#built-in-middleware
+
+    -> Note the order column. SOME MIDDLEWARE MAY TERMINATE THE REQUEST, SOME COMPONENTS MUST BE 
+        CALLED IN A SPECIFIC ORDER.
+    -> we will discuss a few built-in middleware
+______________________________________________________________________________________________________________
+
+1) rate-limiting middleware:
+
+    - provided in ASP.NET Core 7.
+    - used to limit the number of requests that a client can make in a given time window.
+    - very useful to prevent distributed denial-of-service(DDoS) attacks.
+    - rate -limiting middleware defines 4 policies:(we will only fixed window policy here)
+        i) fixed window
+        ii) sliding window
+        iii) token bucket
+        iv) concurrency
+    - i) fixed window policy=>
+        -> fixed time window is used to limit the the number of requests.
+        -> for eg, we can limit the number of requests to 10 per 10 second. when the time window expires,
+            a new time window starts, and the counter is rest to 0.
+        -> update the Program file as:
+
+                builder.Services.AddRateLimiter(_ =>
+                _.AddFixedWindowLimiter(policyName: "fixed", options =>
+                    {
+                        options.PermitLimit = 5;
+                        options.Window = TimeSpan.FromSeconds(10);
+                        options.QueueProcessingOrder = QueueProcessingOrder.
+                        OldestFirst;
+                        options.QueueLimit = 2;
+                    }));
+                
+                app.UseRateLimiter();
+                app.MapGet("/rate-limiting-mini", () => 
+                    Results.Ok($"Hello {DateTime.Now.Ticks.ToString()}")).RequireRateLimiting("fixed");
+
+            * make a request to an endpoint /rate-limiting-mini, it only allows 5 requests/10 seconds.
+        -> to apply this rate-limiting middleware to a controller-based API, we need to add the following
+            EnableRateLimiting attribute to the controller or action as: (see RateLimitingDemoController.cs)
+
+                [EnableRateLimiting(policyName: "fixed")]
+                [HttpGet("rate-limiting")]
+                public ActionResult RateLimitingDemo()
+                {
+                    return Ok($"Hello {DateTime.Now.Ticks.ToString()}");
+                }
+
+
+2) request timeouts middleware:
+
+    -> introduced in ASP.NET Core 8
+    -> allows developers to set a timeout for an endpoint. if the request is not completed within the
+        alloted time, a HttpContext.RequestAborted cancellation token is triggered, allowing the 
+        application to handle the timeout request.
+    -> this feature helps to prevent the application from being blocked by long-running requests.
+    -> update the program file as: 
+    
+            builder.Services.AddRequestTimeouts();
+        
+            app.UseRequestTimeouts();
+
+    -> request timeout middleware can be used for a specific endpoint. we need to add a 
+        EnableRequestTimeout attribute to the controller or action. (see RequestTimeoutController.cs file)
+    -> note that the REQUEST TIMEOUT MIDDLEWARE DOES NOT WORK IN THE DEBUG MODE.
+    -> timeout configuration can be configured with a policy as:
+
+            builder.Services.AddRequestTimeouts(option =>
+            {
+                option.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(5) };
+                option.AddPolicy("ShortTimeoutPolicy", TimeSpan.FromSeconds(2));
+                option.AddPolicy("LongTimeoutPolicy", TimeSpan.FromSeconds(10));
+            });
+
+        * preceding code defines 3 timeout policies. default policy is used when no policy is specified.
+        * ShortTimeoutPolicy is used for short-running requests with a timeout of 2 seconds.
+        * LongTimeoutPolicy is used for long-running requests with a timeout of 10 seconds. 
+        * To apply the policy to the controller or action, the EnableRequestTimeout attribute can be used.
+            (see RequestTimeoutController.cs)
+ 
+
+ 3) short-circuit middleware:
+
+    -> introduced in ASP.NET Core 8.
+    -> used to short-circuit a request when it is not necessary to continue processing the request.
+
+            app.MapGet("robots.txt", () => Results.Content("User-agent: *\nDisallow: /", "text/plain"))
+            .ShortCircuit();
+
+            ANOTHER WAY
+
+            app.MapShortCircuit((int)HttpStatusCode.NotFound, "robots.txt", "favicon.ico");
+
+        * here, when the request is made to /robots.txt or /favicon.ico, a 404 not found response will be returned directly.
+        * this ensures that the server is not burdned with unnecessary requests.
+        * For example, web robots may request the /robots.txt file to check if the website allows crawling. 
+            As a web API application, we do not need to process this request. However, the execution
+            of the request pipeline will still continue. The short-circuit middleware can be used to
+            short-circuit the request and return a response directly.
+
+
+
+
+
+

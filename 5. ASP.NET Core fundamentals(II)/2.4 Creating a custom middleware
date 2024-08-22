@@ -1,0 +1,87 @@
+CREATING A CUSTOM MIDDLEWARE:
+
+- a custom middleware component does not have to derive from a base class or an interface.
+- but a middleware class does need to follow some conventions.
+    1) it must have a public constructor that accepts a RequestDelegate parameter.
+    2) it must have a public method named Invoke() or InvokeAsync() that accepts a HttpContext parameter
+        and returns a Task. The HttpContent parameter must be the first parameter.
+    3) it can use DI to inject additional dependencies.
+    4) an extension method is needed to add the middleware to the IApplicationBuilder instance.
+
+______________________________________________________________________________________________________________
+# Consider this scenario. For better tracking, we want to use the concept of correlation ID in the
+    application. The correlation ID is a unique identifier for each request. It is used to track the
+    request through the application, especially in a microservice architecture.
+    ASP.NET Core provides a HttpContext.
+    TraceIdentifier property to store the unique identifier. By default, Kestrel generates the ID using
+    the {ConnectionId}:{Request number} format; for example, 0HML6LNF87PBV:00000001.
+    If we have multiple services, such as Service A and Service B, when the client calls Service A,
+    Service A will generate a TraceIdentifier instance for the current request, then Service A will 
+    call Service B, and Service B will generate another TraceIdentifier instance. It is hard to track 
+    the request through multiple services.
+    We need to use the same TraceIdentifier instance for the request to be tracked.
+
+
+     (Create a new class named CorrelationIdMiddleware in the project folder:)
+
+        public class CorrelationIdMiddleware(RequestDelegate next,ILogger<CorrelationIdMiddleware> logger)
+        { 
+            private const string CorrelationIdHeaderName = "X-CorrelationId";
+            public async Task InvokeAsync(HttpContext context)
+            {
+                var correlationId = context.Request.Headers[CorrelationIdHeaderName].FirstOrDefault();
+                if (string.IsNullOrEmpty(correlationId))
+                {
+                    correlationId = Guid.NewGuid().ToString();
+                }
+                context.Request.Headers.TryAdd(CorrelationIdHeaderName,correlationId);
+                // Log the correlation ID
+                logger.LogInformation("Request path: {RequestPath}.CorrelationId: {CorrelationId}",
+                    context.Request.Path, correlationId);
+                context.Response.Headers.TryAdd(CorrelationIdHeaderName, correlationId);
+                await next(context);
+            }
+        }
+
+        -> 1) CorrelationIdMiddleware class has a public constructor that accepts a RequestDelegate parameter.
+        -> 2) it also has a public method named InvokeAsync() that accepts a HttpContext parameter and returns
+            a Task instance.
+        -> The InvokeAsync() method is the entry point of the middleware.
+            It gets the correlation ID from the request header. If it is not found, it generates a new one.
+        ->  Then, it sets the HttpContext.TraceIdentifier property and adds the correlation ID to the 
+            response header. Finally, it calls the next middleware component in the pipeline. 
+        -> 3) It also uses a logger via DI to log the correlation ID.
+        -> 4) now we need to add an extension method to the IApplicationBuilder instance:
+
+                public static class CorrelationIdMiddlewareExtensions
+                {
+                    public static IApplicationBuilder UseCorrelationId(this IApplicationBuilder builder)
+                    {
+                        return builder.UseMiddleware<CorrelationIdMiddleware>();
+                    }
+                }
+        
+        -> now, we can apply the corelation ID middleware in the program.cs file.
+
+                app.UseCorrelationId();
+
+        -> now we can use the CorrelationId middleware in the controller as:
+
+                // Get the "X-Correlation-Id" header from the request
+                var correlationId = Request.Headers["X-CorrelationId"].FirstOrDefault();
+                // Log the correlation ID
+                _logger.LogInformation("Handling the request. CorrelationId: {CorrelationId}", correlationId);
+                
+                (see WeatherForecastController.cs)
+
+        -> now, if we dotnet run and make a request to an endpoint /WeatherForecast the log message on the
+            comsole window will be:
+
+                info: MiddlewareDemo.CorrelationIdMiddleware[0]
+                    Request path: /WeatherForecast.CorrelationId: 272b99f0-379b-4311-a033-1b97e1b25453
+                warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+                    Failed to determine the https port for redirect.
+                info: MiddlewareDemo.Controllers.WeatherForecastController[0]
+                    Handling the request. CorrelationId: 272b99f0-379b-4311-a033-1b97e1b25453
+        -> In this way, we can use the correlation ID to track the request through multiple services,
+            especially in a microservice architecture.

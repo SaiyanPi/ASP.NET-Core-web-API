@@ -1,0 +1,105 @@
+app.MapWhen() vs app.UseWhen():
+
+
+1) app.MapWhen() =>
+    -> used to branch the request pipeline based on the given predicate.
+2) app.UseWhen() =>
+    -> used to conditionally add a branch in the request pipeline that is rejoined to the main pipeline
+        if it doesn't short-circuit or contain a terminal middleware.
+
+
+    2) app.UseWhen():
+
+                app.UseWhen(context => context.Request.Query.ContainsKey("branch"),
+                app =>
+                {
+                    app.Use(async (context, next) =>
+                    {
+                        var logger = app.ApplicationServices.
+                        GetRequiredService<ILogger<Program>>();
+                        logger.LogInformation($"From UseWhen(): Branch used = {context.Request.Query["branch"]}");
+                        await next();
+                    });
+                });
+                app.Run(async context =>
+                {
+                await context.Response.WriteAsync("Hello!");
+                });
+
+        -> run and make a request to an endpoint /?branch=1, the response will be "Hello!" and the  log
+            message in the console will be:
+                info: Program[0]
+                    From UseWhen(): Branch used = 1
+        -> make a request to an endpoint without query string /whatever, we will still get "Hello World"
+            response but we will not get any log message output in console.
+        -> app.UseWhen() only works when the predicate is true.
+        -> if the predicate is false, the pipeline will continue to execute the next middleware component.
+            while making request without query string, the predicate is false that's why we don't see the
+            log message in console. but the pipeline will continue to  execute the next middleware
+            which is terminal middleware. That's why we still see "Hello World" response.
+
+
+    1) app.MapWhen():
+
+            app.MapWhen(context => context.Request.Query.ContainsKey("branch"),
+            app =>
+            {
+                app.Use(async (context, next) =>
+                {
+                    var logger = app.ApplicationServices.GetRequiredService<ILogger<Program>>();
+                    logger.LogInformation($"From MapWhen(): Branch used = {context.Request.Query["branch"]}");
+                    await next();
+                });
+            });
+            app.Run(async context =>
+            {
+            await context.Response.WriteAsync("Hello world!");
+            });
+
+        -> if we make a request to whatever endpoint /test, then the terminal window gets executed and the
+            response will be "Hello World!" without any console log messages.
+
+        -> But if we make a request to an endpoint /?branch=1, we will get 404 not found error but we will still
+            get the log message in console:
+                info: Program[0]
+                    From UseWhen(): Branch used = 1
+
+        -> it is because app.MapWhen() method is used to branch the request pipeline based on the given predicate.
+            If the predicate is true, the request pipeline will be branched to the sub-pipeline defined in
+            this app.MapWhen() method i.e, app.Use(). but when the next method is called, it doesn't have a
+            next middleware component to execute even though there is app.Run() method outside the pipeline.
+            so return a 404 error.
+        -> but if there were another terminal middleware inside the branched pipeline(i.e, inside MapWhen())
+            like:
+                app.MapWhen(context => context.Request.Query.ContainsKey("branch"),
+                app =>
+                {
+                    app.Use(async (context, next) =>
+                    {
+                        var logger = app.ApplicationServices.GetRequiredService<ILogger<Program>>();
+                        logger.LogInformation($"From MapWhen(): Branch used = {context.Request.Query["branch"]}");
+                        await next();
+                    });
+                    app.Run(async context =>
+                    {
+                        await context.Response.WriteAsync("Hello from the branched pipeline");
+                    });
+                });
+                app.Run(async context =>
+                {
+                    await context.Response.WriteAsync("Hello world!");
+                });
+
+        -> then the response will be "Hello from the branched pipeline" instead of gettting a 404 server error.
+
+
+CONCLUSION:
+    app.MapWhen() CREATES A BRANCH IN A REQUEST PIPELINE IF THE GIVEN PREDICATE IS TRUE.
+    ONCE WE ARE INSIDE A BRANCHED REQUEST PIPELINE, WE CANNOT GET OUT OF THE BRANCHED REQUEST PIPELINE
+    EVEN IF THERE IS NO TERMINAL MIDDLEWARE INSIDE IT hence pushing 404 server error response.
+
+    app.UseWhen() CREATES A BRANCH IN A REQUEST PIPELINE IF THE GIVEN PREDICATE IS TRUE.
+    ONCE WE ARE INSIDE A BRANCHED REQUEST PIPELINE, WE CAN GET OUT OF THE BRANCHED REQUEST PIPELINE
+    IF IT DOESN'T CONTAIN A TERMINAL MIDDLEWARE INSIDE AND CONTINUE EXECUTING THE NEXT MIDDLEWARE IN 
+    A MAIN REQUEST PIPELINE.
+    BUT IF THERE IS A TERMINAL MIDDLEWARE INSIDE THE BRANCHED REQUEST TIMELINE, WE WILL NOT GET OUT. 

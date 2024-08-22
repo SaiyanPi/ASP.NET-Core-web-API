@@ -1,0 +1,34 @@
+LOGGING PARAMETERS:
+
+- Log{LOG LEVEL}() methods have some overloads such as:
+    • Log{LOG LEVEL}(string? message, params object?[] args)
+    • Log{LOG LEVEL}(EventId eventId, string? message, params object?[]
+    args)
+    • Log{LOG LEVEL}(Exception exception, string message, params
+    object[] args)
+    • Log{LOG LEVEL}(EventId eventId, Exception? exception, string?
+    message, params object?[] args)
+
+- the parameters of the above methods are set out:
+    1) eventId => parameter is used to identify the log message
+    2) message => parameter is used as a format string
+    3) args => parameter is used to pass arguments for the format string.
+    4) exception => parameter is used to pass the exception object
+
+    (see the LoggingDemo/weatherForecastController)
+
+- if an exception occurs, we can use the LogError() method with the exception
+    parameter to log the exception.
+        try
+        {
+            // Omitted for brevity
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "This is a logging message with exception.");
+        }
+        
+        -> When using the LogError() method to log an exception,
+            it is important to pass the exception object to the exception parameter.
+            This is essential in order to preserve stack trace information; simply 
+            logging the exception message is not sufficient.

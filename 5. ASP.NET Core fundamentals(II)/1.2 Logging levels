@@ -1,0 +1,80 @@
+LOGGING LEVELS:
+
+
+- LogLevel parameter indicates the severity/gravity of the log message.
+- LogLevel parameter can be one of the following values:
+    1) Trace Level:
+        value = 0
+        desc  = used for the most detailed messages.
+                these messages may contain sensetive application data.
+                these messages are disabled bu default and should never be enabled in a prod environment.
+
+    2) Debug Level:
+        value = 1
+        desc = used for debugging information and development.
+                use with caution in production because of the high volume.
+                normally these logs should not have a long-term value.
+
+    3) Information Level:
+        value = 2
+        desc  = used for tracking the general flow of the application.
+                These logs should have a long term value.
+
+    4) Warning Level:
+        value = 3
+        desc  = used to indicate potential problems or unexpected events.
+                These issues typically do not cause the application to fail.
+
+    5) Error Level:
+        value = 4
+        desc  = Used to indicate failures in the current operation or request and not an 
+                application-wide failure. 
+                These errors and exceptions cannot be handled.
+
+    6) Critical Level:
+        value = 5
+        desc  = Used to indicate critical failures that require immediate attention; 
+                forexample, data loss scenarios.
+
+    7) None:
+        value = 7
+        desc  = Used to specify a logging category that should not write messages.
+
+- to put it simply ILogger<TCategoryName> interface provides the following extension methods.
+    • LogTrace()
+    • LogDebug()
+    • LogInformation()
+    • LogWarning()
+    • LogError()
+    • LogCritical()
+
+- to understand the logging levels:
+    -> let's add a LogTrace() method in the weatherforecast controller.
+
+            _logger.LogTrace("This is a trace message from logging levels chapter");
+
+    -> now dotnet run the application and make a request to endpoint /weatherforecast.
+        in the console we will be able to see the log message from Information level but not from
+        the recently added Trace level.
+    -> it's because the Trace message is disabled by default.
+    -> Trace logging level is 0, which is less than the Information logging level 2. so the Trace
+        logging level will not output by default.
+    -> to enable the Trace logging level we need to change the Default logging level to Trace in
+        appsettings.Development.json
+            
+            "Logging": {
+                "LogLevel": {
+                    "Default": "Trace",
+                    "Microsoft.AspNetCore": "Warning"
+                }
+            }
+    -> now after dotnet run, we will be able to see the Trace log message in console.
+
+- Conclusion: 
+BY DEFAULT LOGGING LEVEL IS SET TO 'INFORMATION'. 
+SINCE INFORMATION LOGGING LEVEL IS OUR DEFAULT LOGGING LEVEL, ANY LOGGING LEVELS HIGHER THAN 
+INFORMATION LOGGING LEVEL WILL BE OUTPUTED BUT THE LOGGING LEVELS LOWER THAN THE INFORMATION
+WILL NOT BE OUTPUTED. 
+TO ENABLE THE LOGGING LEVELS LOWER THAN INFORMATION LOGGING LEVEL, WE NEED TO CHANGE THE DEFAULT
+VALUE TO THE RESPECTIVE LOGGING LEVEL. AGAIN, THE RULE FOR OUTPUTING THE LOGGING LEVEL REMAINS 
+SAME.

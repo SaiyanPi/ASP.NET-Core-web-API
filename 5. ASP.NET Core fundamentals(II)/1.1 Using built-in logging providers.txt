@@ -1,0 +1,64 @@
+USING BUILT-IN LOGGING PROVIDERS:
+
+- default ASP.NET Core web API template has following logging providers registered:
+    1) Console logging provider
+    2) Debug logging provider
+    3) EventSource logging provider
+    4) EventLog logging provider(Windows only)
+
+    # CONSOLE LOGGING PROVIDER =>
+    - remove all the pre-registered logging providers and add the console logging provider
+        in program file:
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+
+    - in weatherforecastController we can see the ILogger<WeatherForecastController> interface
+    is injected into the constructor already.
+
+    - now, for displaying simple logging message let's add the following code in the controller
+            _logger.Log(LogLevel.Information, "This is a logging message.");
+
+    - see LoggingDemo. dotnet run the project and request the /WeatherForecast endpoint.
+        we will be able to see the log message in the console.
+        -> in VS 2022, we will be able to see the log message in the console but not in output window,
+            to send logging messages to the output window, we need to enable the Debug logging provider
+            in program file by adding
+
+                builder.Logging.AddDebug();
+
+- in the VS 2022, if we hover the 'AddConsole()' method we can see that its an extension method
+    of the ILoggingBuilder interface.
+- so, if we want to add more other logging providers, we can call the extension method of
+    ILoggerBuilder interface. Some third party logging providers also provide the extension methods
+    of the ILoggingBuilder interface.
+
+
+    # EVENTLOG LOGGING PROVIDER =>
+    -> for eg, if we need to write the log messages to the windows event log:
+
+                builder.Logging.AddEventLog();
+
+    -> but we will not be able to see the log message in the windows event log yet. Why?
+    *   because we need to add an EventLog section to specify the logging level for the EventLog
+        logging provider in the appsettings.Development.json file.
+        (WHY NOT IN appsetting.json FILE? because in dotnet run runs the application in development 
+        environment and appsettings.Development.jsonfile overrides appsettings.json file)
+
+                {
+                    "Logging": {
+                        "LogLevel": {
+                        "Default": "Information",
+                        "Microsoft.AspNetCore": "Warning"
+                        },
+                        "EventLog": {
+                            "LogLevel": {
+                                "Default": "Information"
+                            }
+                        }
+                    }
+                }
+
+    *   if EventLog is not specified, the default logging level is 'Warning', which is higher
+        that 'Information'(see 1.2 logging level chapter to understand).
+
+    -> see EventLog.png

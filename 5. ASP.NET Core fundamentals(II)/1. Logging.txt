@@ -1,0 +1,19 @@
+LOGGING:
+
+
+- A well designed logging system can capture data that helps diagnose problems and monitor
+    the application in production.
+- logging gives insight into how, when, where, and why significant system events occurred
+    so that we know how the application is performing and how users are interacting with it.
+- logging can also help sudit users activities and may also help to identify security weakness
+    or potential attacks.
+
+- logging should be fast and effecient, it should not affect any logic and the performance of the
+    application.
+- when adding logging to an application, we should consider the following points:
+    -> what information should be logged?
+    -> what format should log messages be in?
+    -> where should log messages be sent?
+    -> how long should log messages be kept?
+    -> how to make sure log messages won't impact the performance of the application?
+

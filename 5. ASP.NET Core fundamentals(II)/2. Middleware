@@ -1,0 +1,134 @@
+MIDDLEWARE
+
+- ASP.NET Core is a middleware based framework. it is built upon a set of middleware components.
+- middleware is a software component that is responsible for handling requests and responses.
+- multiple middleware from pipeline process requests and responses. in this pipeline, 
+    each middleware component can perform specific task, such as authentication, authorization,
+    logging and so on. then it passes the request to the next middleware component in the pipeline.
+- we can add or remove middleware components as needed. we can also write our own middleware
+    components.
+        (see (2)middleware.png)
+- a middleware component can perform tasks before and after the next middleware component in 
+    the pipeline. it can also choose wheather to pass the request to the next middleware component
+    or stop processing the request and generate response directly.
+- A middleware component is initialized only once when the application starts.
+
+
+# Run METHOD(TERMINAL MIDDLEWARE) =>
+    var app = builder.Build();
+     app.Run(async context =>
+    {
+        await context.Response.WriteAsync("Hello world!");
+    });
+
+    - regardless of the request endpoint, the response will be 'Hello World!'. this is because the
+        app.Run() method handles all requests. 
+    - it short-circuits the pipeline and returns the response directly. Therefore, Run method is always 
+        terminal and terminates the pipeline.
+    - it accepts a single context parameter.
+    - context parameter is an instance of the HttpContext class that contains request and response
+        information.
+
+
+# Use METHOD =>
+    - SINGLE Use METHOD:
+
+        var app = builder.Build();
+        app.Use(async (context, next) =>
+        {
+            var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    1        logger.LogInformation($"Request Host: {context.Request.Host}");
+    2        logger.LogInformation("My Middleware - Before");
+            await next(context);
+    3        logger.LogInformation("My Middleware - After");
+    4        logger.LogInformation($"Response StatusCode: {context.Response.StatusCode}");
+        });
+
+        -> to use multiple middleware components, we can use the app.use() method.
+        -> it adds a middleware components to the pipeline.
+        -> if we request to the endpoint /weatherforecast, the console output will be in order:
+                    
+            info: Program[0]
+                Request Host: localhost:5094 
+            info: Program[0]
+                My Middleware - Before
+            info: Program[0]
+                My Middleware - After
+            info: Program[0]
+                Response StatusCode: 200
+
+
+    - MULTIPLE Use METHOD:
+
+        app.Use(async (context, next) =>
+        {
+            var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    1        logger.LogInformation($"ClientName HttpHeader in Middleware 1:{context.Request.Headers["ClientName"]}");
+    2        logger.LogInformation($"Add a ClientName HttpHeader in Middleware 1");
+            context.Request.Headers.TryAdd("ClientName", "Windows");
+    3        logger.LogInformation("My Middleware 1 - Before");
+            await next(context);
+    9        logger.LogInformation("My Middleware 1 - After");
+   10        logger.LogInformation($"Response StatusCode in Middleware 1:{context.Response.StatusCode}");
+        });
+        app.Use(async (context, next) =>
+        {
+    4        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    5        logger.LogInformation($"ClientName HttpHeader in Middleware 2:{context.Request.Headers["ClientName"]}");
+    6        logger.LogInformation("My Middleware 2 - Before");
+            context.Response.StatusCode = StatusCodes.Status202Accepted;
+            await next(context);
+    7        logger.LogInformation("My Middleware 2 - After");
+    8        logger.LogInformation($"Response StatusCode in Middleware 2:{context.Response.StatusCode}");
+        });
+
+        -> if we make the request again the output order of log messages in the console will be:
+
+            info: Program[0]
+                ClientName HttpHeader in Middleware 1:
+            info: Program[0]
+                Add a ClientName HttpHeader in Middleware 1
+            info: Program[0]
+                My Middleware 1 - Before
+            info: Program[0]
+                ClientName HttpHeader in Middleware 2:Windows
+            info: Program[0]
+                My Middleware 2 - Before
+            warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+                Failed to determine the https port for redirect.
+            info: Program[0]
+                My Middleware 2 - After
+            info: Program[0]
+                Response StatusCode in Middleware 2:202
+            info: Program[0]
+                My Middleware 1 - After
+            info: Program[0]
+                Response StatusCode in Middleware 1:202
+
+    - unlike run method, Use() method takes 2 parameters; context and next.
+    - context parameter is an instance of the HttpContext class that contains request and response
+        information.
+      next parameter is a delegate that is used to pass the request to the next middleware component
+        in the pipeline.
+    - on the console output of multiple use method:
+        -> value of the 'ClientName HttpHeader in Middleware 1:' is empty.
+            it's because the original request does not contain the ClientName HTTP Header.
+        -> after 3 and before 4(before passing the request to middleware), 
+            middleware adds the ClientName HTTP Header to the request.
+    - we know that the run method adds a terminal middleware so what if we add run method between the 
+        use methods.
+            app.Use(async (context, next) =>
+            {
+                // middleware 1
+            });
+            app.Run(async context =>
+            {
+                await context.Response.WriteAsync("Hello, World!");
+                await
+            });
+            app.Use(async (context, next) =>
+            {
+                // middleware 2
+            });
+
+        -> here, middleware 2 will not get executed and the response will be a "Hello World"
