@@ -1,0 +1,90 @@
+CONFIGURING THE DbContext CLASS:
+
+- to represent the database, EF Core uses the DbContext class, which allows us to query and save data.
+- an instance of DbContext class maintains the database connection and maps the database schema to the object
+    model.
+- we can think of the DbContext class as a bridge between the database and the object model, just like an
+    interface.
+- when we query or save data, we operate the objects through the DbContext class adn EF Core will translate the
+    operations to thew corresponding SQL statements
+________________________________________________________________________________________________________________
+
+IN THIS CHAPTER, WE WILL DEVELOP A SIMPLE APPLICATION TO MANAGE INVOICES. THIS APPLICATION WILL BE
+USED TO DEMONSTRATE HOW TO USE EF CORE TO ACCESS THE DATABASE, INCLUDING HOW TO DEFINE THE DATABASE
+SCHEMA, HOW TO PERFORM CRUD OPERATIONS, AND HOW TO USE MIGRATIONS TO UPDATE THE DATABASE SCHEMA.
+
+1) Creating Models: (see MasicEFCoreDemo/Models/Invoice.cs)
+
+            public class Invoice
+            {
+                public Guid Id { get; set; }
+                //
+                public InvoiceStatus Status { get; set; } // InvoiceStatus is a custom enum type
+            }
+            public enum InvoiceStatus
+            {
+                Draft,
+                AwaitPayment,
+                Paid,
+                Overdue,
+                Cancelled
+            }
+
+    -> we use the Guid type for the Id property, which is the unique identifier for the invoice.
+        we can also use int or long as the identifier. Either way has its pros and cons.
+        for eg, int is more effecient than Guid, but it is not unique across databases.
+
+2) Creating and configuring the DbContext class:
+    i) Create a DbContext class =>
+        -> create a InvoiceDbContext class(represents the database) that inherits DbContext class.
+        -> define the Invoices property of DbSet<Invoice> type.
+                
+                using BasicEFCoreDemo.Models;
+                using Microsoft.EntityFrameworkCore;
+
+                namespace BasicEFCoreDemo.Data;
+
+                public class InvoiceDbContext(DbContextOptions<InvoiceDbContext> options) : DbContext(options)
+                {
+                    public DbSet<Invoice> Invoices => Set<Invoice>();
+                }
+
+        -> WHY NOT 'public DbSet<Invoice> Invoices { get; set; }' LIKE IN RAZOR PAGES ?
+            => because DbSet<T> properties are not initialized , the compiler will emit warnings from them
+                because the nullable reference type feature is enabled by default.
+                So we can use a Set<TEntity>() method to initialize the propertry to eliminate the warning.
+     
+    ii) Configure the database connection string    =>
+        A) in the appsettings.json file add:
+            
+            "ConnectionStrings": {
+                "DefaultConnection": "Server=.;Database=BasicEfCoreDemoDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+            }
+            -> Trusted_connection = True; option specifies that the connection is trusted, which means we do not 
+                need to provide the username and password.
+            -> MultipleActiveResultsSets = true option specifies that the connection can have 
+                Multiple Active Result Sets(MARS). this means we can have multiple independent queries executing on
+                the same connection.
+            
+        B) in Program.cs file add the following after the builder is created:
+
+            builder.Services.AddDbContext<InvoiceDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            -> this registers the InvoiceDbContext class to the dependency injection container.
+   
+    iii) Next, we will create the database using the dotnet ef command =>
+        A) create a migration file :
+
+            dotnet ef migrations add MigrationName
+
+            -> Up() method creates the table, columns, and constraints.
+            -> Down() method drops the table
+            -> to remove the migration files: dotnet ef migrations remove 
+
+        B) apply the migration: create database and table.
+
+            dotnet ef database update
+
+            -> __EFMigrationsHistory table is used to track the migrations. It is created automatically
+                by EF Core. Do not manually modify it.

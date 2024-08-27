@@ -8,7 +8,7 @@ public class DemoService : IDemoService
     public DemoService()
     {
         _serviceId = Guid.NewGuid();
-        _createdAt = DateTime.UtcNow;
+        _createdAt = DateTime.Now;
     }
 
     public string SayWassup()

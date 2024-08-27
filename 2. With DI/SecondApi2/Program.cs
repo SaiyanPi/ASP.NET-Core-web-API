@@ -27,10 +27,16 @@ var builder = WebApplication.CreateBuilder(args); // this is the entry point of 
 
 builder.Services.AddScoped<IPostService, PostsService>(); 
 builder.Services.AddScoped<IDemoService, DemoService>();
-// builder.Services.AddScoped<IScopedService, ScopedService>();
-// builder.Services.AddTransient<ITransientService, TransientService>();
-// builder.Services.AddSingleton<ISingletonService, SingletonService>();
-builder.Services.AddLifetimeServices(); // GROUP REGISTRATION
+// builder.Services.AddSingleton<IDemoService, DemoService>();
+// builder.Services.AddTransient<IDemoService, DemoService>();
+
+
+builder.Services.AddScoped<IScopedService, ScopedService>();
+builder.Services.AddTransient<ITransientService, TransientService>();
+builder.Services.AddSingleton<ISingletonService, SingletonService>();
+// GROUP REGISTRATION
+// builder.Services.AddLifetimeServices(); 
+
 // KEYED SERVICES : registering services with the key
 builder.Services.AddKeyedScoped<IDataService, SqlDatabaseService>("sqlDatabaseService"); 
 builder.Services.AddKeyedScoped<IDataService, CosmosDatabaseService>("cosmosDatabaseService");

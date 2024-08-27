@@ -434,11 +434,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\zlams\\source\\REST API\\SecondApi2\\SecondApi2.csproj",
+      "projectUniqueName": "C:\\Users\\zlams\\source\\REST API\\2. With DI\\SecondApi2\\SecondApi2.csproj",
       "projectName": "SecondApi2",
-      "projectPath": "C:\\Users\\zlams\\source\\REST API\\SecondApi2\\SecondApi2.csproj",
+      "projectPath": "C:\\Users\\zlams\\source\\REST API\\2. With DI\\SecondApi2\\SecondApi2.csproj",
       "packagesPath": "C:\\Users\\zlams\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\zlams\\source\\REST API\\SecondApi2\\obj\\",
+      "outputPath": "C:\\Users\\zlams\\source\\REST API\\2. With DI\\SecondApi2\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

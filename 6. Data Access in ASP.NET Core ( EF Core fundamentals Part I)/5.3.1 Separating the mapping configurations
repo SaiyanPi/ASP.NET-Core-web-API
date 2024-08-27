@@ -1,0 +1,114 @@
+SEPARATING THE MAPPING CONFIGURATIONS:
+
+- In a large project, there may be a lot of model classes. if we put all the mapping configurations in the 
+    OnModelCreating() method, the method will be very long and hard to maintain. to make code more readable
+    and maintainable, we can extract the mapping configuration to one class or a couple of seperate classes.
+
+- One way to do this is to create  an extension method for the ModelBuilder class.
+    Create a new class named InvoiceModelCreatingExtension in the Data folder.
+
+    public static class InvoiceModelCreatingExtensions
+    {
+        public static void ConfigureInvoice(this ModelBuilder builder)
+        {
+            builder.Entity<Invoice>(b =>
+            {
+                b.ToTable("Invoices");
+                b.HasKey(i => i.Id);
+                b.Property(p => p.Id).HasColumnName("Id");
+                b.Property(p => p.InvoiceNumber).HasColumnName("InvoiceNumber").HasColumnType("varchar(32)").
+                    IsRequired();
+                // omitted
+            });
+        }
+    }
+
+- then in the OnModelCreating class:
+
+    modelBuilder.ConfigureInvoice();
+
+- now, OnModelCreating() method is much cleaner and easier to read.
+
+__________________________________________________________________________________________________________________
+
+
+- another way to separate the mapping configurations is to implement the IEntityTypeConfiguration<TEntity>
+    interface.
+- create a new class named InvoiceConfiguration in the Data folder.
+
+    public static void ConfigureInvoice(this ModelBuilder builder)
+    {
+        builder.Entity<Invoice>(b =>
+        {
+            b.ToTable("Invoices");
+            b.HasKey(i => i.Id);
+            b.Property(p => p.Id).HasColumnName("Id");
+            b.Property(p => p.InvoiceNumber).HasColumnName("InvoiceNumber").HasColumnType("varchar(32)").
+                IsRequired();
+           // omitted 
+        });
+    }
+
+- now, in the OnModelCreating class there are 2 ways to apply this configuration:
+
+    1) if we use the ApplyConfiguration() method =>
+
+        modelBuilder.ApplyConfiguration(new InvoiceConfiguration());
+
+    2) or we can call the Configure() method directly =>
+
+        new InvoiceConfiguration().Configure(modelBuilder.Entity<Invoice>());
+
+___________________________________________________________________________________________________________________
+
+
+- as the project grows, it might be a little bit tedious to call the mapping configuration for each entity.
+    in this case EF Core has a method called ApplyConfigurationsFromAssembly() to apply all the 
+    configurations in the assdembly:
+
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(InvoiceDbContext).Assembly);
+
+- if we use the ApplyConfigurationsFromAssembly() method, we need to make sure that all the configuration 
+    classes are in the same assembly as the DbContext class.
+
+-  Also, you cannot control the order of the configurations. If the order matters, you need to call each
+    configuration explicitly in the correct order.
+
+__________________________________________________________________________________________________________________
+
+- we can choose the one that fits our project best.
+- now we add the migration the migration file will have following code:
+        migrationBuilder.AlterColumn<string>(
+            name: "Status",
+            table: "Invoices",
+            type: "nvarchar(16)",
+            maxLength: 16,
+            nullable: false,
+            oldClrType: typeof(int),
+            oldType: "int");
+
+        migrationBuilder.AlterColumn<string>(
+            name: "InvoiceNumber",
+            table: "Invoices",
+            type: "varchar(32)",
+            nullable: false,
+            oldClrType: typeof(string),
+            oldType: "nvarchar(max)");
+        
+        * Status property is changed from int to varchar(16) and the InvoiceNumber property is changed from 
+            nvarchar(max) to varchar(32). 
+
+- now, we can update the database. if we inspect the database, we will see the Status column is stored as strings.
+    instead of int.
+
+- NOTE: 
+    During the migration, the data may get lost if the data type is changed. For example, if the
+    data type is changed from nvarchar(max) to varchar(32), the original data will be
+    truncated to 32 characters. Please make sure you understand the data type change before you
+    run the migration.
+
+- It is recommended to explicitly configure the mapping for each entity in order to ensure optimal
+    performance. For example, nvarchar(max) requires more storage space than varchar, so the
+    default mapping configuration may not be the most efficient. Additionally, the default dbo database
+    schema may not be suitable for your particular scenario. Therefore, explicitly configuring the mapping
+    is a recommended practice.

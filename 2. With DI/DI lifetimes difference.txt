@@ -1,0 +1,41 @@
+DI LIFETIMES DIFFERENCE:
+
+1) Scoped =>
+    
+    builder.Services.AddScoped<IDemoService, DemoService>();
+
+    -> Demo service is registered as a Scoped lifetime. 
+        Now, if we make a request to an end point /demo multiple times, the response will change every time.
+
+2) Singleton =>
+
+    builder.Services.AddSingleton<IDemoService, DemoService>();
+
+    -> now Demo service is changed into Singleton lifetime.
+        if we make a request to the same endpoint multiple times, the response will not change. 
+        GUID values and the creation time values will be the same for all request.
+
+3) Transient =>
+
+    builder.Services.AddTransient<IDemoService, DemoService>();
+
+    -> now Demo service is changed into Transient lifetime.
+        just like in the Scoped, the reponse changes everytime we make a request.
+
+_________________________________________________________________________________________________________________
+
+(COMPLEX EXAMPLE)
+
+-> created a 3 Interfaces along with their implementations: 
+    IScopedService, ISingletonService, and ITransientService. Note that all 3 interfaces inherits IService 
+    interface.
+-> ScopedService has 2 dependencies: ITransientService and ISingletonService. so when ScopedService is created, 
+    it will ask for the instances of these dependencies from the service container.
+
+-> also created a LifetimeController
+-> On the other hand the controller (LifeController) also has dependencies: IScopedService, ITransientService, 
+    and ISingletonService. When the controller is created, it will ask for these three dependencies. 
+-> this means ITransientService and ISingletonService will be needed twice for each request.
+
+-> dotnet run and make a request to an endpoint /LifeTime, ITransientService and ISingletonService will have
+    2 messages while IScopedService will only have 1 in the response.

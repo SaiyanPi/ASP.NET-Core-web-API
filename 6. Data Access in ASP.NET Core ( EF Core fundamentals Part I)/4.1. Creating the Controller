@@ -1,0 +1,39 @@
+CREATING THE CONTROLLER:
+
+ 1) Install required Tool and NuGet package:
+
+    Tool: dotnet-aspnet-codegenerator
+    Install command: dotnet tool install -g dotnet-aspnet-codegenerator
+
+    NuGet package: Microsoft.EntityFrameworkCore.Tools
+
+2) Creating Controller:
+
+    command: 
+        dotnet-aspnet-codegenerator controller 
+        -name InvoiceController                     (name of the controller)
+        -api                                        (indicates that the controller is an API controller)
+        -outDir Controllers                         (output directory of the controller)
+        --model Invoice                             (model class name)
+        --dataContext InvoiceDbContext              (DbContext class name)
+        -async                                      (indicates that the action of the controller are asynchronous)
+        -actions
+
+__________________________________________________________________________________________________________________
+
+HOW CONTROLLERS WORK?
+
+- we've already discussed  about how HTTP requests are mapped to the controller action in 4 so we focus on
+    data access and database operations.
+
+- first we use DI to inject the InvoiceDbContext instance  into the controller, which handles the 
+    data operations.
+    -> InvoiceDbContext is registered as a Scoped which means that each HTTP request will create a new
+        InvoiceDbContext instance, and the instance will be disposed of after the request is completed.
+- once we get the DbContext instance, we can use Invoices property of 'DbSet<Invoice>' type to access
+    the entity set
+-  We can use LINQ methods, such as FindAsync(),Add(), Remove(), and Update(), to retrieve, add, remove, 
+    and update the entity in the database, respectively. The SaveChangesAsync() method is used to save the 
+    changes to the database.
+- In this way, we operate the database through .NET objects, which is much easier than using SQL statements.
+    That is the power of ORMs.

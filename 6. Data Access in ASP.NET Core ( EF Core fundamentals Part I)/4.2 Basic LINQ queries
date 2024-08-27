@@ -1,0 +1,258 @@
+BASIC LINQ QUERIES:
+
+1) QUERYING THE DATA =>
+    -> The DbSet<Invoice> Invoices property in the InvoiceDbContext class represents a collection of the 
+        Invoice entity.
+    -> for example we can use the ToListAsync() method to retrive all the invoices from the database:
+
+            var invoices = await _context.Invoices.ToListAsync();
+
+    -> to find a specific invoice we can use the FindAsync() or Single() or SingleOrDefault()  method as:
+
+            var invoice = await _context.Invoices.FindAsync(id); 
+            var invoice = await _context.Invoices.SingleAsync(i => i.Id == id);
+
+            * FindAsync() method accepts the primary key value(id) as the parameter.
+            * EF Core will translate the FindAsync() method to the SQL SELECT statement.
+            * there are other methods – such as First(), FirstOrDefault(), and so on that can be used to 
+                find a specific entity.
+
+    -> These methods are kind of confusing. The recommended practice is as follows:
+        a) Find() or FindAsync() => 
+            If you want to find an entity by the primary key value and leverage the tracking state to improve
+            the performance.
+        b) SingleOrDefault() or SingleOrDefaultAsync() => 
+            If you are sure that the entity exists and only one entity satisfies the condition, use Single()
+            or SingleAsync(). If you would like to specify a default value when the entity is not found.
+        c) FirstOrDefault() or FirstOrDefaultAsync() =>
+            If you are not sure whether the entity exists, or there may be more than one entity that satisfies
+            the condition, use First() or FirstAsync(). If you would like to specify a default value
+            when the entity is not found.
+        • Do not forget to check whether the result is null if you use Find(), FindAsync(), SingleOrDefault(),
+            SingleOrDefaultAsync(), FirstOrDefault(), and FirstOrDefaultAsync().
+
+2) FILTERING THE DATA =>
+    -> We can use the Where() method to filter the invoices by status.
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Invoice>>>
+        GetInvoices(InvoiceStatus? status)
+        {
+            // Omitted for brevity
+            return await _context.Invoices.Where(x => status == null || x.Status == status).ToListAsync();
+        }
+
+        * Where() method accepts a lambda expression as the parameter
+        * A lambda expression is a concise way to define a delegate method inline, which is widely used in 
+            LINQ queries to define filtering, sorting, and projection operations.
+
+3) SORTING AND PAGING =>
+    -> we can use some methods such as OrderBy(), OrderByDescending(), Skip(), Take(), and so on, to sort
+        the data.
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Invoice>>> GetInvoices(int page = 1, 
+        int pageSize = 10, InvoiceStatus? status = null)
+        {
+            // Omitted for brevity
+            return await _context.Invoices.AsQueryable().Where(x => status == null || x.Status == status)
+            .OrderByDescending(x => x.InvoiceDate)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+        }
+
+        * we use thw AsQueryable() method to convert the DbSet<Invoice> to IQueryable<Invoice>.
+        * In fact we don't need AsQuyeryable() method here because the DbSet<TEntity> class implement the
+            IQueryable<TEntity> interface, which means the DbSet<Invoice> property is already an IQueryable object.
+         
+            return await _context.Invoices.Where(x => status == null || x.Status == status)
+
+        WHAT IS IQueryable?
+        => when we use some LINQ methods, such as Where(), OrderBy(), Skip(), and Take(), EF Core will not
+            execute the query immediately. It will build a query and return a new IQueryable object.
+            IQueryable is an interface in the System.Linq namespace that represents a queryable
+            collection of entities that can be used to compose a query against a specific data source,
+            such as a database. when we call the ToListAsync() method, the query will be translated
+            to a server-specific query language, such as SQL, and executed against the database.
+
+    -> generated SQL query:
+            SELECT [i].[Id], [i].[Amount], [i].[ContactName], [i].[Description], [i].[DueDate], [i].[InvoiceDate],
+            [i].[InvoiceNumber], [i].[Status]
+            FROM [Invoices] AS [i]
+            ORDER BY [i].[InvoiceDate] DESC
+            OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+
+            * note that the SQL statement uses the OFFSET/FETCH clause to page the data. These keywords are
+                supported by SQL server but may not be supported by other database. for eg, MySQL uses the
+                LIMIT clause to page the data.
+
+4) CREATING AN ENTITY
+5) UPDATING AN ENTITY =>
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutInvoice(Guid id, Invoice invoice)
+        {
+            if (id != invoice.Id)  
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(invoice).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!InvoiceExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        * we use _contexT.Entry() method to get the EntityEntry object of the invoice.
+            then, we set the State property to EntityState.Modified
+
+        * EntityState enum: in EF Core, each instance of DbContext has a ChangeTracker to track the changes
+            in the entities, which is a powerful feature of EF Core. in oither words, EF Core knows the
+            state of each entity -whether it is added, deleted, or modified.
+            EntityState enum can have the following values:
+            i) Detached: entity is not being tracked by the context.
+            ii) Unchanged: entity is being tracked by the context, but the values are not changed.
+            iii) Deleted: entity is being tracked and erxists in the database, but has been marked for deletion
+                            so when SaveChangesAsync() method is called, EF Core will generate the SQL statement
+                            to delete the entity from the database.
+            iv) Modified: entity is being tracked and exists in the database, and the values have been
+                            modified in DbContext. When the SaveChangesAsync() method is called, EF Core
+                            will generate the SQL statement to update the entity in the database.       
+            v) Added: entity is being tracked but it does not exist in the database. When the
+                        SaveChangesAsync() method is called, EF Core will generate the SQL statement to
+                        insert the entity into the database.
+    
+    -> sometimes we want to update the changed property. for eg if we just want to update the 'status' property,
+        the SQL statement should not have to update other columns.
+        To do this, we can find the entity that needs to be updated, and then update the properties explicitly.
+
+            var invoiceToUpdate = await _context.Invoices.FindAsync(id);
+            if (invoiceToUpdate == null)
+            {
+                return NotFound();
+            }
+            invoiceToUpdate.Status = invoice.Status;
+            await _context.SaveChangesAsync();
+
+            * however, in real scenario, normally, the endpoint will receive the whole entity(not just status).
+                we may not know which properties are changed. in this case we can just update all the properties
+                in the code like 
+
+                    var invoiceToUpdate = await _context.Invoices.FindAsync(id);
+                    if (invoiceToUpdate == null)
+                    {
+                        return NotFound();
+                    }
+                    invoiceToUpdate.InvoiceNumber = invoice.InvoiceNumber;
+                    invoiceToUpdate.ContactName = invoice.ContactName;
+                    invoiceToUpdate.Description = invoice.Description;
+                    invoiceToUpdate.Amount = invoice.Amount;
+                    invoiceToUpdate.InvoiceDate = invoice.InvoiceDate;
+                    invoiceToUpdate.DueDate = invoice.DueDate;
+                    invoiceToUpdate.Status = invoice.Status;
+                    await _context.SaveChangesAsync();
+    
+    -> there is still an issue in the preceding code. if the entity has many properties, it will be tedious to 
+        update all the properties one by one. in this case we can use the Entry method to get the 
+        EntityEntry object and then set the CurrentValues property to the new values.
+
+            var invoiceToUpdate = await _context.Invoices.FindAsync(id);
+            if (invoiceToUpdate == null)
+            {
+                return NotFound();
+            }
+            _context.Entry(invoiceToUpdate).CurrentValues.SetValues(invoice);
+            await _context.SaveChangesAsync();
+
+            * Note that the SetValues() method only updates the simple properties, such as string, int,
+                decimal, DateTime, and so on. If the entity has a navigation property, the SetValues() method
+                will not update the navigation property. In this case, we need to update the properties explicitly.
+
+6) DELETING AN ENTITY =>
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteInvoice(Guid id)
+        {
+            var invoice = await _context.Invoices.FindAsync(id);
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            // _context.Invoices.Remove(invoice);
+            _context.Entry(invoice).State = EntityState.Deleted; // this is equivalent to the preceding code
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool InvoiceExists(Guid id)
+        {
+            return _context.Invoices.Any(e => e.Id == id);
+        }
+
+    -> when we request to a DELETE endpoint, EF Core generates 2 SQL statements like:
+          
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (79ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+            SELECT TOP(1) [i].[Id], [i].[Amount], [i].[ContactName], [i].[Description], [i].[DueDate], [i].[InvoiceDate], [i].[InvoiceNumber], [i].[Status]
+            FROM [Invoices] AS [i]
+            WHERE [i].[Id] = @__get_Item_0
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (15ms) [Parameters=[@p0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+            SET IMPLICIT_TRANSACTIONS OFF;
+            SET NOCOUNT ON;
+            DELETE FROM [Invoices]
+            OUTPUT 1
+            WHERE [Id] = @p0;
+
+        * here, first SQL statement is for finding the entity and the second is for deleting.
+    -> this is a little bit unnecessary to find the entity first. when we delete the entity, the only thing we
+        need is the primary key so we can update the DELETE action method as:
+
+            var invoice = new Invoice { Id = id };
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+            // _context.Entry(invoice).State = EntityState.Deleted; // this is equivalent to the folowing code
+            _context.Invoices.Remove(invoice);
+            await _context.SaveChangesAsync();
+            return NoContent();
+
+            * now this will only generate only  SQL statement for deleting which is much simpler
+    
+    -> from EF Core 7.0, we have a new method called ExecuteDeleteAsync() that can be used to delete an entity
+        without loading it first.
+
+            [HttpDelete("{id}")]
+            public async Task<IActionResult> DeleteInvoice(Guid id)
+            {
+                await _context.Invoices.Where(x => x.Id == id).ExecuteDeleteAsync();
+                return NoContent();
+            }
+
+            * note that, ExecuteDeleteAsync() method does not involve the change tracker, so it will execute the
+                SQL statement immediately to the database. It does not need to call the SaveChangesAsync()
+                method at the end. It is a recommended way to delete one entity (or more) from EF Core 7.0
+                and later versions.
+                However, if the entity already exists in DbContext and is tracked by the change tracker, executing
+                the SQL statement directly may cause the data in DbContext and the database to be inconsistent.
+                In this case, you may need to use the Remove() method or set the EntityState property to Deleted
+                to delete the entity from DbContext.

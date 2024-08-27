@@ -18,9 +18,9 @@ public class ScopedService : IScopedService
     public string SayWassup()
     {
         var scopedServiceMessage = $"wassup! i am {Name}. My id is {_serviceId}. I was creatred at {_createdAt : yyyy-MM-dd HH:mm:ss}.";
-        var TransientServiceMessage = $"wassup! i am {Name}. My id is {_serviceId}.I was creatred at {_createdAt : yyyy-MM-dd HH:mm:ss}.";
-        var SingletonServiceMessage = $"wassup! i am {Name}. My id is {_serviceId}.I was creatred at {_createdAt : yyyy-MM-dd HH:mm:ss}.";
-        return $"wassup! i am {Name}. My id is {_serviceId}. I was creatred at {_createdAt : yyyy-MM-dd HH:mm:ss}.";
-
+        var transientServiceMessage = $"{_transientService.SayWassup()} I am from {Name}.";
+        var singletonServiceMessage = $"{_singletonService.SayWassup()} I am from {Name}.";
+        return 
+        $"{scopedServiceMessage}{Environment.NewLine}{transientServiceMessage}{Environment.NewLine}{singletonServiceMessage}";
     }
 }

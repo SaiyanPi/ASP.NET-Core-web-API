@@ -1,0 +1,48 @@
+DATA ANNOTATIONS:
+
+- data annotations are attributes that you can apply to the models classes to customize the mapping.
+    for eg, we can use the [Table] attribute to specify the table name and use the [Column] attribute
+    to specify the column name.
+
+            [Table("Invoices")]
+            public class Invoice
+            {
+                [Column("Id")]
+                [Key]
+                public Guid Id { get; set; }
+                [Column(name: "InvoiceNumber", TypeName = "varchar(32)")]
+
+                [Required]
+                public string InvoiceNumber { get; set; } = string.Empty;
+                [Column(name: "ContactName")]
+
+                [Required]
+                [MaxLength(32)]
+                public string ContactName { get; set; } = string.Empty;
+                [Column(name: "Description")]
+
+                [MaxLength(256)]
+                public string? Description { get; set; }
+
+                [Column("Amount")]
+                [Precision(18, 2)]
+                [Range(0, 9999999999999999.99)]
+                public decimal Amount { get; set; }
+
+                [Column(name: "InvoiceDate", TypeName = "datetimeoffset")]
+                public DateTimeOffset InvoiceDate { get; set; }
+
+                [Column(name: "DueDate", TypeName = "datetimeoffset")]
+                public DateTimeOffset DueDate { get; set; }
+
+                [Column(name: "Status", TypeName = "varchar(16)")]
+                public InvoiceStatus Status { get; set; }
+            }
+
+- NOTE: 
+    Every time the mapping is changed, you need to run the dotnet ef migrations add <migration name> command to
+    generate a new migration. Then, run the dotnet ef database update command to update the database.
+    
+- it is easy to understand, but it is a little bit intrusive, which means the model classes are polluted
+    with the database-related configuration. to decouple the model classes from the database mapping 
+    configuration, we can use Fluent API

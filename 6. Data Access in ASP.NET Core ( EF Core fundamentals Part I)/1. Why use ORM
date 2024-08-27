@@ -1,0 +1,60 @@
+WHY USE ORM?
+
+- to operate the data in relational databases, we need to write SQL statements. however, SQL statements 
+    are not easy to maintainand are not type-safe.
+- every time we update the databse schema, we need to update the sql statements as well, which is 
+    error-prone.
+- in many traditional applications, the logic is tightly coupled with the database.
+    for eg, the logic could be defined in a SQL database directly, such as stored procedurem triggers and
+    so on. this makes application hard to maintain and extend.
+
+- ORM helps us to map the databse schema to the object model, so we can operate the data in the database
+    just like we operate objects in memory.
+- ORM can translate the CURD operations to SQL statements, which means it is like an abstract layer between
+    the application and the database. the data access logic is decoupled from the database, so we can easily
+    change the databse without changing the code. it also provides strong type-safety.
+
+- ORM is not always the best solution for all scenarios sometimes we may need to write SQL statements 
+    to achieve the best performance. 
+    for eg, , if we need to generate a complex data report, we may need to write SQL statements 
+    to optimize the performance of the query. However, for most scenarios, ORM provides more benefits 
+    than drawbacks.
+- there are many ORM Farameworks in .NET. here we will discuss the EF Core, which is the most popular
+    ORM Framework in .NET Core.
+    
+_____________________________________________________________________________________________________________
+    
+EF(ENTITY FRAMEWORK) CORE:
+
+-> reason to choose EF Core:
+
+1) Open Source: EF Core is an open-source project and is mainly maintained by Microsoft, so it
+                is well-supported. The contribution is also very active.
+2) Multiple database support: EF Core supports many database providers, such as SQL Server, SQLite,
+                                PostgreSQL, MySQL and so on. Developers can use the same APIs to access
+                                different databases.                        
+3) Migration: : EF Core supports database migrations, which allows us to update the database
+                schema easily.
+4) LINQ support: EF Core provides support for LINQ, which allows us to use a familiar syntax
+                to query the database.           
+5) Code-first approach: EF Core supports the code-first approach, which means we can define the
+                        database schema using C# code, and EF Core will generate the database schema 
+                        automatically.
+6) Performance: EF Core is designed to be lightweight and performant. It supports query caching
+                and lazy loading to help improve performance. Also, EF Core provides asynchronous APIs,
+                which allows us to perform database operations asynchronously to improve the scalability
+                of the application. In addition, EF Core supports raw SQL queries, enabling us to write 
+                SQL statements directly to achieve the best performance.
+
+-> to use the .NET Core CLI to perform EF Core-related tasks, we first need to install the dotnet-ef tool.
+    command:
+                dotnet tool install --global dotnet-ef
+    * it is recommended to install the tool as a global tool, so we can use it in any project for 
+        convenience
+
+-> EF Core packages:
+    i) Microsoft.EntityFrameworkCore.SqlServer =>
+        * it is a databse provider, it is used to connect the application to a SQL server database.
+    ii) Microsoft.EntityFrameworkCore.Design =>
+        * it contains shared design-time components for EF Core tools, which are required to perform database 
+            migrations

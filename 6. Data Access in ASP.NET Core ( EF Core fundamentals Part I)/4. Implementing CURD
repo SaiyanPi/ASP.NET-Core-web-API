@@ -1,0 +1,4 @@
+IMPLEMENTING CURD:
+
+-> we will implement the controllers to handle the HTTP requests, which are the GET, POST, PUT, and DELETE 
+    operations that are used to retrieve, create, update, and delete data, respectively.

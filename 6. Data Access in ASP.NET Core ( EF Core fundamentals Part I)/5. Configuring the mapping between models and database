@@ -1,0 +1,11 @@
+(how EF Core knows the names of columns and tables in the database?)
+
+COINFIGURING THE MAPPING BETWEEN MODELS AND DATABASE:
+
+
+- EF Core maps the models to the database automatically this is because EF Core has a set of built-in
+    conventions to configure the mappings.
+- we can also explicitly customize the configuration to meet our needs.
+- There are two ways to explicitly configure the mapping between the models and the database:
+    • Data annotations
+    • Fluent API

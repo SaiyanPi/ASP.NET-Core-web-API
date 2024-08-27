@@ -1,0 +1,29 @@
+MAPPING CONVENTIONS:
+
+- there are some conventions in EF Core for mapping the models to the database.
+    -> database uses the dbo schema by default.
+    -> table name is the plural form of the model name. (model name: Invoice | database name: Invoices)
+    -> column name is the property name.
+    -> data type of the column is based on the property type and the database provides.
+           
+            NET type        |       SQL Server data type
+            ---------------------------------------------
+                int                     int
+                long                    bigint
+                string                  nvarchar(max)
+                bool                    bit
+                datetime                datetime
+                double                  float
+                decimal                 decimal(18,2)
+                byte                    tinyint
+                short                   smallint
+                byte[]                  varbinary(max)
+
+    -> if a property is named Id or <entity name>Id, EF Core will map it to the primary key.
+    -> EF Core detects that the relationship between two models is one-to-many, it will map the navigation
+        property to a foreign key column in the database automatically.
+    -> If a column is a primary key, EF Core will create a clustered index for it automatically.
+    -> If a column is a foreign key, EF Core will create a non-clustered index for it automatically.
+    -> an enum type is mapped to the underlying type of the enum
+        for eg, the InvoiceStatus enum is mapped to the int type in the database.
+        

@@ -1,0 +1,43 @@
+FLUENT API:
+
+- is a set of extension methods that we can use to configure the mapping gracefully.
+- it is the most flexible and powerful way to apply the mapping configuration without polluting the model
+    classes.
+- another important thing to note is that Fluent API has a higher priority than data annotations.
+    if we configure the same property in both data annotations and Fluent API, Fluent API will override the
+    data annotations. So it is recommended way to configuire the mapping:
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Seed data is omitted for brevity
+            modelBuilder.Entity<Invoice>(b =>
+            {
+                b.ToTable("Invoices");
+                b.HasKey(i => i.Id);
+                b.Property(p => p.Id).HasColumnName("Id");
+                b.Property(p => p.InvoiceNumber).HasColumnName("InvoiceNumber").HasColumnType("varchar(32)").
+                    IsRequired();
+                b.Property(p => p.ContactName).HasColumnName("ContactName").HasMaxLength(32).IsRequired();
+                b.Property(p => p.Description).HasColumnName("Description").HasMaxLength(256);
+                // b.Property(p => p.Amount).HasColumnName("Amount").HasColumnType("decimal(18,2)").IsRequired();
+                b.Property(p => p.Amount).HasColumnName("Amount").HasPrecision(18, 2);
+                b.Property(p => p.InvoiceDate).HasColumnName("InvoiceDate").HasColumnType("datetimeoffset").
+                    IsRequired();
+                b.Property(p => p.DueDate).HasColumnName("DueDate").HasColumnType("datetimeoffset").IsRequired();
+                b.Property(p => p.Status).HasColumnName("Status").HasMaxLength(16).HasConversion(
+                    v => v.ToString(),
+                    v => (InvoiceStatus)Enum.Parse(typeof(InvoiceStatus),
+                    v));
+            });
+        }
+
+- in the preceding code, we use the Entity() method to configure the Invoice entity. this method accepts 
+    an Action<EntityTypeBuilder<TEntity>> parameter to specify the mappings. 
+    EntityTypeBuilder<TEntity> class has a lot of methods to configure the entity. we can chain these
+    methods in a fluent way to configure the entity, so it is called Fluent API.
+
+- some of the most commonly used Fluent API methods: (see Fluent API methods image)
+
+- there are some other methods to configure the relationships using Fluent API, such as HasOne(), HasMany(),
+    WithOne(), WithMany(), and so on.
+    

@@ -1,0 +1,41 @@
+SEEDING DATA:
+
+1) Open InvoiceDbContext.cs file and add OnModelCreating() method inside InvoiceDbContext class:
+     
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+        modelBuilder.Entity<Invoice>().HasData(
+            new Invoice
+            {
+                Id = Guid.NewGuid(),
+                InvoiceNumber = "INV-001",
+                ContactName = "Iron Man",
+                Description = "Invoice for the first month",
+                Amount = 100,
+                InvoiceDate = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                DueDate = new DateTimeOffset(2023, 1, 15, 0, 0, 0, TimeSpan.Zero),
+                Status = InvoiceStatus.AwaitPayment
+            },
+            new Invoice
+            {
+                Id = Guid.NewGuid(),
+                InvoiceNumber = "INV-003",
+                ContactName = "Thor",
+                Description = "Invoice for the first month",
+                Amount = 300,
+                InvoiceDate = new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                DueDate = new DateTimeOffset(2021, 1, 15, 0, 0, 0, TimeSpan.Zero),
+                Status = InvoiceStatus.Draft
+            });
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(InvoiceDbContext).Assembly);
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            //optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        }
+
+2) create a new database migration and apply the changes to the database:
+
+    dotnet ef migrations add AddSeedData
+    dotnet ef database update
