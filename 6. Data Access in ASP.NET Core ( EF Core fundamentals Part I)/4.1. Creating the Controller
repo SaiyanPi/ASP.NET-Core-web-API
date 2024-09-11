@@ -5,11 +5,12 @@ CREATING THE CONTROLLER:
     Tool: dotnet-aspnet-codegenerator
     Install command: dotnet tool install -g dotnet-aspnet-codegenerator
 
-    NuGet package: Microsoft.EntityFrameworkCore.Tools
+    NuGet package:  Microsoft.VisualStudio.Web.CodeGeneration.Design
 
 2) Creating Controller:
 
     command: 
+    
         dotnet-aspnet-codegenerator controller 
         -name InvoiceController                     (name of the controller)
         -api                                        (indicates that the controller is an API controller)
@@ -19,6 +20,7 @@ CREATING THE CONTROLLER:
         -async                                      (indicates that the action of the controller are asynchronous)
         -actions
 
+    for eg, dotnet-aspnet-codegenerator controller -name InvoiceController -api -outDir Controllers --model Invoice --dataContext SampleDbContext -async -actions
 __________________________________________________________________________________________________________________
 
 HOW CONTROLLERS WORK?

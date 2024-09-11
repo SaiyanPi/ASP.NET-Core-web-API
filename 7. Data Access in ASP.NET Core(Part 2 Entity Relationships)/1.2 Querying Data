@@ -1,0 +1,199 @@
+QUERYING DATA:
+
+- now we have invoice and invoice items in the database, we can send a GET request to the /api/invoice
+    endpoint
+- the response will have an empty InvoiceItems property.
+    [
+    {
+        "id": "a9ae484f-e335-409c-90d6-08dcca8fc80b",
+        "invoiceNumber": "INV-004",
+        "contactName": "Hulk",
+        "description": "Invoice for the first month",
+        "amount": 300.00,
+        "invoiceDate": "2022-12-28T01:39:42.915+00:00",
+        "dueDate": "2022-12-28T01:39:42.915+00:00",
+        "status": 1,
+        "invoiceItems": []
+    },
+    {
+        "id": "29162d75-7dc8-4f61-165d-08dcca94c62a",
+        "invoiceNumber": "INV-0047",
+        "contactName": "Blade",
+        "description": "Invoice for the first month",
+        "amount": 400.00,
+        "invoiceDate": "2022-12-28T01:39:42.915+00:00",
+        "dueDate": "2022-12-28T01:39:42.915+00:00",
+        "status": 4,
+        "invoiceItems": []
+    }
+    ]
+    -> this is because the InvoiceItems property is a collection navigation property. 
+    -> By default, EF Core does not include dependent entities in the query result, so we need to explicitly
+        include these in the query result.
+
+--------------------------------------------------------------------------------------------------------------
+EXPLICITLY INCLUDING THE COLLECTION NAVIGATION PROPERTY IN THE QUERY RESULT
+
+Steps:
+1) Update the GetInvoices() method in the InvoiceController file as:
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Invoice>>> GetInvoices(int page = 1, 
+            int pageSize = 4, InvoiceStatus? status = null)
+        {
+            // omitted
+            return await context.Invoices.Where(x => status == null || x.Status == status)
+            .Include(x => x.InvoiceItems) // explicitly including the collection navigation property
+            .OrderByDescending(x => x.InvoiceDate)
+            // omitted
+        }
+2) Now if we hit the endpoint again, we will see the Collection navigation property(InvoiceItems) as:
+
+    {
+        //omitted
+        {
+            "id": "29162d75-7dc8-4f61-165d-08dcca94c62a",
+            "invoiceNumber": "INV-0047",
+            "contactName": "Blade",
+            "description": "Invoice for the first month",
+            "amount": 400.00,
+            "invoiceDate": "2022-12-28T01:39:42.915+00:00",
+            "dueDate": "2022-12-28T01:39:42.915+00:00",
+            "status": 4,
+            "invoiceItems": [
+            {
+                "id": "657be980-bd74-4df5-d65c-08dcca94c636",
+                "name": "Invoice Item 1",
+                "description": "",
+                "unitPrice": 100.00,
+                "quantity": 2.00,
+                "amount": 200.00,
+                "invoiceId": "29162d75-7dc8-4f61-165d-08dcca94c62a",
+                "invoice": null
+            }
+            ]
+        }
+    }
+    -> NOTE that the reference navigation property(Invoice) of the invoice item is null.
+        it is not required to include the principal entity in the dependent entity. This is a cyclic
+        reference.
+    -> so if we don't want to include a null value for the Invoice property, we can use [JsonIgnore]
+        attribute to decorate the Invoice property of the InvoiceItem model so that the System.Text.Json
+        will not serialize the Invoice property anymore.
+
+        {
+            //omitted
+            "status": 4,
+            "invoiceItems": [
+            {
+                "id": "657be980-bd74-4df5-d65c-08dcca94c636",
+                "name": "Invoice Item 1",
+                "description": "",
+                "unitPrice": 100.00,
+                "quantity": 2.00,
+                "amount": 200.00,
+                "invoiceId": "29162d75-7dc8-4f61-165d-08dcca94c62a",
+            }
+            ]
+        }
+    -> and the generated SQL query is:
+
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (69ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+        SELECT [t].[Id], [t].[Amount], [t].[ContactName], [t].[Description], [t].[DueDate], [t].[InvoiceDate], [t].[InvoiceNumber], [t].[Status], [i0].[Id], [i0].[Amount], [i0].[Description], [i0].[InvoiceId], [i0].[Name], [i0].[Quantity], [i0].[UnitPrice]
+        FROM (
+            SELECT [i].[Id], [i].[Amount], [i].[ContactName], [i].[Description], [i].[DueDate], [i].[InvoiceDate], [i].[InvoiceNumber], [i].[Status]
+            FROM [Invoices] AS [i]
+            ORDER BY [i].[InvoiceDate] DESC
+            OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+        ) AS [t]
+        LEFT JOIN [InvoiceItems] AS [i0] ON [t].[Id] = [i0].[InvoiceId]
+        ORDER BY [t].[InvoiceDate] DESC, [t].[Id]
+
+    -> as we can see when the LINQ query uses the Include() method to include dependent entities, EF Core
+        will generate a LEFT JOIN query.
+        Include() method is a convenient way to include dependent entities. However, it may cause performance
+        issues when the collection of dependent entities is large. for eg, a post may have a hundreds or 
+        thousands of comments. it is not good idea to include all comments in the query result for a list
+        page. In our case it is not necessary to include dependent entities in the query.
+
+---------------------------------------------------------------------------------------------------------------
+QUERY SPLITTING
+
+3) In the above generated query, note that Invoice data is included in the each row of the result.
+    for some scenarios, it may cause a so called Cartesian explosion problem, which means the amount of
+    duplicated data in the result is too large and may cause a performance issues.
+    In this case we can split the queries into 2 steps.
+    - First we query the invoices, and then 
+    - we query the invoice items.
+    - we need to use the AsSplitQuery() method as:
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Invoice>>> GetInvoices(int page = 1, 
+            int pageSize = 4, InvoiceStatus? status = null)
+        {
+            // omitted
+            return await context.Invoices.Where(x => status == null || x.Status == status)
+            .Include(x => x.InvoiceItems) // explicitly including the collection navigation property
+            .OrderByDescending(x => x.InvoiceDate)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .AsSplitQuery()
+            .ToListAsync();
+        }
+    -> now the generated query will be:
+
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (57ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+            SELECT [i].[Id], [i].[Amount], [i].[ContactName], [i].[Description], [i].[DueDate], [i].[InvoiceDate], [i].[InvoiceNumber], [i].[Status]
+            FROM [Invoices] AS [i]
+            ORDER BY [i].[InvoiceDate] DESC, [i].[Id]
+            OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (9ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+            SELECT [i0].[Id], [i0].[Amount], [i0].[Description], [i0].[InvoiceId], [i0].[Name], [i0].[Quantity], [i0].[UnitPrice], [t].[Id]
+            FROM (
+                SELECT [i].[Id], [i].[InvoiceDate]
+                FROM [Invoices] AS [i]
+                ORDER BY [i].[InvoiceDate] DESC
+                OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+            ) AS [t]
+            INNER JOIN [InvoiceItems] AS [i0] ON [t].[Id] = [i0].[InvoiceId]
+            ORDER BY [t].[InvoiceDate] DESC, [t].[Id]
+
+    -> The query contains two SELECT statements. The first SELECT statement is used to query the invoices.
+        The second SELECT statement is used to query the invoice items. The INNER JOIN query is used to join 
+        the two queries.
+
+---------------------------------------------------------------------------------------------------------------
+CONFIGURING THE QUERY SPLITTING BEHAVIOUR GLOBALLY
+
+4) we can also configure the default query-splitting behaviour globally by using the UseQuerySplittingBehaviour()
+    method in the OnConfiguring() method of the DbContext class:
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+    base.OnConfiguring(optionsBuilder);
+    optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
+    b => b.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+    }
+
+    -> But if we want to execute a specific query in a single query, we can use the AsSingleQuery() method like:
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Invoice>>> GetInvoices(int page = 1, 
+            int pageSize = 4, InvoiceStatus? status = null)
+        {
+            // omitted
+            return await context.Invoices.Where(x => status == null || x.Status == status)
+            .Include(x => x.InvoiceItems) // explicitly including the collection navigation property
+            .OrderByDescending(x => x.InvoiceDate)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .AsSingleQuery()
+            .ToListAsync();
+        }
+
+    -> split queries may cause other issues. For example, multiple queries increase the number of
+        round trips to the database. In addition, if another thread modifies the data between the two queries,
+        the result may be inconsistent. Therefore, you should consider the pros and cons of split queries to
+        fit your scenarios.

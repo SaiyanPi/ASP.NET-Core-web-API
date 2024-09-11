@@ -1,0 +1,13 @@
+ONE-TO-ONE RELATIONSHIPS:
+
+- in one-to-one relationship, both side have a reference navigation property. Technically both sides have
+    equal positions.
+- however to explicitly configure the relationship, we need to specify which side is the dependent side
+    and which side is the principal side. the foreign key is normally defined On the dependent entity side.
+- in the EFCoreRelationshipIIDemo/Passport class we have defined the 'PersonId' as a foreign key which implies that 
+    Person is a principal entity and Passport is the dependent entity.
+
+    if we do not specify the foreign key property, EF Core will automatically choose one of the entities
+    to be the dependent entity. However, because Contact and Address are equal in a one-to-one relationship,
+    EF Core may not choose the correct entity as we expect. So, we need to explicitly define a foreign key 
+    property in the dependent entity.

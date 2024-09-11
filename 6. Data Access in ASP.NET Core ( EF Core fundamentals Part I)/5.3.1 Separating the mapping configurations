@@ -36,17 +36,15 @@ ________________________________________________________________________________
     interface.
 - create a new class named InvoiceConfiguration in the Data folder.
 
-    public static void ConfigureInvoice(this ModelBuilder builder)
+    public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
     {
-        builder.Entity<Invoice>(b =>
+        public void Configure(EntityTypeBuilder<Invoice> builder)
         {
-            b.ToTable("Invoices");
-            b.HasKey(i => i.Id);
-            b.Property(p => p.Id).HasColumnName("Id");
-            b.Property(p => p.InvoiceNumber).HasColumnName("InvoiceNumber").HasColumnType("varchar(32)").
-                IsRequired();
-           // omitted 
-        });
+            builder.ToTable("Invoices");
+            builder.HasKey(i => i.Id);
+            builder.Property(p => p.Id).HasColumnName("Id");
+            // omitted
+        }
     }
 
 - now, in the OnModelCreating class there are 2 ways to apply this configuration:

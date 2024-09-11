@@ -1,0 +1,84 @@
+ONE-TO-MANY CURD OPERATION:
+
+
+- when retrieving an invoice, we may need to query both the Invoices table and the InvoiceItems table in order
+    to also retrive the saaociated invoice items. Additionaly, when deleting Invoice, we must consider whether to
+    delete the related invoice items as well.
+------------------------------------------------------------------------------------------------------------------
+
+CREATING DATA:
+
+- we don not need to update the code we created earlier with command:
+    "dotnet-aspnet-codegenerator controller -name InvoiceController -api -outDir Controllers --model Invoice 
+    --dataContext SampleDbContext -async -actions"
+- when we add the parent resource with the child resource as follows, although a resource gets added, exception
+    will occur in the log.
+            {
+            "invoiceNumber": "INV-004",
+            "contactName": "Hulk",
+            "description": "Invoice for the first month",
+            "amount": 300,
+            "invoiceDate": "2022-12-28T01:39:42.915Z",
+            "dueDate": "2022-12-28T01:39:42.915Z",
+            "status": 1,
+            "invoiceItems": [
+                {
+                "name": "Invoice Item 1",
+                "description": "",
+                "unitPrice": 100,
+                "quantity": 2,
+                "amount": 200
+                }
+            ]
+            }
+
+    exception log:
+        " An unhandled exception has occurred while executing the request.
+        System.Text.Json.JsonException: A possible object cycle was
+        detected.  This can either be due to a cycle or if the object.."
+
+    WHY EXCEPTION?
+        - because the Invoice class has a collection navigation property to the InvoiceItem class, and the 
+        InvoiceItem class has a reference navigation property to the Invoice class. So there is a cycle in 
+        the JSON serialization and some serialization frameworks, such as Newtonsoft.Json, System.Text.Json
+        do not allow such cycles. ASP.NET Core uses System.Text.Json for Json serialization by default.
+
+        - System.Text.Json is a new JSON serialization framework provided since .NET Core 3.0. It is faster 
+        and more efficient than Newtonsoft.Json. It is also the default JSON serialization framework in 
+        ASP.NET Core 3.0 and later versions. It is recommended to use System.Text.Json instead of 
+        Newtonsoft.Json in new projects.
+
+    FIX:
+        1)we need to configure the System.Text.Json framework to ignore the cycle. In the Program file add
+        following code to builder.Servioces.AddControllers():
+
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                });
+
+        2) another WithMany to fix the exception is to use the [JsonIgnore] attribute to decorate the Invoice
+        property in the InvoiceItem class.But if you have many entities with such a relationship, it is tedious 
+        to decorate all of them.
+-----------------------------------------------------------------------------------------------------------------
+
+WHAT IF WE WANT TO ADD A NEW INVOICE ITEM TO AN EXISTING INVOICE?
+    - we can do it in 2 ways:
+        1) Get Invoice first, then add the new invoice item to the InvoiceItems collection of the invoice,
+            and then call the SaveChanges() method to save the changes to the database.
+            This is an Update operation for the Invoice, which means it should be a PUT action.
+        2) Create a new Invoice item, set the InvoiceId property to the Id property of the invoice, and then
+            call the SaveChanges() method to save the changes to the database.
+            This is a Create operation for the invoice item, which means it should be a POST action. Also we
+            need to provide an endpoint for the invoice item separately.
+
+    - an invoice item cannot exist without an invoice. so typically we interact with the invoice item
+        through the invoice. From the practical point of view, 1) is more common if the dependent entity
+        count is not large.
+        But if the principal entity has a large number of dependent entities, updating the entire principal
+        entity may be inefficient and expensive. In this case, you can expose a separate endpoint to operate
+        the dependent entity. For example, one blog post may have a large number of comments. It is common to
+        add a new comment to a blog post, but it is not necessary to update the entire blog post and other 
+        comments. This is related to another concept, domain-driven design (DDD), which is to model domain
+        objects and their relationships. We will talk about it in later chapters.
+            

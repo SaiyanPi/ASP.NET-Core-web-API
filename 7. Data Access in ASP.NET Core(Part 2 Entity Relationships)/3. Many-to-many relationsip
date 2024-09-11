@@ -1,0 +1,74 @@
+MANY-TO-MANY RELATIONSHIP
+
+- In a many-to-many relationship, we need to define a collection navigation property on both sides. 
+    (see Book and Genre class.)
+
+- EF Core can detect the many-to-many relationship automatically following the convention. If we
+    run the dotnet ef migrations add AddBookAndGenreTable command to add a migration.
+
+    (Migration file)
+    // omitted 
+    migrationBuilder.CreateTable(
+        name: "BookGenre",
+        columns: table => new
+        {
+            BooksBookId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+            GenresGenId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+        },
+        constraints: table =>
+        {
+            table.PrimaryKey("PK_BookGenre", x => new { x.BooksBookId, x.GenresGenId });
+            table.ForeignKey(
+                name: "FK_BookGenre_Books_BooksBookId",
+                column: x => x.BooksBookId,
+                principalTable: "Books",
+                principalColumn: "BookId",
+                onDelete: ReferentialAction.Cascade);
+            table.ForeignKey(
+                name: "FK_BookGenre_Genres_GenresGenId",
+                column: x => x.GenresGenId,
+                principalTable: "Genres",
+                principalColumn: "GenId",
+                onDelete: ReferentialAction.Cascade);
+        });
+    
+    -> Besides the code that creates 'Movies' and 'Actors' tables, the migration file also creates a join table
+        named 'ActorMovie' to store the foreign keys for both sides. The ActorMovie table has two foreign
+        key properties, ActorsId and MoviesId, to associate the Actor entity and the Movie entity.
+    -> However, sometimes the automatic detection of the many-to-many relationship may not meet our 
+        requirements. For example, we may want to call the table 'GenreBook' instead of 'BookGenre',
+        we may want to specify the foreign key properties as 'BookId' and 'GenreId' Instead of 
+        'BooksBookId' and 'GenresGenId'.
+        we may even want to add some additional properties to the join table. In these cases, 
+        we can explicitly configure the many-to-many relationship.
+
+
+- EXPLICITLY CONFIGURE THE MANY-TO-MANY RELATIONSHIP:
+    -> in the preceeding example with Book and Genre class, BookGenre table was automatically created by
+        EF Core 
+    -> But here we need to define a join entity to store the foreign keys for both sides
+        (see Movie and Actor class. MovieActor is a join entity)
+        
+        public class MovieActor
+        {
+            public Guid MovieId { get; set; }           // foreign key 
+            public Movie Movie { get; set; } = null!;
+            public Guid ActorId { get; set; }           // foreign key
+            public Actor Actor { get; set; } = null!;
+            public DateTime UpdateTime { get; set; }
+        }
+
+    -> dotnet run the EFCoreRelationshipIIDemo project and make a request to the endpoints for Movies and
+        Actors. In the DbContext file we haven't added a DbSet for a join table 'MovieActor' to the context
+        because 'Actors' and 'Movies' DbSet are suffecient to access MovieActor data via 'Actor' and 'Movie'
+        entities.
+        If we want to query MovieActor data directly, we should also add a DbSet for the join table to the
+        context.
+
+        public class SampleDbContext : DbContext(options)
+        {
+           // Many-to-Many
+            public DbSet<Movie> Movies => Set<Movie>();
+            public DbSet<Actor> Actors => Set<Actor>();
+            public DbSet<MovieActor> MovieActors => Set<MovieActor>();
+        }

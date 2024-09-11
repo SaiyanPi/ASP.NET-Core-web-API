@@ -1,0 +1,86 @@
+DELETING DATA:
+
+- Think about the following scenarioi in one-to-many relationship
+    an invoice has a list of invoice items.
+    a user delets an invoice.
+- in this case we may want to delete the related invoice items when the invoice is deleted because invoice
+    items cannot exist without an invoice. This behaviour is called Cascade delete.
+- Steps:
+    1) if we send a Delete request to the /api/Invoices/{id} endpoint with a valid ID. we will see the
+        invoice and the related invoice items are deleted from the database.
+        However, in some scenarios, we may want to keep dependent entities when the principal entity is deleted
+        for eg,  a category has a list of blog posts
+                 a user deletes a category
+                 it is not necessary to delete blog posts when a category is deleted, because a blog posts 
+                 can still exist without a category and can be assigned to another category. however if a
+                 category is deleted, the CategoryId property of a blog post, which is a foreign key, will 
+                 no longer match the primary key of any category. Therefore, you may want to set the 
+                 CategoryId property to null when a category is deleted. This behavior is called nullification.
+                 To allow this, the requirement is that the CategoryId property is nullable. If the CategoryId 
+                 property of blog post entity is not nullable, EF Core will throw an exception when you try to
+                 delete a category because it will violate the foreign key constraint.
+
+    2) In the Post class(dependent entity), CategoryId property is nullable unlike a InvoiceId in InvoiceItem 
+        class. Therefore, we can set 'DeleteBehaviour' to 'ClientSetNull' to nullify the CategoryId property
+        when a category is deleted.
+
+        CONFIGURING DeleteBehaviour TO ClientSetNull: 
+        a) update the PostConfiguration file as:
+
+            public class PostConfiguration : IEntityTypeConfiguration<Post>
+            {
+                public void Configure(EntityTypeBuilder<Post> builder)
+                {
+                    builder.ToTable("Posts");
+                    // Omitted for brevity
+                    builder.Property(p => p.CategoryId).
+                    HasColumnName("CategoryId");
+                    builder.HasOne(p => p.Category)
+                    .WithMany(c => c.Posts)
+                    .HasForeignKey(p => p.CategoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+                }
+            }
+
+        b) now in the delete emethod of CategoryController file we need to remove the relationship between 
+            the category and the blog posts before deleting the category.
+
+            [HttpDelete("{id}")]
+            public async Task<IActionResult> DeleteCategory(Guid id)
+            {
+                // omitted
+                if (category == null)
+                {
+                    return NotFound();
+                }
+                category.Posts.Clear(); // removing the relationship between the category and the blog posts before deleting the category
+                
+                context.Categories.Remove(category);
+                await context.SaveChangesAsync();
+                return NoContent();
+            }
+
+            OR we can update the Category property of the posts to set it to null before deleting the category
+            [HttpDelete("{id}")]
+            public async Task<IActionResult> DeleteCategory(Guid id)
+            {
+                // omitted
+                if (category == null)
+                {
+                    return NotFound();
+                }
+                foreach (var post in category.Posts)
+                {
+                    post.Category = null;
+                }
+                
+                context.Categories.Remove(category);
+                await context.SaveChangesAsync();
+                return NoContent();
+            }
+
+    3) Now we will be able to keep the dependent entities while deleting the principal entity. Keep in mind 
+        that some databases may not support cascading deletes. So, the DeleteBehavior enum contains quite a 
+        few values to allow us to fine-tune the behavior when deleting an entity.
+        Generally, it is recommended to use ClientCascade or ClientSetNull because EF Core can perform
+        cascading deletes or nullification if the database does not support cascading deletes.

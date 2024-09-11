@@ -1,0 +1,75 @@
+UNDERSTANDING OWNED ENTITIES:
+
+- In our 2 demo projects, some relationships are optional but some are required.
+    for eg, a Post can exist without a Category but a Passport cannot exist without a Person,
+    InvoiceItem cannot exist without Invoice.
+    For latter, we can say a Person owns a Passport and Invoice owns a InvoiceItem.
+
+- in this section we will introduce the concept of owned entities.
+    Owned entity types are entity types that are part of the owner and cannot exist without the owner.
+
+- we can use common one-to-one or one-to-many relationships to model the owned entities, but EF Core
+    provides a more convenient way called owned entity types.
+    we can use the OwnsOne() or OwnsMany() method to define owned entity types, instead of using HasOne()
+    or HasMany() method.
+
+    for eg, to configure the InvoiceItem entity as an owned entity type of Invoice entity(one-to-many):
+
+    public class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
+    {
+        public void Configure(EntityTypeBuilder<Invoice> builder)
+        {
+            // Omitted for brevity
+            // Use the owned type to configure the InvoiceItems collection
+            builder.OwnsMany(p => p.InvoiceItems, a =>
+            {
+                a.WithOwner( => x.Invoice).HasForeignKey(x => x.InvoiceId);
+                a.ToTable("InvoiceItems");
+                // Omitted for brevity
+            }
+            );
+        }
+    }
+
+    -> The configuration of the InvoiceItem entity is stored in the InvoiceConfiguration class.
+    -> OwnsMany()/WithOwner() method specifies the owner of the owned entity type.
+    -> The HasForeignKey() method specifies the foreign key property of the owned entity type.
+---------------------------------------------------------------------------------------------------------------
+
+    to configure the Passport entity as an owned entity of Person entity (one-to-one):
+
+    public class PersonConfiguration : IEntityTypeConfiguration<Person>
+    {
+        public void Configure(EntityTypeBuilder<Person> builder)
+        {
+            // Omitted for brevity
+            // Use the owned type to configure the InvoiceItems collection
+            builder.OwnsOne(p => p.Passport, a =>
+            {
+                a.WithOwner( => x.Person);
+                a.Property(a => a.Country).HasColumnName("Country"). HasMaxLength(20).IsRequired();
+                // Omitted for brevity
+            }
+            );
+        }
+    }
+
+    -> when we use the OwnsOne()/WithOwner() methods, we do not need to specify the foreign key property
+        (unlike in the previous one-to-many) because the owned type will be stored in the same table as the
+        owner by derfault. We can use the 'ToTable' method to specify the table name of the owned type.
+
+________________________________________________________________________________________________________________
+
+DIFFERENCE BETWEEN NORMAN ONE-TO-ONE OR ONE-TO-MANY AND OWNED ENTITY TYPE ?
+
+1) we cannot create a DbSet<T> property for an owned entity type.
+    we can only use the DbSet<T> property for for the owner. That mmeans we doi not have any way to access
+    the owned entity type directly. we must access the owned entity type through the owner.
+
+2) when we query the owner, the owned entity type will be included automatically. we do not need to use the
+    Include() method to include the owned entity type explicitly.
+
+- If our entities have a simple one-to-one or one-to-many relationship and the data is not large, we
+    can use owned entity types to simplify the configuration. However, if the relationship is complex and
+    the data size is large, we would be better off using normal one-to-one or one-to-many relationships
+    because we can decide which related entities to include explicitly.

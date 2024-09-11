@@ -1,0 +1,114 @@
+ONE TO MANYU RELATIONSHIPS:
+
+- it is the most common relationships in a relational database.
+- also called parent-child(children) relationships.
+
+(I) we've added the new model class 'InvoiceItem' and updated the existing model class 'Invoice'
+    (see the BasicEFCoreDemo in a current directory)
+
+        (InvoiceItem | dependent entity)
+        public class InvoiceItem
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; } = string.Empty;
+            // omitted
+            public Guid InvoiceId { get; set; }
+            public Invoice? Invoice { get; set; }
+        }
+
+        (Invoice | principal entity)
+        public class Invoice
+        {
+            public Guid Id { get; set; }
+            // Omitted 
+            // Add a collection of invoice items
+            public List<InvoiceItem> InvoiceItems { get; set; } = new();
+        }
+
+        -> in the preceding code, we defined a relationship between Invoice and InvoiceItem.
+        An invoice has a collection of invoice items and an Invoice item belongs to an invoice. It is a one-to-many
+        relationship, where we can identify these terms:
+
+        1) Principal Entity => also called the parent entity. here, Invoice is the principal entity.
+        2) Dependent Entity => also called a child entity. InvoiceItem is the dependent entity. It has an
+                                InvoiceId foreign key property to identify the parent entity.
+        3) Principal Key => this is the primary key of the principal entity, which uniquely identifies the 
+                            principal entity. Id property in the Invoice class is a peincipal key.
+        4) Foreign Key => InvoiceId property of the InvoiceItem class is the foreign key, which is used to store
+                            the principal key value of the parent entity. 
+                            public Guid InvoiceId { get; set; } 
+        5) Navigation property => this is used to reference the related entity. It can be defined on the principal or
+                                    dependent entity. there are two types of navigational properties:
+            i) Collection navigation property :
+                * this is defined on the principal entity, which is used to reference a collection of related entity.
+                * eg, public List<InvoiceItem> InvoiceItems { get; set; } = new();
+            ii) Reference navigation property:
+                * this is defined on athe dependent entity, which is used to reference a single related entity.
+                * for eg, public Invoice? Invoice { get; set; }
+
+(II) because we've added a new model, we need to update the DbContext class:
+        public DbSet<InvoiceItem> InvoiceItems => Set<InvoiceItem>();
+
+(III) Also it is a good practice to configure the mappiong for the new model InvoiceItem. InvoiceItemConfiguration
+    file has been added on a Data folder.
+
+(IV) once we define navigation properties for Invoice and InvoiceItem, EF Core can discover the relationship
+    between these 2 entities.
+        Let's create a migration: dotnet ef migrations add AddInvoiceItem.
+        In the generated migration file, onDelete action is set to ReferentialAction.Cascade, which means that
+        if the parent entity is deleted, all related child entities will also be deleted.
+
+    Let's think about a question – what if we do not have the InvoiceId property in the InvoiceItem
+    class? Can EF Core still discover the relationship between these two entities? You can use the dotnet
+    ef migrations remove command to remove the last migration, delete the InvoiceId property in the InvoiceItem
+    class, and then add a migration again. You will see that EF Core can still create a column named InvoiceId
+    in the InvoiceItems table, and apply the foreign key constraint to it, which is called shadow foreign key
+    property. This is because EF Core has its built-in convention to do this. There are a few scenarios where
+    EF Core can discover one-to-many relationships between entities:
+    • The dependent entity has a reference navigation property to the principal entity
+    • The principal entity has a collection navigation property to the dependent entity
+    • The reference navigation property and the collection navigation property are included at both ends
+    • The reference navigation property and the collection navigation property are included at both ends, 
+        and the foreign key property is included in the dependent entity
+
+-------------------------------------------------------------------------------------------------------------------
+EXPLICITLY CONFIGURING THE RELATIONSHIP:
+
+    we can explicitly configure the relationship between entities to change the default behaviour of EF Core
+    if the convention does not work for us.
+(I) to explicitly configure the one-to-many relationship between entities, we can use the HasOne(), WithMany(), and HasMany(), 
+    WithOne() methods. we can add the folowing code in the InvoiceConfiguration class:
+                    builder.HasMany(x => x.InvoiceItems)
+                    .WithOne(x => x.Invoice)
+                    .HasForeignKey(x => x.InvoiceId);
+    
+    -> preceeding code explicitly configures that one invoice can have many invoice items, and the InvoiceId
+        property of InvoiceItem class is the foreign key.
+    -> if we add a migration now, we will have a same migration code as generated by the convention.
+
+(II) relationship can be also defined for the InvoiceItem class. Remove the preceeding code and add the following
+    code for the InvoiceItemConfiguration class
+                    builder.HasOne(i => i.Invoice)
+                    .WithMany(i => i.InvoiceItems)
+                    .HasForeignKey(i => i.InvoiceId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+(III) we just need to configure the relationship on one side of the relationship. we do not need configuration in
+    both InvoiceConfiguration and InvoiceItemConfiguration classes.
+
+-------------------------------------------------------------------------------------------------------------------
+
+Now we can apply the migration to the database: dotnet ef database update
+
+___________________________________________________________________________________________________________________
+
+WHICH SIDE SHOULD WE CONFIGURE THE RELATIONSHIP ON?
+=>  If the two entities have a strong one-to-many relationship, it does not really matter which side we configure
+    the relationship on.
+    But if the two entities are loosely coupled, we had better configure the relationship on the dependent
+    entity.
+        For example, a User entity is shared by many other entities, such as Post, Comment, Invoice,
+        and so on. Each Post entity can have an Author property that is a reference navigation property
+        to the User entity, and Comment and Invoice also do the same. However, the User entity does
+        not need to have the collection navigation properties to the Post, Comment, and Invoice entities.
+        In this case, we should configure the relationship on the Post, Comment, and Invoice entities.

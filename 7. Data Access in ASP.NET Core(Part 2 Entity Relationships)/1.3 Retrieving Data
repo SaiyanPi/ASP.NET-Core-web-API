@@ -1,0 +1,20 @@
+RETRIEVING DATA:
+
+- next, let's see how to retrieve data by ID.
+- just like in the Querying data section, invoiceItems property will be empty. To include the collection
+    navigation property we need to use the Include method in the LINQ query.
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Invoice>> GetInvoice(Guid id)
+        {
+            var invoice = await context.Invoices
+            .Include(x => x.InvoiceItems)
+            .SingleOrDefaultAsync(x => x.Id == id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            return invoice;
+        }

@@ -58,3 +58,4 @@ EF(ENTITY FRAMEWORK) CORE:
     ii) Microsoft.EntityFrameworkCore.Design =>
         * it contains shared design-time components for EF Core tools, which are required to perform database 
             migrations
+    iii) Microsoft.EntityFrameworkCore
