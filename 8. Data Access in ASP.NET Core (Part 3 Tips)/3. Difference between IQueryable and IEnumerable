@@ -1,0 +1,118 @@
+DIFFERENCE BETWEEN IQueryable & IEnumerable:
+
+- when working with EF Core, we have 2 interfaces available to query the database: IQueryable and IEnumerable.
+
+IEnumerable:
+- IEnumerable interface is a standard .NET interface that is used to represent a collection of objects.
+    it is used to iterate through the collection. Many .NET collections implement the IEnumerable interface
+    such as List, Array, Dictionary and so on.
+- IEnumerable interface has a single method called GetEnumerator, which returns an IEnumerator object. 
+    IEnumerator object is used to iterate through the collection.
+
+IQueryable:
+- when we use some LINQ methods, such as Where(), OrderBy(), Skip(), and Take(), EF Core will not execute
+    the query immediately. It will build a query and return a new IQueryable object.
+- IQueryable is an interface in the System.Linq namespace that represents a queryable collection of entities
+    that can be used to compose a query against a specific data source, such as database.
+- it postpones the query execution until the very last moment when the result is needed. 
+    Generally, when we call the 'ToListAsync()' method, the query will be translated to a server-specific
+    query language, such as SQL, and executed against the database. This can improve the performance of the
+    application because we do not need to fetch all the data from the database before we can filter and sort
+    the data.
+
+DIFFERENCE: 
+- IQueryable is in the System.Linq namespace, while IEnumerable is in the System.Collections namespace.
+- IQueryable interface inherits from the IEnumerable interface, so IQueryable can do everything that 
+    IEnumerable does.
+    BUT WHY DO WE NEED IQueryable INTERFACE?
+- IEnumerable is used to iterate through a collection in memory but IQueryable is used to query data from a
+    specific data source such as a database. When we use IQueryable, the query will be translated into a
+    specific query language, such as SQL, and executed against the data source to get the results when
+    we call the ToList() (or ToAway()) method or iterate the items in the collection.
+
+- IQueryable:
+    see InvoiceController/Use IQueryable section:
+            // Use IQueryable
+     1)       logger.LogInformation($"Creating the IQueryable...");
+            var list1 = context.Invoices.Where(x => status == null || x.Status == status);
+     2)       logger.LogInformation($"IQueryable created");
+     3)       logger.LogInformation($"Query the result using IQueryable...");
+            var query1 = list1.OrderByDescending(x => x.InvoiceDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
+     4)       logger.LogInformation($"Execute the query using IQueryable");
+            var result1 = await query1.ToListAsync();
+     5)       logger.LogInformation($"Result created using IQueryable");
+
+    -> when we request to the endpoint /invoice the console output will be:
+        
+            info: EFCoreDemo.Data.SampleDbContext[0]
+        1)       Creating the IQueryable...
+            info: EFCoreDemo.Data.SampleDbContext[0]
+        2)      IQueryable created
+            info: EFCoreDemo.Data.SampleDbContext[0]
+        3)       Query the result using IQueryable...
+            info: EFCoreDemo.Data.SampleDbContext[0]
+        4)       Execute the query using IQueryable
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (45ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+                SELECT [i].[Id], [i].[Amount], [i].[ContactName], [i].[Description], [i].[DueDate], [i].[InvoiceDate], [i].[InvoiceNumber], [i].[Status]
+                FROM [Invoices] AS [i]
+                ORDER BY [i].[InvoiceDate] DESC
+                OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+            info: EFCoreDemo.Data.SampleDbContext[0]
+        5)      Result created using IQueryable
+
+    -> Note that the query contains the ORDER BY, OFFSET, and FETCH NEXT clauses, which means the query is 
+        executed on the database server and the query is executed against the database only after 4)
+        or only after when call the ToListAsync() method.
+
+- IEnumerable:
+    see IEnumerable section:
+
+            // Use IEnumerable
+    a)        logger.LogInformation($"Creating the IEnumerable...");
+            var list2 = context.Invoices.Where(x => status == null || x.Status == status)
+                .AsEnumerable();
+    b)        logger.LogInformation($"IEnumerable created");
+    c)        logger.LogInformation($"Query the result using IEnumerable...");
+            var query2 = list2.OrderByDescending(x => x.InvoiceDate)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+    d)        logger.LogInformation($"Execute the query using IEnumerable");
+            var result2 = query2.ToList();
+    e)        logger.LogInformation($"Result created using IEnumerable");
+
+    -> after making end request, console output will be:
+        
+            info: EFCoreDemo.Data.SampleDbContext[0]
+    a)            Creating the IEnumerable...
+            info: EFCoreDemo.Data.SampleDbContext[0]
+    b)            IEnumerable created
+            info: EFCoreDemo.Data.SampleDbContext[0]
+    c)            Query the result using IEnumerable...
+            info: EFCoreDemo.Data.SampleDbContext[0]
+    d)            Execute the query using IEnumerable
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (15ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                SELECT [i].[Id], [i].[Amount], [i].[ContactName], [i].[Description], [i].[DueDate], [i].[InvoiceDate], [i].[InvoiceNumber], [i].[Status]
+                FROM [Invoices] AS [i]
+            info: EFCoreDemo.Data.SampleDbContext[0]
+    e)            Result created using IEnumerable
+
+    -> Note that unlike in the IQueryable interface, thee generated SQL query does not contain the ORDER BY,
+        OFFSET, and FETCH NEXT clauses, which means the query fetched all the invoices from the database and
+        then filtered, sorted, and paged the invoices in memory.
+    -> If we have a large number of entities in the database, the query will be very slow and inefficient.
+    
+CONCLUSION:
+- The IQueryable interface is a deferred execution query, which means the query is not executed when we add
+    more conditions to the query. The query will be executed against the database when we call the ToList()
+    or ToArray() methods or iterate the items in the collection.
+    So, in complex and heavy queries, we should always use the IQueryable interface to avoid fetching all 
+    the data from the database.
+
+WHAT LINQ METHODS CAN CAUSE THE QUERY TO BE EXECUTED IMMEDIATELY?
+- Use the for or foreach loop to iterate the items in the collection
+- Use the ToList(), ToArray(), Single(), SingleOrDefault(), First(), FirstOrDefault(), or Count() methods, 
+    or the async overloads of these methods

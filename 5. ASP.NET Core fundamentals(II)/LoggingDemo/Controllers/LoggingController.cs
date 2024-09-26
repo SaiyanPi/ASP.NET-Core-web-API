@@ -15,4 +15,4 @@ public class LoggingController(ILogger<LoggingController> logger) : ControllerBa
         logger.LogInformation($"This is a logging message with string concatenation: Today is {DateTime.Now.DayOfWeek}. It is {DateTime.Now.ToLongTimeString()}.");
         return Ok("This is to test the difference between structured logging and string concatenation.");
     }
-}
+}z

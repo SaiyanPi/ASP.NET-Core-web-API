@@ -1,0 +1,86 @@
+CLIENT EVALUATION vs SERVER EVALUATION:
+
+- when we use EF Core to query data from the database, we can just write LINQ queries, and EF Core will
+    translate the LINQ queries into SQL queries and execute them against the database. However, 
+    sometimes, the LINQ operation must be executed on the client side.
+
+- in the InvoiceControler/SearchInvoice method, when we make request to the endpoint
+    1) Server Evaluation:
+    WHEN:
+        var list = await context.Invoices
+            .Where(x => x.ContactName.Contains(search) || x.InvoiceNumber.Contains(search))
+            .ToListAsync();
+
+    THEN CONSOLE OUTPUT:
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (54ms) [Parameters=[@__search_0_contains='?' (Size = 32), @__search_0_contains_1='?' (Size = 32) (DbType = AnsiString)], CommandType='Text', CommandTimeout='30']
+        SELECT [i].[Id], [i].[Amount], [i].[ContactName], [i].[Description], [i].[DueDate], [i].[InvoiceDate], [i].[InvoiceNumber], [i].[Status]
+        FROM [Invoices] AS [i]
+        WHERE [i].[ContactName] LIKE @__search_0_contains ESCAPE N'\' OR [i].[InvoiceNumber] LIKE @__search_0_contains_1 ESCAPE '\'
+    
+    -> we can see that the SQL Query uses some native SQL functions to filter the data, which means
+        that the SQL query is executed to the database server. This is called Server Evaluation.
+        EF Core tries to run server evaluation as much as possible.
+
+
+    2) Client Evaluation:
+    -> Now, let's say we want to return the GST tax amount for each invoice. We can transfer the entity to
+        a new object with the GST tax amount. Of course, the better way is to add a property for the tax in
+        the Invoice entity. (see fully in the controller)
+    WHEN:
+        var list = await context.Invoices
+            .Where(x => (x.ContactName.Contains(search) || x.InvoiceNumber.Contains(search)))
+            .Select(x => new Invoice
+            {
+                Id = x.Id,
+                InvoiceNumber = x.InvoiceNumber,
+                ContactName = x.ContactName,
+                // The below conversion will be executed on the client side
+                Description = $"Tax: ${CalculateTax(x.Amount)}. {x.Description}",
+                Amount = x.Amount,
+                InvoiceDate = x.InvoiceDate,
+                DueDate = x.DueDate,
+                Status = x.Status
+            })
+            .ToListAsync();
+
+    THEN CONSOLE OUTPUT:
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (60ms) [Parameters=[@__search_0_contains='?' (Size = 32), @__search_0_contains_1='?' (Size = 32) (DbType = AnsiString)], CommandType='Text', CommandTimeout='30']
+        SELECT [i].[Id], [i].[InvoiceNumber], [i].[ContactName], [i].[Amount], [i].[Description], [i].[InvoiceDate], [i].[DueDate], [i].[Status]
+        FROM [Invoices] AS [i]
+        WHERE [i].[ContactName] LIKE @__search_0_contains ESCAPE N'\' OR [i].[InvoiceNumber] LIKE @__search_0_contains_1 ESCAPE '\'
+    
+    -> though we updated the method by adding GST tax calculation and updated the the description section
+        response, the console output is the same as the previous query. THIS MEANS THE CONVERSION IS DONE
+        ON THE CLIENT SIDE. This is called client evaluation.
+    -> This kind of client evaluation is acceptable because the query does need to fetch the data from the
+        database. The cost is very low. However, it might cause problems for some queries. For example, we
+        want to query the invoices that have a GST tax amount greater than $10.
+
+        var list = await context.Invoices
+            .Where(x => (x.ContactName.Contains(search) || x.InvoiceNumber.Contains(search)) && CalculateTax(x.Amount) > 10)
+            .ToListAsync();
+        
+        CONSOLE:
+        fail: Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware[1]
+            An unhandled exception has occurred while executing the request.
+            System.InvalidOperationException: The LINQ expression 'DbSet<Invoice>()
+                .Where(i => i.ContactName.Contains(__search_0) || i.InvoiceNumber.Contains(__search_0) && InvoiceController.CalculateTax(i.Amount) > 10)'
+            could not be translated. 
+
+        -> it is because the CalculateTax() method is not supported by EF Core.
+        -> EF Core will throw an exception if the query cannot be translated correctly, to avoid potential
+            performance issues.
+        -> But if you are sure the client evaluation is safe, such as when dealing with a small data size, 
+            we can explicitly use the AsEnumerable() method (or AsAsyncEnumerable(), ToList(), or 
+            ToListAsync()) to force EF Core to fetch all the data and then execute the query on the 
+            client side.
+        
+WHY MUST THE CalculateTax() METHOD BE STATIC?
+=> EF Core caches the compiled query due to the expensive nature of compiling the query. If the
+    CalculateTax() method is not static, EF Core will need to maintain a reference to a constant
+    expression of the InvoicesController through the CalculateTax() instance method,
+    which could potentially lead to memory leaks. To prevent this, EF Core throws an exception
+    if the CalculateTax() method is not static. Making the method static will ensure that EF
+    Core does not capture constant in the instance

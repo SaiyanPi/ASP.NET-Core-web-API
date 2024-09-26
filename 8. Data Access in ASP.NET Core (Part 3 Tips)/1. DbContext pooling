@@ -1,0 +1,41 @@
+DbContext POOLING:
+
+- in the previous section we learnt how to register the DbContext instance in the DI container using
+    AddDbContext() extension method.
+    The default service lifetime of the DbContext instance is Scoped. which means a new DbContext instance
+    is created for each request.which is generally not a problem since it is a lightweight object
+    that does not consume many resources. However, in a high-throughput application, the cost of setting
+    up various internal services and objects for each DbContext instance can add up. To address this,
+    EF Core provides a feature called DbContext pooling, which allows the DbContext instance to be
+    reused across multiple requests.
+- to enable the DbContext pooling, we can replace the AddDbContext() method with the AddDbContextPool()
+    method. This resets the state of the DbContext instance when it is disposed of, stores it in a pool,
+    and reuses it when a new request comes in.
+- By reducing the cost of setting up the DbContext instance, DbContext pooling can significantly improve 
+    the performance of your application for high-throughput scenarios.
+
+        builder.Services.AddDbContextPool<SampleDbContext>(Options =>
+        {
+            Options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        });
+
+    -> AddDbContextPool() method takes a poolSize parameter, which specifies the maximum number of DbContext
+        instances that can be stored in the pool. The default value is 1024, which is usually suffecient for 
+        most applications. If the pool is full, EF Core will start creating new DbCopntext instances as needed.
+    -> see the AddDbContext vs AddDbContextPool load test result images.
+
+        For AddDbContext:
+            average request duration = 81.91 ms
+            number of request completed = 13311
+            number of failed requests = 582 (4.18%)
+
+        For AddDbContextPool:
+            average request duration = 76.39 ms
+            number of request completed = 13436
+            number of failed requests = 538 (3.85%)
+
+
+NOTE:
+For most applications, DbContext pooling is not necessary. we should enable DbContextpooling only if we have
+a high-throughput application. Therefore, before enabling DbContext pooling, it is important to test our 
+application’s performance with and without it to see whether there’s any noticeable improvement.

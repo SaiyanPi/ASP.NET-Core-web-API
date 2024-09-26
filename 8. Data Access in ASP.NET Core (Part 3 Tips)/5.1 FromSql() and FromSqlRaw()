@@ -1,0 +1,79 @@
+i) FromSql() and FromSqlRaw():
+
+
+-> FromSql() method is available in EF Core 7.0 and later versions. we can use it to create a LINQ
+    query based on an interpolated string.
+-> there are similar method in older version called 'FromSqlInterpolated()'.
+-> to execute the raw SQL query, we just need to pass the interpolated string  to the FromSql()
+    method as follows:
+
+        var list = await context.Invoices
+                    .FromSql($"SELECT * FROM Invoices WHERE Status = 2")
+                    .ToListAsync();
+
+-> PASSING PARAMETER: for eg, we want to query the invoices that have a specific status.
+    (See InvoiceController/ status route method)
+        
+        var list = await context.Invoices
+                    .FromSql($"SELECT * FROM Invoices WHERE Status = {status}")
+                    .ToListAsync();
+
+    * when we make request to the endpoint(/invoice/status?status=draft), 
+        we will see the generated SQL query as follows:
+           
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (54ms) [Parameters=[p0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+                SELECT * FROM Invoices WHERE Status = @p0
+
+    * as we can see, the parameter is not inserted into the SQL query directly. Instead, EF Core uses the
+        @p0 parameter placeholder and passes the parameter value to the SQL query.
+        THIS IS CALLED PARAMETERIZED QUERY.
+    * It is safe to use the parameterized query to avoid SQL injection attacks. So, we do not need to worry
+        about the safety of the FromSql() method.
+
+
+DYNAMIC SQL QUERIES:
+-> for some scenarios, we might need to build dynamic SQL queries. For eg, we want to query the invoices
+    according to user inputs, which specifies the property name and property value.
+-> for this case, we cannot use FromSql() because IT IS NOT ALLOWED TO PARAMETERIZED THE COLUMNS NAMES.
+    we need to use FromSqlRaw() instead. However we must be careful to avoid SQL injection attacks
+    (see 'free-search' route method in InvoiceController)
+
+        [HttpGet]
+        [Route("free-search")]
+        public async Task<ActionResult<IEnumerable<Invoice>>> GetInvoices(string propertyName, string propertyValue)
+        {
+            // Do something to sanitize the propertyName value
+
+            var value = new SqlParameter("value", propertyValue);
+            var list = await context.Invoices
+                .FromSqlRaw($"SELECT * FROM Invoices WHERE {propertyName} = @value", value)
+                .ToListAsync();
+            return list;
+        }
+
+        * endpoint: /invoice/free-search?propertyName=status&propertyValue=draft
+        * console output: 
+
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (66ms) [Parameters=[value='?' (Size = 5)], CommandType='Text', CommandTimeout='30']
+                SELECT * FROM Invoices WHERE status = @value
+
+-> we can see that the column name(propertyName) is not parameterized. Therefore, we must be careful to avoid
+    SQL injection attacks. It is required to sanitize the propertyName value to make sure it is safe.
+    Maybe we can check whether the value contains any special characters, such as ;, --, and so on.
+    if the value contains any special characters, we can throw an exception ot remove the special characters
+    before executing the SQL query.
+
+-> while propertyValue is parameterized, so it is safe to use.
+
+-> After we build the SQL query using FromSql(), you can then apply the LINQ query operators to
+    filter the data as we want. Remember that IT IS BETTER TO USE FromSql() THAN FromSqlRaw().
+
+-> when we use the FromSql() or FromSqlRaw() methods, we should know some limitations:
+    i) the data returned from the SQL query must contain all the properties of the entity, otherwise,
+        EF Core cannot map the data to the entity.
+    ii) the columns names returned from the SQL query must match the column names that the entity
+        properties are mapped to.
+    iii) SQL query can only query one table. If we need to query multiple tables, we can build the raw
+        query first and then use the Include() method to include the related entities.

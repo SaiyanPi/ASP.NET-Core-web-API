@@ -24,7 +24,7 @@ ________________________________________________________________________________
     - provided in ASP.NET Core 7.
     - used to limit the number of requests that a client can make in a given time window.
     - very useful to prevent distributed denial-of-service(DDoS) attacks.
-    - rate -limiting middleware defines 4 policies:(we will only fixed window policy here)
+    - rate -limiting middleware defines 4 policies:(we will only discuss fixed window policy here)
         i) fixed window
         ii) sliding window
         iii) token bucket

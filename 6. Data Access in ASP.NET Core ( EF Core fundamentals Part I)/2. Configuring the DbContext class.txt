@@ -49,7 +49,7 @@ SCHEMA, HOW TO PERFORM CRUD OPERATIONS, AND HOW TO USE MIGRATIONS TO UPDATE THE 
                     public DbSet<Invoice> Invoices => Set<Invoice>();
                 }
 
-        -> WHY NOT 'public DbSet<Invoice> Invoices { get; set; }' LIKE IN RAZOR PAGES ?
+        -> WHY NOT 'public DbSet<Invoice> Invoices { get; set; }' ?
             => because DbSet<T> properties are not initialized , the compiler will emit warnings from them
                 because the nullable reference type feature is enabled by default.
                 So we can use a Set<TEntity>() method to initialize the propertry to eliminate the warning.

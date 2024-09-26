@@ -1,0 +1,30 @@
+ExecuteSql() AND ExecuteSqlRaw():
+
+- for some scenarios, where we do not need return values, we can use the ExecuteSql() method to execute raw 
+    SQL query.
+- normally it is used to update or delete data or call a stored procedure.
+    for eg, when we need to delete all invoice that have a specific status, we can use the 
+    ExecuteSql() method.
+
+        [HttpDelete]
+        [Route("status")]
+        public async Task<ActionResult> DeleteInvoices(string status)
+        {
+            var result = await context.Database
+                .ExecuteSqlAsync($"DELETE FROM Invoices WHERE Status = {status}");
+            return Ok();
+        }
+
+    endpoint: /invoice/status?status=cancelled
+    trabnslated SQL query in console:
+
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (6ms) [Parameters=[@p0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+            DELETE FROM Invoices WHERE Status = @p0
+
+- In this way, we do not need to load the entities from the database and then delete them one by one.
+    It is much more efficient to use the ExecuteSql() method to execute the raw SQL query.
+
+- The ExecuteSqlRaw() method is similar to the ExecuteSql() method, but it allows us to build dynamic
+    SQL queries like the FromSqlRaw() method. Similarly, you must be very careful to sanitize the SQL
+    query to avoid SQL injection attacks.

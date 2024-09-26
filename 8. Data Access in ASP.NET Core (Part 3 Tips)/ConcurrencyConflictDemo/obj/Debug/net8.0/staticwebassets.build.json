@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "Z7WLV/JijXrsbqGKgKbtD+ucqO6SkhyfMFrGSx8oy+g=",
+  "Source": "ConcurrencyConflictDemo",
+  "BasePath": "_content/ConcurrencyConflictDemo",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

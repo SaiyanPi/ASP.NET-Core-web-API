@@ -7,7 +7,8 @@ BASIC LINQ QUERIES:
 
             var invoices = await _context.Invoices.ToListAsync();
 
-    -> to find a specific invoice we can use the FindAsync() or Single() or SingleOrDefault()  method as:
+    -> to find a specific invoice we can use either Find() or Single() or SingleOrDefault() or First() or
+        FirstOrDefault() methods.
 
             var invoice = await _context.Invoices.FindAsync(id); 
             var invoice = await _context.Invoices.SingleAsync(i => i.Id == id);
@@ -18,18 +19,25 @@ BASIC LINQ QUERIES:
                 find a specific entity.
 
     -> These methods are kind of confusing. The recommended practice is as follows:
-        a) Find() or FindAsync() => 
-            If you want to find an entity by the primary key value and leverage the tracking state to improve
-            the performance.
-        b) SingleOrDefault() or SingleOrDefaultAsync() => 
-            If you are sure that the entity exists and only one entity satisfies the condition, use Single()
-            or SingleAsync(). If you would like to specify a default value when the entity is not found.
-        c) FirstOrDefault() or FirstOrDefaultAsync() =>
-            If you are not sure whether the entity exists, or there may be more than one entity that satisfies
-            the condition, use First() or FirstAsync(). If you would like to specify a default value
-            when the entity is not found.
-        • Do not forget to check whether the result is null if you use Find(), FindAsync(), SingleOrDefault(),
-            SingleOrDefaultAsync(), FirstOrDefault(), and FirstOrDefaultAsync().
+        a) Find() or FindAsync() => If you want to find an entity(product) by the primary key
+            value(Id or Product_Id) and leverage the tracking state to improve the performance,
+            use this method.
+                var product = await _context.Products.FindAsync(id);
+
+        b) Single() or SingleAsync()/SingleOrDefault() or SingleOrDefault Async() => If you are sure
+            that the entity(product) exists and only one entity(product) satisfied the condition use
+            this method. But note that If the entity is not found it will throw an exception so if
+            you would like to specify a default value when the entity(product) is not found, use
+            SingleOrDefault() or SingleOrDefaultAsync() which by the way is also a recommended method.
+                var product = await  _context.Products.SingleOrDefaultAsync(i => i.Id == id);
+
+        c) First or FirstAsync()/FirstOrDefault () or FirstOrDefaultAsync() => If you are not sure
+            whether the entity(product) exists, or there may be more than one entity(product) that
+            satisfies the condition, use this method. but note that If the entity is not found it will
+            throw an exception so if you would like to specify a default value when the entity is not
+            found, use FirstOrDefault() or FirstOrDefaultAsync() which by the way is also a recommended
+            method.
+                var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id); 
 
 2) FILTERING THE DATA =>
     -> We can use the Where() method to filter the invoices by status.

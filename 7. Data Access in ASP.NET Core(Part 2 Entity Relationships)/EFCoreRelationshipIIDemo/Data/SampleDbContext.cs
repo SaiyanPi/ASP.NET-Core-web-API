@@ -19,7 +19,7 @@ public class SampleDbContext(DbContextOptions<SampleDbContext> options, IConfigu
     public DbSet<Genre> Genres => Set<Genre>();
 
     
-     protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SampleDbContext).Assembly);
     }

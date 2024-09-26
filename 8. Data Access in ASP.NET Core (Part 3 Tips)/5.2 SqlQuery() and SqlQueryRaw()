@@ -1,0 +1,35 @@
+SqlQuery() AND SqlQueryRaw():
+
+- The FromSql() method is useful when we want to query entities from the database using a raw SQL query. 
+- for some cases, we want to execute the raw SQL query and return a scalar value or non-entity type.
+    for eg, we want to query the IDs of invoices that have a specific status,
+    we can use the SqlQuery() method to execute the raw SQL query and return a list of IDs.
+
+        [HttpGet]
+        [Route("ids")]
+        public ActionResult<IEnumerable<Guid>> GetInvoicesIds(string status)
+        {
+            var result = context.Database
+                .SqlQuery<Guid>($"SELECT Id FROM Invoices WHERE Status = {status}")
+                .ToList();
+            return result;
+        }
+    
+    endpoint: /api/invoice/ids?status=draft
+    translated query in console:
+
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (35ms) [Parameters=[p0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+            SELECT Id FROM Invoices WHERE Status = @p0
+
+- NOTE that the SqlQuery() method is used on the Database property of the DbContext object.
+    it is not available on the DbSet object
+
+    DbContext = is used to manage the database connection and track changes to objects across
+                multiple tables.
+    DbSet = is used to represent a specific table or view and provides methods for querying and
+            updating data within that table or view
+            
+- The SqlQueryRaw() method is similar to the SqlQuery() method, but it allows us to build dynamic SQL 
+    queries like the FromSqlRaw() method. Similarly, you must take responsibility to avoid SQL injection
+    attacks.

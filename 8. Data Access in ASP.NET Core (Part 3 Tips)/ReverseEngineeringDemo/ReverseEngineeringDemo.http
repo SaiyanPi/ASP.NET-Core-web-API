@@ -1,0 +1,6 @@
+@ReverseEngineeringDemo_HostAddress = http://localhost:5124
+
+GET {{ReverseEngineeringDemo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

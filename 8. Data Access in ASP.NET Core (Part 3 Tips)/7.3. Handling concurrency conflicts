@@ -1,0 +1,51 @@
+HANDLING CONCURRENCY CONFLICTS:
+
+- as seen in 7.1 and 7.2 chapter, when a concurrency occurs, EF Core will throw a 
+    DbUpdateConcurrencyException exception.
+- we can catch this exception and handle it in the application. for eg, we can return a 409 Conflict
+    status code to the client, andlet the client decide what to do next.
+
+        [HttpPost("{id}/sell/{quantity}")]
+        public async Task<ActionResult<Book>> SellBook(int id, int quantity, int delay = 0)
+        {
+           if (_context.Products == null)
+            {
+                return Problem("Entity set 'SampleDbContext.Books' is null.");
+            }
+            var book = await _context.Book.FindAsync(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+            if (book.Quantity < quantity)
+            {
+                return Problem("Not enough quantity.");
+            }
+            await Task.Delay(TimeSpan.FromSeconds(delay)); // Simulate delay for demonstration purposes
+            book.Quantity -= quantity;
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+                catch (DbUpdateConcurrencyException)
+            {
+                 // Do not forget to log the error
+                _logger.LogInformation($"Concurrency conflict for Book {book.Id}.");
+                return Conflict($"Concurrency conflict for Book {book.Id}.");
+            }
+            return book;
+        }
+
+    
+        -> The preceding code returns a 409 Conflict status code to the client and log the error on
+            console when a concurrency conflict occurs. The client can then handle the exception and
+            retry the update operation.
+
+IMPORTANT NOTE:
+Some databases provide different isolation levels to handle concurrency conflicts. For example,
+SQL Server provides four isolation levels: ReadUncommitted, ReadCommitted,
+RepeatableRead, and Serializable. The default isolation level is ReadCommitted.
+Each isolation level has different behaviors when a concurrency conflict occurs and has its own
+pros and cons. Higher levels of isolation provide more consistency but also reduce concurrency.
+For more information, see Isolation Levels at https://learn.microsoft.com/en-gb/
+sql/t-sql/statements/set-transaction-isolation-level-transact-sql.

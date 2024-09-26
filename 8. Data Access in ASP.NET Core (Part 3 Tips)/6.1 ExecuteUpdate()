@@ -1,0 +1,66 @@
+ExecuteUpdate():
+
+- The ExecuteUpdate() method is used to update data without loading the entities from the database.
+    we can use it to update one or more entities by adding the Where() clause.
+
+- for eg, we want to update the status of the invoices with InvoiceStatus Overdue and were created
+    before a specific date into 'Cancelled'.
+    (We do not need Body to update the the entity property)
+
+    [HttpPut]
+    [Route("status/cancelled")]
+    public async Task<ActionResult> UpdateInvoicesStatusAsCancelled(DateTime date)
+    {
+        var result = await context.Invoices
+            .Where(i => i.InvoiceDate < date && i.Status == InvoiceStatus.Overdue)
+            .ExecuteUpdateAsync(s => s.SetProperty(x => x.Status,InvoiceStatus.Cancelled));
+        return Ok();
+    }
+
+    endpoint: api/invoice/status/cancelled?date=2025-01-01
+    Generated SQL query:
+
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (57ms) [Parameters=[@__p_0='?' (DbType = DateTimeOffset)], CommandType='Text', CommandTimeout='30']
+            UPDATE [i]
+            SET [i].[Status] = 'Cancelled'
+            FROM [Invoices] AS [i]
+            WHERE [i].[InvoiceDate] < @__p_0 AND [i].[Status] = 'Overdue'
+
+- This query can update multiple invoices as the same time. It does benefit from the strong type
+    support but has the same efficiency as the raw SQL query.
+
+---------------------------------------------------------------------------------------------------------
+
+UPDATE MULTIPLE PROPERTIES:
+
+- if we need to update more that one properties, we can use the SetProperty() method multiple times.
+    for eg, we want to update the status into 'Paid' and amount into '200' of the invoices with 
+    InvoiceStatus Draft and were created before 2025.
+
+    [HttpPut]
+    [Route("status/paid")]
+    public async Task<ActionResult> UpdateInvoicesStatusAndAmount(DateTime date)
+    {
+        var result = await context.Invoices
+            // get all invoices with InvoiceStatus Overdue and created before given data in the query
+            .Where(i => i.InvoiceDate < date && i.Status == InvoiceStatus.Draft)
+            // ExecuteUpdate multiplt property(status and amount)
+            .ExecuteUpdateAsync(s =>
+                s.SetProperty(x => x.Status, InvoiceStatus.Cancelled)
+                .SetProperty(x => x.Amount, 200));
+        return Ok();
+    }
+
+    endpoint: api/invoice/status/paid?date=2025-01-01
+    generated SQL query:
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (55ms) [Parameters=[@__p_0='?' (DbType = DateTimeOffset)], CommandType='Text', CommandTimeout='30']
+            UPDATE [i]
+            SET [i].[Amount] = 200.0,
+                [i].[Status] = 'Cancelled'
+            FROM [Invoices] AS [i]
+            WHERE [i].[InvoiceDate] < @__p_0 AND [i].[Status] = 'Draft'
+
+- ExecuteUpdate() method is always recommended to update multiple entities, instead of using the raw
+    SQL query.

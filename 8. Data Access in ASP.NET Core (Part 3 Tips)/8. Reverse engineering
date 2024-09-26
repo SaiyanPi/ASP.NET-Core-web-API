@@ -1,0 +1,65 @@
+REVERSE ENGINEERING:
+
+- so far, we've learned how to use EF Core to create a database schema from the entity class.
+    This is called code-first.
+- However sometimes we need to work with an existing database. In this case we need to create the
+    entity classes and DbContext from the existing databse schema. This is called database-first or
+    reverse engineering. This is useful when we want to migrate an existing application to EF Core.
+
+-   1) First let's create a project 'ReverseEngineeringDemo'
+
+    2) Required Nuget packages:
+        -> Microsoft.EntityFrameworkCore.Design
+        -> Microsoft.EntityFrameworkCore.SqlServer
+
+        If you use other database providers, such as SQLite, you need to install the corresponding
+        NuGet package. For example, to use SQLite, you need to install the Microsoft.
+        EntityFrameworkCore.Sqlite NuGet package. You can find the list of supported database
+        providers at https://learn.microsoft.com/en-us/ef/core/providers/.
+
+    3) next, we will use the dbcontext scaffold command to generate the entity classes and DbContext
+        from the database schema.
+        We will be using the existing database 'EFCoreRelationshipDb' from the previous project
+        'EFCoreRelationshipsDemo' from chapter 7.
+        This command needs the connection string of the database and the name of the database provider.
+
+
+        command: dotnet ef dbcontext scaffold "server=.;Initial Catalog=EFCoreRelationshipDb;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer
+        -> generated files will be placed in the current directiory.
+
+        command: dotnet ef dbcontext scaffold "server=.;Initial Catalog=EFCoreRelationshipDb;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer --context-dir Data --output-dir Models
+        -> we can use --context-dir and --output-dir options to specify the output directory of 
+            the DbContext and entity class.
+            --context-dir Data => means the output directory of the DbContext is Data folder
+            --output-dir Models => means the output directory of the entity class is Models folder
+
+        command: dotnet ef dbcontext scaffold "server=.;Initial Catalog=EFCoreRelationshipDb;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer --context-dir Data --output-dir Models --context AppDbContext
+        -> default name of the DbContext class will be the same as the database name.
+        -> so if you would like to specify the name of the DbContext class, you can use
+            --context AppDbContext
+
+    - After running the command, we will see the entities and DbContext created in the respective folders.
+        In AppDbContext, we will see a warning:
+            #warning To protect potentially sensitive information in your connection string, 
+            you should move it out of source code. You can avoid scaffolding the connection 
+            string by using the Name= syntax to read it from configuration 
+            - see https://go.microsoft.com/fwlink/?linkid=2131148.
+            For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+
+        -> this tells us that we should not store the connection string in the source code. Instead, we
+            should store it in a configuration file, such as appsettings.json.
+    - In the OnModelCreating method, we can see the entity classes and their relationships have been
+        configured in the Fluent API style. if you perfer to use data annotations, we can use the
+        '--data-annotations' option when running the dbcontext scaffold command.
+        But as we've discussed in the previous chapter 6, Fluent API is more powerful than data annotation,
+        and it is recommended to use Fluent API.
+
+    - NOTE: 
+        1) Keep in mind that the generated code is just a starting point. Some models or properties
+            may not be represented correctly in the database. For example, if your models have
+            inheritance, the generated code will not include the base class because the base class
+            is not represented in the database.
+        2) some column types may not be able to be mapped to the corresponding CLR types.
+            For example, the Status column in the Invoice table is of the nvarchar(16) type,
+            which will be mapped to the string type in the generated code, instead of the Status
+            enum type.

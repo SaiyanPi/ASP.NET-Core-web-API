@@ -1,0 +1,116 @@
+UNDERSTANDING CONCURRENCY CONFLICT:
+
+- api ebdpoint can be called multiple times at the same time. if the endpoint updates data, the data
+    may be updated by another client before the current client completes the update.
+- when the same entity is updated by multiple clients, it can cause a concurrency conflict, which may
+    result in data loss or inconsistency, or even cause data corruption.
+- 2 ways to handle concurrency conflicts:
+    1) Pessimistic concurrency control
+    2) Optimistic concurrency control
+
+1) Pessimistic concurrency control:
+    -> uses database locks to prevent multiple clients from updating the same entity at the same time.
+    -> when a client tries to update the entity, it will first acquire a lock on the entity.If the lock
+        is acquired successfully, only this client can update the entity, and all other client will be
+        blocked from updating the entity until the lock is released.
+    -> this approach may result in performance isuues when the number of concurrent clients is large
+        because managing locks is expensive.
+    -> EF Core does not have built-in support for pessimistic concurrency control.
+
+2) Optimistic concurrency control:
+    -> a version column is used to detect concurrency conflicts instead of acquiring locks on the entity.
+    -> when a client tries to update an entity, it will first get the value of the version columnn and
+        then compare this value with the old value when updating the entity. if the value of the version
+        column is the same, it means that no other client has updated the entity and the client can
+        update the entity. 
+        But if the value of the version column is different from the old value, it means that another 
+        client has updated the entity and the EF Core will throw an exception to indicate the
+        concurrency conflict. The client can then handle the exception and retry the update operatrion.
+
+------------------------------------------------------------------------------------------------------------
+
+Concurrency conflict example:
+
+    we want to create an API endpoint to sell a product. when a client calls this endpoint, it will pass
+    the product Id and number of product to sell. The endpoint will then update the Inventory property by
+    subtracting the number of products to sell.
+    LOGIC:
+    - client calls the API endpoint.
+    - application gets the product from database.
+    - The application checks the Inventory property to make sure that the number of products in stock is
+        enough for the sale:
+        -> If the number of products in stock is enough, the application subtracts the number of products
+            being sold from the Inventory property and then calls the SaveChanges() method to save the
+            changes to the database.
+        -> If the number of products in stock is not enough, the application returns an error message to
+            the client.
+
+        For that =>
+        Product class:
+
+                    public class Product
+                    {
+                        public int Id {get; set; }
+                        public string Name{get; set; } = string.Empty;
+                        public string Description {get; set; } = string.Empty;
+                        public decimal Price { get; set; } = 0;
+                        public int Inventory{get; set;}
+                    }
+
+        Action Method:
+
+        [HttpPost("{id}/sell/{quantity}")]
+        public async Task<ActionResult<Product>> SellProduct(int id, int quantity, int delay = 0)
+        {
+            if (context.Products == null)
+            {
+                return Problem("Entity set 'SampleDbContext.Products' is null.");
+            }
+            var product = await context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            if (product.Inventory < quantity)
+            {
+                return Problem("Not enough inventory.");
+            }
+            await Task.Delay(TimeSpan.FromSeconds(delay)); // Simulate delay for demonstration purposes
+            product.Inventory -= quantity;
+            await context.SaveChangesAsync();
+            return product;
+        }
+
+        endpoint 1: http://localhost:5120/api/products/1/sell/10?delay=2
+        endpoint 2: http://localhost:5120/api/products/1/sell/10?delay=3
+
+        -> Send the first request and then send the second request within 2 seconds. The expected result
+            should be that the first request will succeed and the second request will fail. But actually,
+            both requests will succeed. The responses show that the Inventory property of the product is
+            updated to 5, which is incorrect. The initial value of the Inventory property is 15, and we
+            sold 20 products, so how can the Inventory property be updated to 5?
+            Let us see what happens in the application:
+            1. Client A calls the API endpoint to sell a product and wants to sell 10 products.
+            2. Client A checks the Inventory property and finds that the number of products in stock is
+                15, which is enough to sell.
+            3. Almost at the same time, client B calls the API endpoint to sell a product and wants to
+                sell 10 products.
+            4. Client B checks the Inventory property and finds that the number of products in stock is
+                15 because client A has not updated the Inventory property yet.
+            5. Client A subtracts 10 from the Inventory property, which results in a value of 5, and saves
+                the changes to the database. Now, the number of products in stock is 5.
+            6. Client B also subtracts 10 from the Inventory property and saves the changes to the
+                database. The problem is that the number of products in stock has been updated to 5 by
+                client A, but client B does not know this. So, client B also updates the Inventory 
+                property to 5, which is incorrect.
+            
+        -> This is an example of concurrency conflict. Multiple clients try to update the same entity at
+            the same time, and the result is not what we expected. In this case, client B should not be
+            able to update the Inventory property because the number of products in stock is not enough.
+            However, if the application does not handle concurrency conflicts, we may end up with 
+            incorrect data in the database.
+
+        -> To solve this problem, EF Core provides optimistic concurrency control. There are two ways to
+            use optimistic concurrency control:
+            • Native database-generated concurrency token
+            • Application-managed concurrency token

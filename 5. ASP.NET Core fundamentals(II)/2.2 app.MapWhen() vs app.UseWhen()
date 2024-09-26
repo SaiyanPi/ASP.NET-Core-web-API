@@ -20,17 +20,31 @@ app.MapWhen() vs app.UseWhen():
                         logger.LogInformation($"From UseWhen(): Branch used = {context.Request.Query["branch"]}");
                         await next();
                     });
+
+                    app.Run(async context =>
+                    {
+                        await context.Response.WriteAsync("Hello from the branched pipeline");
+                    });
                 });
                 app.Run(async context =>
                 {
-                await context.Response.WriteAsync("Hello!");
+                await context.Response.WriteAsync("Hello 1!");
                 });
 
-        -> run and make a request to an endpoint /?branch=1, the response will be "Hello!" and the  log
+        -> run and make a request to an endpoint /?branch=1, the response will be "Hello from the branched
+            pipeline" and the  log
             message in the console will be:
                 info: Program[0]
                     From UseWhen(): Branch used = 1
-        -> make a request to an endpoint without query string /whatever, we will still get "Hello World"
+        -> what if there was no terminal middleware inside the UseWhen()?
+            - well, it would still execute the Use method so the console output would be:
+                info: Program[0]
+                    From UseWhen(): Branch used = 1
+            - now since there is no terminal middleware, it would rejoin to the main pipeline which means
+                it would get out of the UseWhen method and continue executing other middlewares. in our case,
+                terminal middleware so the response would be "Hello 1!"
+             
+        -> make a request to an endpoint without query string /whatever, we will  get "Hello 1!"
             response but we will not get any log message output in console.
         -> app.UseWhen() only works when the predicate is true.
         -> if the predicate is false, the pipeline will continue to execute the next middleware component.
@@ -41,23 +55,23 @@ app.MapWhen() vs app.UseWhen():
 
     1) app.MapWhen():
 
-            app.MapWhen(context => context.Request.Query.ContainsKey("branch"),
+            app.MapWhen(context => context.Request.Query.ContainsKey("branches"),
             app =>
             {
                 app.Use(async (context, next) =>
                 {
                     var logger = app.ApplicationServices.GetRequiredService<ILogger<Program>>();
-                    logger.LogInformation($"From MapWhen(): Branch used = {context.Request.Query["branch"]}");
+                    logger.LogInformation($"From MapWhen(): Branch used = {context.Request.Query["branches"]}");
                     await next();
                 });
             });
             app.Run(async context =>
             {
-            await context.Response.WriteAsync("Hello world!");
+            await context.Response.WriteAsync("Hello world 2!");
             });
 
         -> if we make a request to whatever endpoint /test, then the terminal window gets executed and the
-            response will be "Hello World!" without any console log messages.
+            response will be "Hello World 2!" without any console log messages.
 
         -> But if we make a request to an endpoint /?branch=1, we will get 404 not found error but we will still
             get the log message in console:

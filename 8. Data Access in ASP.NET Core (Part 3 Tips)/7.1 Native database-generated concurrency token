@@ -1,0 +1,55 @@
+NATIVE DATABASE-GENERATED CONCURRENCY TOKEN:
+
+- some databases, such as SQL server provide a native mechanism to handle concurrency conflicts.
+- To use the native database-generated concurrency token in SQL Server, we need to create a new
+    property for the Product class and add a [Timestamp] attribute to it.
+    update the Product class as:
+
+        [Timestamp]
+        public byte[] RowVersion {get; set; } // Add a new property as the concurrency token
+
+- Instead of using [Timestamp] attribute we can also use Fluent API configuration, to map the
+    RowVersion property to the rowversion column in the database as:
+
+        modelBuilder.Entity<Product>()
+            .Property(p => p.RowVersion)
+            .IsRowVersion();
+        
+    but we will use the [Timestamp] attribute
+
+- Do not forget to run the dotnet ef migrations add AddConcurrencyControl command to create a
+    new migration. There is no need to run the dotnet ef database update command this time because
+    we have the code to reset the database when the application starts.
+
+- Now if we call both API endpoints again within 2 sec, this time we will see that the first request
+    will succeed  but the second request will fail with a DbUpdateConcurrencyException exception:
+
+    endpoints: http://localhost:5120/api/products/1/sell/10?delay=2
+                http://localhost:5120/api/products/1/sell/10?delay=3
+                
+    " Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException: The database operation was expected
+    to affect 1 row(s), but actually affected 0 row(s); data may have been modified or deleted since 
+    entities were loaded. See https://go.microsoft.com/fwlink/?LinkId=527962 for information on 
+    understanding and handling optimistic concurrency exceptions......."
+
+    Generated SQL statement:
+
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (4ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = Int32), @p2='?' (Size = 8) (DbType = Binary)], CommandType='Text', CommandTimeout='30']
+            SET IMPLICIT_TRANSACTIONS OFF;
+            SET NOCOUNT ON;
+            UPDATE [Products] SET [Inventory] = @p0
+            OUTPUT INSERTED.[RowVersion]
+            WHERE [Id] = @p1 AND [RowVersion] = @p2;
+
+    -> if we check the database. The Inventory column of product 1 has been updated to 5, which
+        is correct.
+    
+    -> by using concurrency control, EF Core not only checks the ID of the entity but also CHECKS THE
+        VALUE OF THE rowversion COLUMN. IF THE VALUE OF THE rowversion COLUMN IS NOT THE SAME AS THE
+        VALUE IN THE DATABASE. it means that the entity has been updated by another client, and the 
+        current update operation should be aborted.(NOTE: RowVersion property value changes)
+
+    - Note that the rowversion column type is available for SQL Server, but not for other databases,
+        such as SQLite. Different databases may have different types of concurrency tokens, or may not
+        support the concurrency token at all.

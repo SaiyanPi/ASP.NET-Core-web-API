@@ -1,0 +1,20 @@
+ExecuteDelete():
+
+- for example let's delete all invoices with status 'AwaitPayment'.
+
+    [HttpDelete]
+    [Route("status/await")]
+    public async Task<ActionResult> DeleteInvoicesByStatus(string status)
+    {
+        var result = await context.Invoices.Where(x => x.Status == InvoiceStatus.AwaitPayment)
+            .ExecuteDeleteAsync();
+        return Ok();
+    }
+
+    endpoint: api/invoice/status/await?status=awaitpayment
+    Generated SQL query:
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (40ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+            DELETE FROM [i]
+            FROM [Invoices] AS [i]
+            WHERE [i].[Status] = 'AwaitPayment'

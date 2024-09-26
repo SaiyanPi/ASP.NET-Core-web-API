@@ -53,7 +53,7 @@ namespace SecondApi.Controllers
         }
 
         //  the return type of the GetPosts() method is ActionResult<IEnumerable<Post>>.
-        //  ASP.NET Core can automatically convert the object tp JSON and return it to the client in
+        //  ASP.NET Core can automatically convert the object to JSON and return it to the client in
         //  the response message. also it can return other HTTP status codes, such as NotFound,
         //  BadRequest, InternalServerError, and so on.
 

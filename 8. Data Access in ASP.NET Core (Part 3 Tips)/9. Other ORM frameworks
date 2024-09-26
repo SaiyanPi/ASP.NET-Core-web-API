@@ -1,0 +1,29 @@
+OTHER ORM FRAMEWORKS:
+
+- In addition to EF Core, there are numerous other ORM frameworks available for .NET. Some of the
+    most popular include the following:
+
+    • Dapper (https://dapperlib.github.io/Dapper/):
+        Dapper is a micro-ORM framework that is designed to be fast and lightweight. Dapper does not
+        support change tracking, but it is easy to use, and it is very fast. As the official
+        documentation says, “Dapper’s simplicity means that many features that ORMs ship with are
+        stripped out. It worries about the 95% scenario and gives you the tools you need most of the
+        time. It doesn’t attempt to solve every problem.” The performance is one of the most important
+        features of Dapper. Maybe it is not fair to compare Dapper’s performance with EF Core, because
+        EF Core provides many more features than Dapper. If you are looking for a simple ORM framework
+        that is fast and easy to use, Dapper is a good choice. In some projects, Dapper is used with
+        EF Core to provide the best of both worlds. Dapper is open-source and originally developed by
+        Stack Overflow.
+
+    • NHibernate (https://nhibernate.info/):
+        Like NUnit, NHibernate is a .NET implementation of the Hibernate ORM framework in Java.
+        It is a mature, open-source ORM framework that has been around for a long time. It is very 
+        powerful and flexible. NHibernate is maintained by a community of developers.
+
+    • PetaPoco (https://github.com/CollaboratingPlatypus/PetaPoco): 
+        PetaPoco is a tiny, fast, easy-to-use micro-ORM framework, which only had 1,000+ lines of code
+        in the original version. PetaPoco has a similar performance to Dapper because it uses dynamic
+        method generation (MSIL) to assign column values to properties. PetaPoco now supports SQL 
+        Server, SQL Server CE, MS Access, SQLite, MySQL, MariaDB, PostgreSQL, Firebird DB, and Oracle.
+        It uses T4 templates to generate the code. PetaPoco is open-source and currently maintained
+        by a few core developers.

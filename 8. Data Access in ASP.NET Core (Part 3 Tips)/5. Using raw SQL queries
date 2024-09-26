@@ -1,0 +1,16 @@
+USING RAW SQL QUERIES:
+
+- althougfh EF Core can translate most LINQ queries into SQL queries, which is very conevnient,
+    sometimes we need to write raw SQL queries if the required query cannot be written in LINQ,
+    or generated SQL query is not effecient.
+- EF Core provides several methods to execute raw SQL queries:
+    1) FromSql()
+    2) FromSqlRaw()
+    3) SqlQuery()
+    4) SqlQueryRaw()
+    5) ExecuteSql()
+    6) ExecuteSqlRaw()
+
+- when we execute raw SQL queries, we must be careful to avoid SQL injection attacks.
+
+

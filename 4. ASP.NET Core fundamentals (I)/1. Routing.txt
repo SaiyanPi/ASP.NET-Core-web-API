@@ -1,6 +1,6 @@
 ROUTING:
 
-- routing is a mechanism that monitors incoming requests and determineswhich action method
+- routing is a mechanism that monitors incoming requests and determines which action method
     is to be invoked for those requests.
 - ASP.NET Core provides 2 ways of routing:
     1) Conventional routing

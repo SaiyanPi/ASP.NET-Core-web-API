@@ -1,0 +1,47 @@
+APPLICATION MANAGED CONCURRENCY TOKEN:
+
+- if the database doesn't support the built-in concurrency tokens, we can manually manage the concurrency
+    token in the application.
+- instead of using rowversion column which can be automatically updated by the database, we can use
+    property in the entity class to manage concurrency tokens.
+
+    public class Book
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Author { get; set; } = string.Empty;
+    public int Quantity { get; set; }
+    
+    // Add a new property as the concurrency token
+    [ConcurrencyCheck]
+    public Guid Version { get; set; }
+}
+
+    -> Because this Version property is not managed by the database, we need to manually assign
+        a new value whenever the entity is updated.
+
+        [HttpPost("{id}/sell/{quantity}")]
+        public async Task<ActionResult<Book>> SellBook(int id, int quantity, int delay = 0)
+        {
+            // omitted
+            book.Quantity -= quantity;
+
+            // Manually assign a new value to the Version property.
+            book.Version = Guid.NewGuid();
+
+            await _context.SaveChangesAsync();
+            return book;
+        }
+
+    -> now just like in the native database generated concurrency token, if we request to the following
+        endpoints within 2 sec, the first request will succeed but the second request will fail
+        with a DbUpdateConcurrencyException exception:
+
+        endpoints: http://localhost:5120/api/books/1/sell/10?delay=2
+                    http://localhost:5120/api/books/1/sell/10?delay=3
+
+
+        " Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException: The database operation was
+        expected to affect 1 row(s), but actually affected 0 row(s); data may have been modified
+        or deleted since entities were loaded. See https://go.microsoft.com/fwlink/?LinkId=527962
+        for information on understanding and handling optimistic concurrency exceptions. "

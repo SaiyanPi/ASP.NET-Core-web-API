@@ -6,6 +6,7 @@ CREATING THE CONTROLLER:
     Install command: dotnet tool install -g dotnet-aspnet-codegenerator
 
     NuGet package:  Microsoft.VisualStudio.Web.CodeGeneration.Design
+                    Microsoft.EntityFrameworkCore.Tools
 
 2) Creating Controller:
 
@@ -28,7 +29,7 @@ HOW CONTROLLERS WORK?
 - we've already discussed  about how HTTP requests are mapped to the controller action in 4 so we focus on
     data access and database operations.
 
-- first we use DI to inject the InvoiceDbContext instance  into the controller, which handles the 
+- first we use DI to inject the InvoiceDbContext instance into the controller, which handles the 
     data operations.
     -> InvoiceDbContext is registered as a Scoped which means that each HTTP request will create a new
         InvoiceDbContext instance, and the instance will be disposed of after the request is completed.

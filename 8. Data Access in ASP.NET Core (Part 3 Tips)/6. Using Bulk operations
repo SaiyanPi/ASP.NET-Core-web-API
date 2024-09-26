@@ -1,0 +1,19 @@
+USING BULK OPERATIONS:
+
+
+- EF Core 7.0 or later offersd the ability of bulk operations, which are easy to use and can improve
+    the performance of UPDATE/DELETE operations.
+- as discussed previously, EF Core tracks the changes in entities. To update entity, normally, we
+    need to load the entity from the database, update the entity properties, and then call the
+    SaveChanges() method to save the changes to database. Deleting the entity is similar.
+- However, if we want to update or delete a large number of entities, it is not effecient to
+    load the entities one by one and then update or delete them. For these scenarios, it is not
+    required to track the changes in the entities. So it would be better to use the bulk operations
+    feature to update or delete data
+- we can use raw SQL query to update or delete the data using ExecuteSql() method. However, it
+    lacks strong type support. Hardcoding the column names in the SQL query is not a good 
+    practice.
+- So we can use ExecuteUpdate() and ExecuteDelete() methods to update or delete data. Note that these 
+    two methods do not invlove the entity tracking feature. So once we call these two methods, the 
+    changes will be executed immediately. There is no need to call the SaveChanges() method.
+    

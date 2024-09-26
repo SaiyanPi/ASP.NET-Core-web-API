@@ -2,13 +2,13 @@ ONE-TO-MANY CURD OPERATION:
 
 
 - when retrieving an invoice, we may need to query both the Invoices table and the InvoiceItems table in order
-    to also retrive the saaociated invoice items. Additionaly, when deleting Invoice, we must consider whether to
+    to also retrive the associated invoice items. Additionaly, when deleting Invoice, we must consider whether to
     delete the related invoice items as well.
 ------------------------------------------------------------------------------------------------------------------
 
 CREATING DATA:
 
-- we don not need to update the code we created earlier with command:
+- we do not need to update the code we created earlier with command:
     "dotnet-aspnet-codegenerator controller -name InvoiceController -api -outDir Controllers --model Invoice 
     --dataContext SampleDbContext -async -actions"
 - when we add the parent resource with the child resource as follows, although a resource gets added, exception

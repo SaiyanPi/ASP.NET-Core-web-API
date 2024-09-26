@@ -144,42 +144,45 @@ var app = builder.Build();
 // {
 //     app.Use(async (context, next) =>
 //     {
-//         var logger = app.ApplicationServices.
-//         GetRequiredService<ILogger<Program>>();
+//         var logger = app.ApplicationServices.GetRequiredService<ILogger<Program>>();
 //         logger.LogInformation($"From UseWhen(): Branch used = {context.Request.Query["branch"]}");
 //         await next();
 //     });
-//     // app.Run(async context =>
-//     // {
-//     //     await context.Response.WriteAsync("Hello from the branched pipeline");
-//     // });
+//     app.Run(async context =>
+//     {
+//         await context.Response.WriteAsync("Hello from the branched pipeline");
+//     });
 // });
 // app.Run(async context =>
 // {
-// await context.Response.WriteAsync("Hello world!");
+// await context.Response.WriteAsync("Hello world 1!");
 // });
 
-//  app.MapWhen():
-// app.MapWhen(context => context.Request.Query.ContainsKey("branch"),
+// app.MapWhen():
+// app.MapWhen(context => context.Request.Query.ContainsKey("branches"),
 // app =>
 // {
 //     app.Use(async (context, next) =>
 //     {
 //         var logger = app.ApplicationServices.GetRequiredService<ILogger<Program>>();
-//         logger.LogInformation($"From MapWhen(): Branch used = {context.Request.Query["branch"]}");
+//         logger.LogInformation($"From MapWhen(): Branch used = {context.Request.Query["branches"]}");
 //         await next();
+//     });
+//     app.Run(async context => 
+//     {
+//     await context.Response.WriteAsync("Hello world from inside of MapWhen");
 //     });
 // });
 // app.Run(async context =>
 // {
-// await context.Response.WriteAsync("Hello world!");
+// await context.Response.WriteAsync("Hello world 2!");
 // });
 
 
 // built-in middleware/rate-limiting middleware:
-app.UseRateLimiter();
-app.MapGet("/rate-limiting-mini", () => 
-    Results.Ok($"Hello {DateTime.Now.Ticks.ToString()}")).RequireRateLimiting("fixed");
+ app.UseRateLimiter();
+// app.MapGet("/rate-limiting-mini", () => 
+//     Results.Ok($"Hello {DateTime.Now.Ticks.ToString()}")).RequireRateLimiting("fixed");
 
 // built-in middleware/request timeout middleware:
  app.UseRequestTimeouts();

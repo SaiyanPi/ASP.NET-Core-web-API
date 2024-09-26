@@ -1,0 +1,6 @@
+@ConcurrencyConflictDemo_HostAddress = http://localhost:5120
+
+GET {{ConcurrencyConflictDemo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

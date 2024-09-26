@@ -1,0 +1,99 @@
+TRACKING QUERY vs NON-TRACKING QUERIES:
+
+- in the early days of .NET, the term 'SqlHelper' was popular to refer to a static class that provided a
+    set of methods to execute SQL queries.
+    While SqlHelper simplified the process of executing SQL queries, developers still had to manage
+    connection and transaction objects, write boilerplate code to map results to model objects, and
+    work directly with the database.
+- ORM farmework such as EF Core were created to solve these problems.
+-  They not only simplify the process of executing SQL queries and mapping the results to model objects but
+    also provide the ability to track changes made to the entities returned by queries.
+- When changes are saved, EF Core generates the appropriate SQL queries to update the database. 
+    This is called tracking and is a significant benefit of using an ORM framework such as EF Core.
+- However, tracking comes at a cost. This can add overhead and memory usage, especially when dealing with a
+    large number of entities.
+_____________________________________________________________________________________________________________
+
+- we've added a few logging messages in a GetInvoice(Guid id) methods.
+    Now, if we dotnet run the EFCoreDemo project and make a request to the /api/Invoice/{id} endpoint, logging
+    messages output in the concole will be:
+
+        info: EFCoreDemo.Data.SampleDbContext[0]
+            Invoice 7feb838a-2612-47aa-d948-08dcd2678a3a is loading from the database.
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (61ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+            SELECT TOP(1) [i].[Id], [i].[Amount], [i].[ContactName], [i].[Description], [i].[DueDate], [i].[InvoiceDate], [i].[InvoiceNumber], [i].[Status]
+            FROM [Invoices] AS [i]
+            WHERE [i].[Id] = @__get_Item_0
+        info: EFCoreDemo.Data.SampleDbContext[0]
+            Invoice 7feb838a-2612-47aa-d948-08dcd2678a3a is loaded from the database.
+        info: EFCoreDemo.Data.SampleDbContext[0]
+            Invoice 7feb838a-2612-47aa-d948-08dcd2678a3a is loading from the context.
+        info: EFCoreDemo.Data.SampleDbContext[0]
+            Invoice 7feb838a-2612-47aa-d948-08dcd2678a3a is loaded from the context.
+            
+    -> When we call the 'context.Invoices.FindAsync(id)' method fr the first time, EF Core will query the
+        databse and return the Invoice entity.
+    -> The second time, EF Core will return the Invoice entity from the context because the Invoice entity
+        is already in the context
+
+- An entity has one of the following EntityState values(also discussed in chapter 6/4.2 Basic LINQ queries):
+    i) Deatached
+    ii) Added
+    iii) Unchanged
+    iv) Modified
+    v) Deleted
+
+    The following is how the states change:
+    -> all the entities that are returned by the query(such as Find(), Single(), First(), ToList(), and their
+        async overloads) are in 'Unchanged' state.
+    -> If we update the properties of the entity, EF Core will change the state to 'Modified'.
+    -> If we call the Remove() method on the entity, EF Core will change the state to 'Deleted'.
+    -> if we call the Add() method on the entity, EF Core will change the state to 'Added'.
+    -> If we call the Attach() method on the untracked entity, EF Core will track the entity and set the state
+        to 'Unchanged'.
+    -> If we call the Detach() method on the entity, EF Core will not track the entity and will change the
+        state to 'Detached'.
+
+    (Note that EF Core can track the changes at the property level, meaning that if you update a property
+    of an entity, EF Core will only update the property when you call the SaveChanges method.)
+
+----------------------------------------------------------------------------------------------------------------
+
+- By default, tracking is enabled in EF Core. However, there may be scenarios where we do not want EF Core
+    to track changes to entities. For instance, in read-only queries within Get actions, where the DbContext
+    only exists for the duration of the request, tracking is not necessary.
+- Disabling tracking can enhance performance and save memory. If we don't entend to modify entities, we
+    should disable tracking by calling the AsNoTracking() method on the query.
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Invoice>> GetInvoice(Guid id)
+        {
+            // Omitted
+            var invoice = await context.Invoices.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            // omitted
+        }
+        
+        // To return a list of invoices without tracking
+        var invoices = await context.Invoices.AsNoTracking().ToListAsync();
+
+- if we have a lots of read-only queries and we feel it is tedious to call the AsNoTracking() method
+    everytime, we can disable Tracking globally when we configure the DbContext.
+        
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            // disabling tracking globally
+            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        }
+
+- for any queries that we want to track, we can call the AsTracking() method on the query.
+    
+    // To get the invoice with tracking
+    var invoice = await context.Invoices.AsTracking().FirstOrDefaultAsync(x => x.Id == id);
+    // To return a list of invoices with tracking
+    var invoices = await context.Invoices.AsTracking().ToListAsync();
+
+- NOTE: If an entity is a keyless entity, EF Core will never track it. Keyless entity types do not
+    have keys defined on them. They are configured by a [Keyless] data annotation or a Fluent API HasNoKey()
+    method. The keyless entity is often used for read-only queries or views.
