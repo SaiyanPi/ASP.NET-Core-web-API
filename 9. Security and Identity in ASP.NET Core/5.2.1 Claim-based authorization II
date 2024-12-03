@@ -1,0 +1,43 @@
+continue from Claim-based authorization IActionResult
+
+- similar to roles, we can apply multiple policies to a resource.
+    for eg. we can require the user to have both the DrivingLicense and AccessNumber claims to access the resource.
+
+method A):
+
+    // user must have both the DrivingLicenseNumber and AccessNumber claims to access the resource.
+    [Authorize(Policy = AppAuthorizationPolicies.RequireDrivingLicenseNumber)]
+    [Authorize(Policy = AppAuthorizationPolicies.RequireAccessNumber)]
+    [HttpGet("driving-license-and-access-number")]
+    public IActionResult GetDrivingLicenseAndAccessNumber()
+    {
+      // omitted
+    }
+
+method B): 
+wer cab use RequireAssertion() method, which allows us to execute a custom logic to check the 
+claims..
+
+-> update Program file:
+     
+    builder.Services.AddAuthorization(options =>
+    {
+        // omitted
+        options.AddPolicy(AppAuthorizationPolicies.RequireDrivingLicenseNumberAndAccessNumber, policy => 
+        policy.RequireAssertion(context =>
+        {
+            var hasDrivingLicenseNumber = context.User.HasClaim(c => c.Type == AppClaimTypes.DrivingLicenseNumber);
+            var hasAccessNumber = context.User.HasClaim(c => c.Type == AppClaimTypes.AccessNumber);
+            return hasDrivingLicenseNumber && hasAccessNumber;
+        }));
+        
+    });
+
+-> Update the Authorization attribute in the controller method action:
+    
+    [Authorize(Policy = AppAuthorizationPolicies.RequireDrivingLicenseNumberAndAccessNumber)]
+    [HttpGet("driving-license-and-access-number-with-requireAssertion")]
+    public IActionResult GetDrivingLicenseAndAccessNumberWithRequireAssertion()
+    {
+       // omitted
+    }

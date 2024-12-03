@@ -1,0 +1,24 @@
+OpenID Connect:
+
+- OAuth was initially designed and released in 2006 and later revised and standardized in 2012 as
+    OAuth 2.0. OAuth 2.0 solves the problem of delegated authorization.
+- However, there are some other scenarios that OAuth 2.0 cannot solve. For example, your API may need
+    to know the identity of the user who is accessing the API, but users may not want to create an
+    account for your API. They may already have an account in some other services, such as Microsoft,
+    Google, and others.
+    In this case, it would be more convenient if the user could use their existing account to access
+    your API. However, OAuth 2.0 was not designed to implement sign-in with an existing account.
+    This is where a new specification named OpenID Connect comes in.
+- OpenID Connect is an authentication layer on top of OAuth 2.0 that was designed by the OpenID
+    Foundation in 2014. OpenID Connect is like an extension of OAuth 2.0 that adds and defines some
+    new features to retrieve the identity of the user, including profile information such as the user’s
+    name, email address, and so on. OpenID Connect uses similar terminology and concepts as OAuth 2.0,
+    such as client, resource owner, authorization server, and others. However, keep in mind that OpenID
+    Connect is not a replacement for OAuth 2.0. Instead, it is a specification that extends OAuth 2.0 to
+    support authentication.
+- Many popular identity providers, such as Microsoft, Google, Facebook, and others, have implemented
+    OpenID Connect so that you can integrate your API application with their identity provider. Then,
+    users can use their existing account to sign into your API application.
+- Similar to OAuth 2.0, OpenID Connect also generates an access token. It also introduces a new token
+    called ID token, which is a JWT token that contains the identity of the user. The client application
+    can inspect and validate the ID token to extract identity information about the user.

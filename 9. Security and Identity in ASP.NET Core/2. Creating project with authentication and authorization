@@ -1,0 +1,368 @@
+CREATING A SAMPLE PROJECT WITH AUTHENTICATION AND AUTHORIZATION:
+
+- dotnet new webapi -n AuthenticationDemo -controllers
+
+A)Install Nuget packages:
+    1) Microsoft.AspNetCore.Identity.EntityFrameworkCore
+        -> is used for EF Core implementation of ASP.NET Core Identity
+    
+    2) Microsoft.EntityFrameworkCore.SqlServer
+        -> This package is used to connect to SQL Server.
+    
+    3) Microsoft.EntityFrameworkCore.Tools
+        -> This package is used to enable the necessary EF Core tools.
+    
+    4) Microsoft.AspNetCore.Authentication.JwtBearer
+        -> This package is used o enable JWT authentication.
+
+    -> The ASP.NET Core Identity package already comes with the default project template, so we do not 
+        need to install it.
+
+B) we will add the database context. we will use EF Core to access the database. bUt first we need to
+    create a Model to represent the user.
+    Create a new folder named Authentication and add a new class named AppUser to it.
+    The AppUser class inherits from the IdentityUser class, which is provided by ASP.NET Core Identity
+
+        public class AppUser : IdentityUser
+        {
+        }
+
+        -> The IdentityUser class already contains the properties that we need to represent a user
+            for most of the scenarios, such as UserName, Email, PasswordHash, PhoneNumber, and others.
+        -> we can add additional properties to the AppUser class if we need to like:
+
+            public class AppUser : IdentityUser
+            {
+                public string FirstName { get; set; }
+                public string LastName { get; set; }
+                public string ProfilePicture { get; set; }
+            }
+        -> but if we add additional properties to the AppUser class, we need to add the corresponding
+            properties for the AddOrUpdateUseModel as well.
+
+C) now we need to create a database context to access the database. Add a new class named AppDbContext
+    to the Authentication folder. AppDbContext class inherits from the IdentityDbContext class, which
+    is provided by ASP.NET Core identity.
+
+        public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration configuration)
+        : IdentityDbContext<AppUser>(options)
+        {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                base.OnConfiguring(optionsBuilder);
+                optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+            }
+        }
+
+        -> as we can see this AppDbContext is purely for ASP.NET Core Identity.
+        -> if we have other entities in our application, we can create a separate DbContext for them.
+        -> we can use the same connection string for both DbContexts.
+
+D) Next, we will need to create a few models for registering and logging in users because, when we
+    register a user, we need to send the username, password, and email address.
+    when we log a user in, we need to send the username and password . It would be good if we had
+    separate models for these different scenarios.
+
+    i) AddOrUpdateAppUserModel:
+    Create a new class named AddOrUpdateAppUserModel in the Authentication folder. This class will be
+    used to represent the user when we register a new user.
+
+        public class AddOrUpdateAppUserModel
+        {
+            [Required(ErrorMessage = "User name is required")]
+            public string UserName { get; set; } = string.Empty;
+
+            [EmailAddress]
+            [Required(ErrorMessage = "Email is required")]
+            public string Email { get; set; } = string.Empty;
+            
+            [Required(ErrorMessage = "Password is required")]
+            public string Password { get; set; } = string.Empty;
+        }
+
+    ii) LoginModel:
+
+        public class LoginModel
+        {
+            [Required(ErrorMessage = "User name is required")]
+            public string UserName { get; set; } = string.Empty;
+            
+            [Required(ErrorMessage = "Password is required")]
+            public string Password { get; set; } = string.Empty;
+        }
+
+E) Next, we need to configure the authentication service. First let's update the appsettings.json file
+    to provide the configuration for JWT tokens.
+
+        "JwtConfig": {
+            "ValidAudiences": "http://localhost:5136",
+            "ValidIssuer": "http://localhost:5136",
+            "Secret": "c1708c6d-7c94-466e-aca3-e09dcd1c2042"
+        }
+
+        -> we can update the configurations as per our requirements.
+        -> Because we use the same web API to issue and validate the JWT token, we use the same URL for
+            the ValidAudiences and ValidIssuer properties.
+        -> The Secret property is used to sign the JWT token. we can use any string as the secret. In this case, we can use a GUID value. Also, please note that this
+            is for demo purposes only. In a real-world application, you should store the secret in a secure
+            location, such as Azure Key Vault.
+    
+F) update the program file as:
+    
+    // omitted
+    builder.Services.AddControllers();
+
+    builder.Services.AddDbContext<AppDbContext>();
+    builder.Services.AddIdentityCore<AppUser>()
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddDefaultTokenProviders();
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(options =>
+    {
+        var secret = builder.Configuration["JwtConfig:Secret"];
+        var issuer = builder.Configuration["JwtConfig:ValidIssuer"];
+        var audience = builder.Configuration["JwtConfig:ValidAudiences"];
+        if (secret is null || issuer is null || audience is null)
+        {
+            throw new ApplicationException("Jwt is not set in theconfiguration");
+        }
+        options.SaveToken = true;
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidAudience = audience,
+            ValidIssuer = issuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
+        };
+    });
+    // omitted
+    app.UseHttpsRedirection();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
+
+    -> in the preceeding code, we configured the authentication service to use JWT tokens.
+    -> AddIdentityCore() method adds and configures the identity system for the specified User type.
+    -> AddDefaultTokenProviders() method adds the default token providers for the application, 
+        which are used to generate tokens. 
+    -> Services.AddAuthentication() method configures the authentication service to use JWT tokens.
+    -> AddJwtBearer() method configures the JWT bearer authentication handler, including the token
+        validation parameters.
+    -> We use some configurations from the appsettings.json file to configure the token validation
+        parameters.
+
+G) Create and upate database:
+        dotnet ef migrations add InitialDb
+        dotnet ef database update
+        -> see generated tables(1).png
+        -> The data for the users will be stored in these tables, which is convenient when using the
+            default tables provided by ASP.NET Core Identity.
+
+H) Next, let's sapply the Authorize attribute to enable authentication and authorization for
+    WeatherForecastController:
+
+        [Authorize]
+        [ApiController]
+        [Route("[controller]")]
+        public class WeatherForecastController : ControllerBase
+        {
+            // omitted
+        }
+
+        -> [Authorize] attribute will ensure that the user is authenticated before accessing the controller.
+        -> if the user is not authenticated, the controller will return a 401 Unauthorized response.
+        -> if the attribute is applied to the action method, only that action method will be protected.
+        -> we can also use the [AllowAnonymous] attribute to allow anonymous access to the controller or
+            action method.
+        -> NOTE that AllowAnonymous attribute overrides the Authorize attribute. So, if we apply both
+            attributes to the controller or action method, the AllowAnonymous attribute will take precedence,
+            which means that the controller or action method will be accessible to all the users.
+
+______________________________________________________________________________________________________________
+
+
+1) Now if we call the http://localhost:5136/WeatherForecast endpoint, we should see '401 Unauthorized'
+    response.
+
+2) Next, let's add AccountController to handle the authentication requests.
+    For eg, we need to provide a '/account/register' endpoint. When the user sends the username and
+    password, the application will create a record of the user in the database and generate a JWT token.
+    To generate a JWT token, we need to provide the following information.
+
+    1. The issuer of the token:
+        -> this is the server that issues the token.
+
+    2. The audience of the token:
+        -> this is the server that consumes the token.
+        -> it can be the same as the issuer or include multiple servers.
+
+    3. the secret key to sign the token;
+        -> this is used to validate the token.
+
+3) Now, let's create a controller named AccountController to handle the authentication request.
+    Cretae a AccountController class in the Controllers folder .
+        
+        [ApiController]
+        [Route("[controller]")]
+        public class AccountController(UserManager<AppUser> userManager, IConfiguration configuration)
+        : ControllerBase
+        {
+        }
+
+4) Create a new method named Register() in the AccountController class. This method is used to register
+    a new user. The Register() method should accept an 'AddOrUpdateUserModel' object as a parameter.
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] AddOrUpdateAppUserModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var existedUser = await userManager.FindByNameAsync(model.UserName);
+                if(existedUser != null)
+                {
+                    ModelState.AddModelError("", "User name is already taken.");
+                    return BadRequest(ModelState);
+                }
+                // Create a new user object
+                var user = new AppUser()
+                {
+                    UserName = model.UserName,
+                    Email = model.Email,
+                    SecurityStamp = Guid.NewGuid().ToString()
+                };
+                // Try to save the user
+                var result = await userManager.CreateAsync(user, model.Password);
+                // If the user is successfully created, return Ok
+                if (result.Succeeded)
+                {
+                    var token = GenerateToken(model.UserName);
+                    return Ok(new { token });
+                }
+                // If there are any errors, add them to the ModelState object
+                // and return the error to the client
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+            }
+            // If we got this far, something failed, redisplay form
+            return BadRequest(ModelState);
+        }
+
+        -> a userManager class provides a set of methods to manage the users, such as FindByNameAsync(),
+            CreateAsync(), and others.
+
+        private string? GenerateToken(string userName)
+        {
+            var secret = configuration["JwtConfig:Secret"];
+            var issuer = configuration["JwtConfig:ValidIssuer"];
+            var audience = configuration["JwtConfig:ValidAudiences"];
+            if (secret is null || issuer is null || audience is null)
+            {
+                throw new ApplicationException("Jwt is not set in the configuration");
+            }
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Name, userName)
+                }),
+                Expires = DateTime.UtcNow.AddDays(1),
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+
+            //var jwtToken = new JwtSecurityToken(
+            //    issuer: issuer,
+            //    audience: audience,
+            //    claims: new[]{
+            //        new Claim(ClaimTypes.Name, userName)
+            //    },
+            //    expires: DateTime.UtcNow.AddDays(1),
+            //    signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
+            //);
+            var token = tokenHandler.WriteToken(securityToken);
+            return token;
+        }
+
+        -> a GenerateToken() method is private method that generated a JWT token for the user.
+        -> we are using JwtSecurityTokenHandler class to generate the JWT token. JwtSecurityTokenHandler class is
+            provided by the System.IdentityModel.Tokens.Jwt NuGet package. 
+        -> first we get the configuration values from the appsettings.json file. then we create a SymmetricSecurityKey
+            object using the secret key. The SymmetricSecurityKey object is used to sign the token.
+        -> Next, we create a SecurityTokenDescriptor object onject, which contains the following properties
+            a) Subject: The subject of the token. The subject can be any value, such as the username,
+                email address, and so on.
+            b) Expires: The expiration date of the token.
+            c) Issuer: The issuer of the token.
+            d) Audience: The audience of the token.
+            e) SigningCredentials: The credentials to sign the token. Note that we use the
+                HmacSha256Signature algorithm to sign the token. It is a 256-bit HMAC
+                cryptographic algorithm for digital signatures. If you encounter an error such as
+                IDX10603: The algorithm: 'HS256' requires the SecurityKey.
+                KeySize to be greater than '128' bits., please check the secret key in
+                the appsettings.json file. The secret key should be at least 16 characters long (16 *
+                8 = 128).
+5) Now if we request to the /Account/register endpoint with the JSON body, we will get a JWT token
+    reponse. (see the AuthenticationDemo-register request)
+    request JSON body:
+        {
+        "username": "admin",
+        "email" : "admin@example.com",
+        "password" : "Passw0rd!"
+        }
+
+    JWT token response:
+        {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluIiwibmJmIjoxNzI3NTIxMjkyLCJleHAiOjE3Mjc2MDc2OTIsImlhdCI6MTcyNzUyMTI5MiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MTM2IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo1MTM2In0.vH5FctNLt95-7j7gFdVzy7pnGyGeCr-CkK6dBodPYOI"
+        }
+        
+        -> we can use this tokento authenticate the user in the future. This token is valid for 1 day.
+        -> if we check the database, we will see that a new user has been created in the AspNetUsers
+            table, and the password is hashed.
+
+6) Now copy the response token and and send a GET request to the previous endpoint(/WeatherForecast).
+    we will get the expected response instead of '401 Unauthorized' response.
+    Note that we need to attach the Bearer token to the request header.
+    ( see the AuthenticationDemo-authentication request)
+
+7) Our API is now secured. The next step is to create a login method to authenticate the user.
+    Create a new method named Login in the AccountController.
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        {
+        // Get the secret in the configuration
+        // Check if the model is valid
+            if (ModelState.IsValid)
+            {
+                var user = await userManager.FindByNameAsync(model.UserName);
+                if (user != null)
+                {
+                    if (await userManager.CheckPasswordAsync(user, model.Password))
+                    {
+                        var token = GenerateToken(model.UserName);
+                        return Ok(new { token });
+                    }
+                }
+            // If the user is not found, display an error message
+            ModelState.AddModelError("", "Invalid username or password");
+            }
+            return BadRequest(ModelState);
+        }

@@ -1,0 +1,84 @@
+Managing user roles:
+
+- ASP.NET Core Identity provides a set of APIs to manage users and roles. In this section we will talk
+    about how to use these APIs.
+- previously, we learned that the IdentityDbContext class is used to store the user and role information.
+    so we do not need to create a new database class.
+- Similarly, we can use UserManager and RoleManaer to manager users and roles without having to Write 
+    any code.
+
+- here are some common operations for managing users bu using the UserManager class:
+___________________________________________________________________________________________________________
+    Method                                     |                             Description                                                        
+__________________________________________________________________________________________________________
+
+CreateAsync(TUser user, string password)                       Creates a user with the given password
+
+UpdateUserAsync(TUser user)                                    Updates a user   
+
+FindByNameAsync(string userName)                               Finds a user by name
+
+FindByIdAsync(string userId)                                   Finds a user by ID
+
+FindByEmailAsync(string email)                                 Finds a user by email.
+
+DeleteAsync(TUser user)                                        Deletes a user.
+
+AddToRoleAsync(TUser user, string role)                        Adds the user to a role
+
+GetRolesAsync(TUser user)                                      Gets a list of roles for the user
+
+IsInRoleAsync(TUser user, string role)                         Checks whether the user has a role.
+
+RemoveFromRoleAsync(TUser user, string role)                   Removes the user from a role.
+
+CheckPasswordAsync(TUseruser, string password)                 Checks whether the password is correct for
+                                                                the user.
+
+ChangePasswordAsync(TUser user, string currentPassword,        Changes the user’s password. The user must
+string newPassword)                                            provide the correct current password.
+
+GeneratePasswordResetTokenAsync(TUser user)                    Generates a token for resetting the user’s 
+                                                                password. You need to specify options.
+                                                                Token.PasswordResetTokenProvider in the 
+                                                                AddIdentityCore() method.
+
+GenerateEmailConfirmationTokenAsync(TUser user)                Generates a token for confirming the user’s
+                                                                email. You need to specify
+                                                                options.Tokens.EmailConfirmationTokenProvider
+                                                                in the AddIdentityCore() method. 
+
+ConfirmEmailAsync(TUser user, string token)                    Checks whether the user has a valid email 
+                                                                confirmation token. If the token matches,
+                                                                this method will set the EmailConfirmed
+                                                                property of the user to true.    
+________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+- Some common operations for managing roles by using RoleManager class:
+
+-------------------------------------------------------------------------------------------------------------
+        Method                                      |                            Description
+-------------------------------------------------------------------------------------------------------------
+
+CreateAsync(TRole role)                                         Creates a role
+
+RoleExistsAsync(string roleName)                                Checks whether the role exists
+
+UpdateAsync(TRole role)                                         Updates a role
+
+DeleteAsync(TRole role)                                         Deletes a role
+
+FindByNameAsync(string roleName)                                Finds a role by name
+-----------------------------------------------------------------------------------------------------------------
+
+- these APIs encapsulate the database operations, so we can use them to manage users and roles easily.
+- some of the methods return a Task<IdentityResult> object.
+    IdentityResult onject contains a Succeeded property to indicate whether the operation is successful.
+    If the operation is not successful, you can get the error messages by using the Errors property.
+

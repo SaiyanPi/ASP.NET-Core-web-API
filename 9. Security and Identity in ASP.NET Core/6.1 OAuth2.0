@@ -1,0 +1,61 @@
+OAuth2.0:
+
+- When you use LinkedIn, you may see a window that prompts you to sync your contacts from Outlook,
+    Gmail, Yahoo, or other email services. This is because LinkedIn would like to know your contacts
+    so that it can recommend you to invite your friends to join LinkedIn or to connect with them.
+    This is a typical example where OAuth 2.0 is used
+- We do not want to allow LinkedIn to know the password of our email address. In this case, OAuth
+    2.0 and OpenID Connect are used to authorize LinkedIn to access our contacts without knowing
+    our password.
+- OAuth 2.0 implements a delegate authorization model. It allows a client to access a protected
+    resources on a behalf of a user. There are some entities invloved in the OAuth 2.0 model.
+
+    i) Resource owner:
+        -> the user who owns the protected resource. in our example, the resource owner is the user
+        who owns the email address.
+    ii) Client:
+        -> Client application that wants to access the protected resource. In our example, the client
+            is LinkedIn.
+        -> Note that this client is not the user's browser.
+    iii) Resource server:
+        -> the server that hosts the protected resource. for eg, the resource server is the email
+            service provider for eg could be Outlook etc.
+    iv) Authorization server:
+        -> the server that handles the delegated authorization. in our example, the authorization
+            server is Microsoft.
+        -> An Authorization server has at least two endpoints.
+            1. authorization endpoint is used to interact with the end user and obtain an authorization
+                grant.
+            2. token endpoint is used with the client to exchange an authorization grant for an access
+                token.
+        -> note that the client(LinkedIn) must register itself as a known client to the authorization
+            server(Microsoft) before it can access the protected resources.
+        -> client must provide a client ID amd a client secret to the authorization server to provide
+            its Identity
+
+- the common steps of OAuth 2.0 are:
+    1. The client(linkedIn) requests access to a protected resource.
+    2. The client redirects the user to the authorization server, such as Microsoft, Google, and so on.
+        Specifically, it redirects to the authorization endpoint of the authorization server. After
+        the user is authenticated, the authorization server will prompt the user, asking something
+        like “Hi, I have a known client named LinkedIn, which wants to access my APIs using your
+        privileges. Specifically, it wants to access your contacts so that it can send emails on your
+        behalf. Do you want to grant access to LinkedIn?”
+    3. Once the user accepts the request, the authorization server will generate an authorization code,
+        which is just an opaque string that confirms the user did grant access to the client (LinkedIn).
+        The authorization server will redirect the user back to the client (LinkedIn).
+    4. The authorization code is sent to the client (LinkedIn) as a query string parameter.
+    5. The client (LinkedIn) now has an authorization code. Next, it will use the authorization code,
+        client ID, and client secret to request an access token from the token endpoint of the
+        authorization server. It may ask something like “Hi, I am LinkedIn. This user has granted me
+        access to the contacts of this email address. This is my client credentials
+        (client id and client secret). I also have an authorization code. Can I get access to this?”
+    6. The authorization server will verify the client credentials and the authorization code. If all
+        is good, it will generate an access token and send it back to the client (LinkedIn). The access
+        token is a string that can be used to access the protected resource. It is usually a JWT token.
+        It may also contain the scope, which is the permission that the client (LinkedIn) has been
+        granted. For example, it may be Contacts.Read.
+    7. The client (LinkedIn) can now use this access token to access the protected resource. It may
+        ask something like “Hi, I am LinkedIn. I have an access token. Can I access the contacts of this
+        email address?” The resource server checks the access token and if it is valid, it will return
+        the protected resource to the client (LinkedIn).

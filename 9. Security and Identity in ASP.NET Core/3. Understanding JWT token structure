@@ -1,0 +1,50 @@
+UNDERSTANDING JWT TOKEN STRUCTURE:
+
+- JWT token is a string value.
+- composed of 3 parts, separated by a dot (.)
+    1) header
+    2) Payload
+    3) Signature
+
+    -> Header and Payload are encoded using the Base64Url algorithm
+    -> we can use jwt.io to decode the token.
+        copy the generated token and paste it into the Encoded field on the https://jwt.io/#debugger-io.
+        we will see the decoded token, as shown in the image(3)JWTdecoded.png
+
+    1) the Header contains the algorithm used to sign the token. in our case, we use the HmacSha256Signature
+        algorithm.
+            {
+                "alg": "HS256",
+                "typ": "JWT"
+            }
+
+    2) the payload contains the claims of the token and some other additional data.
+            {
+                "unique_name": "admin",
+                "nbf": 1727521292,
+                "exp": 1727607692,
+                "iat": 1727521292,
+                "iss": "http://localhost:5136",
+                "aud": "http://localhost:5136"
+            }
+        -> There are some recommended (but not mandatory) registered claim names defined in RFC7519:
+            • sub: The sub (subject) claim identifies the principal that is the subject of the token
+            • nbf: The nbf (not before) claim identifies the time before which the token must not be
+                accepted for processing
+            • exp: The exp (expiration time) claim identifies the expiration time on or after which the token
+                must not be accepted for processing
+            • iat: The iat (issued at) claim identifies the time at which the token was issued
+            • iss: The iss (issuer) claim identifies the principal that issued the token
+            • aud: The aud (audience) claim identifies the recipients that the token is intended for
+
+        -> Note that in our case, we use the same value for the iss and aud claims because we use the same
+            web API to issue and validate the token. In a real-world application, normally, there is a
+            separate authentication server to issue the token so that the iss and aud claims have
+            different values.
+    
+    3) The signature is used to verify the token to make sure the token does not tamper. There are various
+        algorithms to generate the signature. In our case, we use the HmacSha256Signature algorithm,
+        so the signature is generated using the following formula:
+
+            HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secret)
+

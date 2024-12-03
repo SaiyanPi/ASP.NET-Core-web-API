@@ -1,0 +1,159 @@
+Claim-based authorization:
+
+- When a user is authenticated, the user will have a set of claims that are used to store the information
+    about the user. For example, the user can have a claim that specifies the user’s role. So, technically,
+    roles are also claims, but they are special claims that are used to store the roles of the user. We
+    can store other information in the claims, such as the user’s name, email address, date of birth,
+    driving license number, and more.
+- the authorization system can check the claims to determine whether the user is allowed to access the 
+    resource.
+- Claim-based authorization provides more granular access control than role-based authorization, but it
+    can be more complex to implement and manage.
+- A claim is a key-value pair. Note that the claim type and value are case-sensitive. You can store
+    the claims in the database or in the code.
+
+- see ClaimBasedAuthorizationDemo project file.
+
+-> When the user logs in, the claims can be retrieved from the database and added to the token. In this
+    demo, we will hard-code the claims in the code for simplicity.
+-> ASP.NET Core provides a built-in ClainTypes class that contains the common claim types, such as
+    NameIdentifierr, DateOfBirth, Email, Gender, GivenName, Name, PostalCode, and others, including Role.
+-> You can also define your own claim types like:
+
+    public static class AppClaimTypes
+    {
+        public const string DrivingLicenseNumber = "DrivingLicenseNumber";
+        public const string AccessNumber = "AccessNumber";
+    }
+
+-> Implementation:
+    A) Create AppClaimTypes.cs file in the Authentication folder as:
+
+        public static class AppClaimTypes
+        {
+            public const string DrivingLicenseNumber = "DrivingLicenseNumber";
+            public const string AccessNumber = "AccessNumber";
+        }
+
+    B) Create AppAuthorizationPolicies.cs file in the same folder as:
+
+        public static class AppAuthorizationPolicies
+        {
+            public const string RequireDrivingLicenseNumber = "RequireDrivingLicenseNumber";
+            public const string RequireAccessNumber = "RequireAccessNumber";
+        }
+
+    C) Now we can add the claims to the token when the user logs in. Update the GenerateToken method
+        in the AccountController file as:
+
+        private string? GenerateToken(string userName)
+        {
+            // omitted
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Name, userName),
+                    // Suppose the user's information is stored in the database so that we can retrieve it from the database
+                    new Claim(ClaimTypes.Country, "New Zealand"),
+                    // Add our custom claims
+                    new Claim(AppClaimTypes.AccessNumber, "12345678"),
+                    new Claim(AppClaimTypes.DrivingLicenseNumber, "123456789")
+                }),
+                Expires = DateTime.UtcNow.AddDays(1),
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            // omitted
+        }
+
+        -> in the preceeding code, we added the Country, AccessNumber, and DrivingLicenseNumber claims
+            to the token.
+        -> we can add any claims to the token.
+
+    D) Now, imagine we have a requirement that only users with a Driving License can access the resource.
+        we can implement this by adding the following policy code to the Program class
+        (similar to a role-based authorization using policy in 5.1 topic)
+
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy(AppAuthorizationPolicies.RequireDrivingLicenseNumber, policy => 
+                policy.RequireClaim(AppClaimTypes.DrivingLicenseNumber));
+            options.AddPolicy(AppAuthorizationPolicies.RequireAccessNumber, policy => 
+                policy.RequireClaim(AppClaimTypes.AccessNumber));     
+        });
+
+    E) Now, we can update the Authorize attribute in the action method so the action method uses the
+        policy.
+        
+        [Authorize(Policy = AppAuthorizationPolicies.RequireDrivingLicenseNumber)]
+        [HttpGet("driving-license")]
+        public IActionResult GetDrivingLicense()
+        {
+            var drivingLicenseNumber = User.Claims.FirstOrDefault(c => c.Type == AppClaimTypes.DrivingLicenseNumber)?.Value;
+            return Ok(new { drivingLicenseNumber });
+        }
+
+        -> run the application and request to the endpoint /WeatherForecast/driving-license endpoint.
+            we will get the 401 unauthorized response because the user does not have the
+            DrivingLicenseNumber claim.
+        -> register or login a user to get the token. copy paste it in a Authorization header and request
+            to the end point again, we will see a 200OK response.
+
+            o/p:    {
+                        "drivingLicenseNumber": "123456789"
+                    }
+        
+        -> decoding the token to see the claims.
+            
+            {
+                "unique_name": "saiyan",
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/country": "New Zealand",
+                "AccessNumber": "12345678",
+                "DrivingLicenseNumber": "123456789",
+                "nbf": 1731594199,
+                "exp": 1731680599,
+                "iat": 1731594199,
+                "iss": "http://localhost:5274",
+                "aud": "http://localhost:5274"
+            }
+    F) Current approach only checks whether the token contains the claim(Driving license), it does not
+        check the value of the claim(driving license number). we can check the value as well.
+        in the Program file we added a policy with RequireClaim() method. It also has an overload that
+        accepts allowedValues as a parameter. for eg,
+
+            builder.Services.AddAuthorization(options =>
+            {
+                // Omitted for brevity
+                options.AddPolicy(AppAuthorizationPolicies.RequireCountry, policy => 
+                    policy.RequireClaim(ClaimTypes.Country, "Nepal"));
+            });
+        
+        -> The allowedValues parameter is an array of strings. So, we can pass multiple values to
+            the allowedValues parameter. For example, we can allow users from New Nepal and
+            Norway to access the resource as:
+
+                options.AddPolicy(AppAuthorizationPolicies.RequireCountry, policy => 
+                    policy.RequireClaim(ClaimTypes.Country, "Nepal", "Norway"));
+    
+    G) Update the policy by adding the above code in Program file.
+
+    H) Update AppAuthorizationPolicies.
+
+        public const string RequireCountry = "RequireCountry";
+
+    I) Update WeatherForecastController:
+        
+        [Authorize(Policy = AppAuthorizationPolicies.RequireCountry)]
+        [HttpGet("country")]
+        public IActionResult GetCountry()
+        {
+            var country = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Country)?.Value;
+            return Ok(new { country });
+        }
+
+        -> test the API by calling the /WeatherForecast/country endpoint. Now, only users who have the
+            Country claim with the value of Nepal can access the resource.

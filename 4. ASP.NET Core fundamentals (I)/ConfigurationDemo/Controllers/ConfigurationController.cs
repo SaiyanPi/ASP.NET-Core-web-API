@@ -54,10 +54,15 @@ public class ConfigurationDemoController(IConfiguration configuration) : Control
     //    the IOptions<DatabaseOption> interface to get the database configuration.
     [HttpGet]
     [Route("database-configuration-with-ioptions")]
-    public ActionResult GetDatabaseConfigurationWithIOptions([FromServices] IOptions<DatabaseOption> options) // interface injected
+    public ActionResult GetDatabaseConfigurationWithIOptions([FromServices]
+    IOptions<DatabaseOption> options) // interface injected
     {
         var databaseOption = options.Value;
-        return Ok(new { databaseOption.Type, databaseOption.ConnectionString });
+        return Ok(new 
+        { 
+            databaseOption.Type,
+            databaseOption.ConnectionString 
+        });
     }
 
     //  Others/IOptionsSnapshot<TOption> interface
@@ -70,8 +75,7 @@ public class ConfigurationDemoController(IConfiguration configuration) : Control
         return Ok(new
         {
             databaseOption.Type,
-            databaseOption.
-        ConnectionString
+            databaseOption.ConnectionString
         });
     }
 

@@ -1,0 +1,15 @@
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\bin\Debug\net8.0\AuthenticationDemoClient.exe
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\bin\Debug\net8.0\AuthenticationDemoClient.deps.json
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\bin\Debug\net8.0\AuthenticationDemoClient.runtimeconfig.json
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\bin\Debug\net8.0\AuthenticationDemoClient.dll
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\bin\Debug\net8.0\AuthenticationDemoClient.pdb
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\obj\Debug\net8.0\AuthenticationDemoClient.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\obj\Debug\net8.0\AuthenticationDemoClient.AssemblyInfoInputs.cache
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\obj\Debug\net8.0\AuthenticationDemoClient.AssemblyInfo.cs
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\obj\Debug\net8.0\AuthenticationDemoClient.csproj.CoreCompileInputs.cache
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\obj\Debug\net8.0\AuthenticationDemoClient.sourcelink.json
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\obj\Debug\net8.0\AuthenticationDemoClient.dll
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\obj\Debug\net8.0\refint\AuthenticationDemoClient.dll
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\obj\Debug\net8.0\AuthenticationDemoClient.pdb
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\obj\Debug\net8.0\AuthenticationDemoClient.genruntimeconfig.cache
+C:\Users\zlams\source\REST API\9. Security and Identity in ASP.NET Core\AuthenticationDemoClient\obj\Debug\net8.0\ref\AuthenticationDemoClient.dll
