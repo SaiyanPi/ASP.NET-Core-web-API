@@ -1,0 +1,26 @@
+Consuming the API:
+
+- see sample client application AuthenticationDemoClient. it is a simple console application.
+- it uses the HttpClient class to send HTTP request to the API.
+
+- Consuming Web API(AuthenticationDemo) from console appp(AuthenticationDemoClient)
+
+    1) dotnet run/dotnet watch run the API.
+
+    2) run the console app and enter the registered username and password in console window.
+
+        -> first, the client application sends a request to the login API to get the token.
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5136/Account/login");
+
+        -> then, it attaches the token to the request header and sends the request to the weather forecast
+            API.
+
+            request = new HttpRequestMessage(HttpMethod.Get, "http://localhost:5136/WeatherForecast");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        -> if the token is valid, the API will return the data.
+        
+        -> see image consumingAPIconsole.png for console output.
+
+       

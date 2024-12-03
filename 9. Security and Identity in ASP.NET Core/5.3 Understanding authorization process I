@@ -1,0 +1,69 @@
+Understanding authorization process:
+
+- when we use role-based authorization or claim-based authorization, we need to call the AddPolicy()
+    method in the AddAuthorization method in the Program file.
+    The signature of the AddPolicy() method is as follows:
+
+        public void AddPolicy(string name, Action<AuthorizationPolicyBuilder> configurePolicy)
+        {
+            // omitted
+        }
+
+        -> AddPolicy() method accepts 2 parameters:
+            1) name parameter which is the name of the policy.
+            2) configurePolicy parameter which is a delegate that accepts an AuthorizationPolicyBuilder
+                parameter.
+        -> if we press F12 to check the source code of AuthorizationPolicyBuilder class, we will find
+            that it has some methods to configure the policy such as RequireRole(), RequireClaim() etc.
+
+            public AuthorizationPolicyBuilder RequireRole(IEnumerable<string> roles)
+            {
+                ArgumentNullThrowHelper.ThrowIfNull(roles);
+                Requirements.Add(new RolesAuthorizationRequirement(roles));
+                return this;
+            }
+
+            public AuthorizationPolicyBuilder RequireClaim(string claimType)
+            {
+                ArgumentNullThrowHelper.ThrowIfNull(claimType);
+                Requirements.Add(new ClaimsAuthorizationRequirement(claimType, allowedValues: null));
+                return this;
+            }
+
+        -> both RequireRole() and RequireClaim() methods call the Requirements.Add() method under the
+            hood.
+
+- SO WHAT IS Requirements object?
+    -> the definition of the Requirements object is as follows:
+
+        public IList<IAuthorizationRequirement> Requirements { get; set; } = 
+            new List<IAuthorizationRequirement>();
+
+    -> Requirements object in the AuthorizationPolicyBuilder class is a list of IAuthorizationRequirement instances
+        objects.
+    -> IAuthorizationRequirement interface is just a marker service, and it does not have any methods
+
+- in the above sorce code of AuthorizationPolicyBuilder, if we see the source code of the 
+    RolesAuthorizationRequirement and the ClaimsAuthorizationRequirements class.
+
+    // source code of RolesAuthorizationRequirement
+    public class RolesAuthorizationRequirement : AuthorizationHandler<RolesAuthorizationRequirement>, 
+        IAuthorizationRequirement
+    {
+        // omitted
+    }
+
+
+    // source code of ClaimsAuthorizationRequirement
+    public class ClaimsAuthorizationRequirement : AuthorizationHandler<ClaimsAuthorizationRequirement>, 
+        IAuthorizationRequirement
+    {
+        // omitted
+    }
+
+    -> we can see both RolesAuthorizationRequirement and ClaimsAuthorizationRequirement classes implement
+        the IAuthorizationRequirement interface. They also implement AuthorizationHandler<TRequirement>
+        class 
+
+
+

@@ -1,0 +1,239 @@
+Policy-based authorization:
+
+- in the rpevious section, we explained that both role-based and claim-based authorization are
+    implemented by the IAuthorizationRequirement, IAuthorizationHandler, and IAuthorizationService
+    interfaces under the hood.
+- if we have more complex authorization logic, we can use policy-based authorization directly, which
+    allows us to define custom suthorization policies to execute complex authorization logic.
+
+- let's imagine a scenario:
+    i) special premium content can be accessed by the user who has Premium subscription and is allows
+        based in Nepal.
+    ii) User who have a premium subscription, but are not based in Nepal, cannot access the special
+        premium content.
+    now let's implement the aforementioned authorization logic using policy-based authorization.
+
+A) In the Authentication folder, add two classes; AppClaimTypes and AppAuthorizationPolicies as:
+
+    public static class AppClaimTypes
+    {
+        public const string Subscription = "Subscription";
+    }
+    
+    public static class AppAuthorizationPolicies
+    {
+        public const string SpecialPremiumContent = "SpecialPremiumContent";
+    }                          
+    -> these classes define the claim types and authorization policies we need.
+    
+
+B) In the AccountController class update the GenerateToken() method witha new claim and Register action
+    method as:
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] AddOrUpdateAppUserModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            // omitted
+            if (result.Succeeded)
+            {
+                return Created();
+            }
+           // omitted
+        }
+        // omitted
+    }
+
+    private string? GenerateToken(string userName, string country)
+    {
+        // omitted
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.Name, userName),
+                new Claim(AppClaimTypes.Subscription, "Premium"),
+                new Claim(ClaimTypes.Country, country)
+            }),
+            Expires = DateTime.UtcNow.AddDays(1),
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        // omitted
+    }
+    -> for simplicity, we added a new claim, AppClaimTypes.Subscription, with a value of Premium to the
+        token.
+    -> we also added a new claim ClaimTypes.Country to the token.
+    -> In the real world, we can get the user's subscription type and country from the database.
+
+
+C) update the Login() method in the AccountController class to add the country to the claims and create
+    new method for Nepal(premium subscription) users.
+
+    [HttpPost("login-nepal")]
+    public async Task<IActionResult> LoginNepal([FromBody] LoginModel model)
+    {
+        // Get the secret in the configuration
+
+        // Check if the model is valid
+        if (ModelState.IsValid)
+        {
+            var user = await userManager.FindByNameAsync(model.UserName);
+            if (user != null)
+            {
+                if (await userManager.CheckPasswordAsync(user, model.Password))
+                {
+                    var token = GenerateToken(model.UserName, "Nepal");
+                    return Ok(new { token });
+                }
+            }
+            // If the user is not found, display an error message
+            ModelState.AddModelError("", "Invalid username or password");
+        }
+        return BadRequest(ModelState);
+
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginModel model)
+    {
+    // Get the secret in the configuration
+    // Check if the model is valid
+        if (ModelState.IsValid)
+        {
+            var user = await userManager.FindByNameAsync(model.UserName);
+            if (user != null)
+            {
+                if (await userManager.CheckPasswordAsync(user, model.Password))
+                {
+                    var token = GenerateToken(model.UserName, "China");
+                    return Ok(new { token });
+                }
+            }
+        // If the user is not found, display an error message
+        ModelState.AddModelError("", "Invalid username or password");
+        }
+        return BadRequest(ModelState);
+    }
+    -> in the real worl, you only have one login endpoint, and the country information is retrieved from
+        the database or other sources, such as IP addresses.
+
+
+D) next, we need to implement the authorization policy. Create a new class named
+    SpecialPremiumContentRequirement in the Authorization folder as:
+
+    public class SpecialPremiumContentRequirement : IAuthorizationRequirement
+    {
+        public string Country { get; }
+        public SpecialPremiumContentRequirement(string country)
+        {
+            Country = country;
+        }
+    }
+    -> this class implements IAuthorizationRequirement interface.
+    -> the Country property represents the country where the premium content can be accessed. we can use
+        this property to check whether the user is authorized to access the premium content.
+
+
+E) next we need to implement the AuthorizationHandler interface. Create a new
+    SpecialPremiumContentAuthorizationHandler class in the Authorization folder.
+
+    public class SpecialPremiumContentAuthorizationHandler : AuthorizationHandler<SpecialPremiumContentRequirement>
+    {
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, 
+            SpecialPremiumContentRequirement requirement)
+        {
+            var hasPremiumSubscriptionClaim = context.User.HasClaim(c => c.Type == "Subscription" && c.Value == "Premium");
+
+            if (!hasPremiumSubscriptionClaim)
+            {
+                return Task.CompletedTask;
+            }
+
+            var countryClaim = context.User.FindFirst(c => c.Type == ClaimTypes.Country);
+            if (countryClaim == null || string.IsNullOrWhiteSpace(countryClaim.ToString()))
+            {
+                return Task.CompletedTask;
+            }
+
+            if (countryClaim.Value == requirement.Country)
+            {
+                context.Succeed(requirement);
+            }
+
+            return Task.CompletedTask;
+        }
+    }
+    -> this handler is used to check whether the requirement is satisfied.
+    -> If the user has a Premium subscription and is based in the country where the premium content can be
+        accessed, the requirement is satisfied. Otherwise, the requirement is not satisfied.
+
+
+F) Next we need to register the authorization policy and the authorization handler. Update the program
+    class as:
+
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy(AppAuthorizationPolicies.SpecialPremiumContent, policy =>
+        {
+            policy.Requirements.Add(new SpecialPremiumContentRequirement("Nepal"));
+        });
+    });
+    builder.Services.AddSingleton<IAuthorizationHandler, SpecialPremiumContentAuthorizationHandler>();
+
+    -> we registered the authorization policy AppAuthorizationPolicies.SpecialPremiumContent, with the
+        SpecialPremiumContentRequirement requirement.
+    -> The SpecialPremiumContentRequirement requirement is satisfied if the user has a Premium subscription
+        and is based in Nepal.
+    ->  We also registered the SpecialPremiumContentAuthorizationHandler handler as a singleton service.
+
+
+G) finally we need to apply the authorization policy to the controller. In the WeatherForecastController
+    add a new action as:
+
+    [Authorize(Policy = AppAuthorizationPolicies.SpecialPremiumContent)]
+    [HttpGet("special-premium", Name = "GetPremiumWeatherForecast")]
+    public IEnumerable<WeatherForecast> GetPremium()
+    {
+        return Enumerable.Range(1, 10).Select(index => new WeatherForecast
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            TemperatureC = Random.Shared.Next(-20, 55),
+            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+        })
+        .ToArray();
+    }
+    -> this action can only be accessed by users who have a Premium subscription and are based in Nepal.
+
+-----------------------------------------------------------------------------------------------------------
+
+- run the application, login as a Nepal user(account/login-nepal) then using the generated JWT token
+    we can access the weatherforecast/special-premium endpoint.
+    If the token from China user(account/login) is used, then we will get 403 Forbidden response.
+    
+- there are some points to  ote for Policy-based Authorization:
+    1) We can use one AuthorizationHandler instance to handle multiple requirements.
+        In the HandleAsync() method, you can use AuthorizationHandlerContext.PendingRequirements to get
+        all the pending requirements and then check them one by one.
+    2) If you have multiple AuthorizationHandler instances, they will be invoked in any order, which means
+        you cannot expect the order of the handlers.
+    3) You need to call context.Succeed(requirement) to mark the requirement as satisfied.
+
+- What if the requirement is not satisfied? There are 2 options:
+    1) Generally, you do not need to call context.Fail() to mark the failed requirement because
+        there may be other handlers to handle the same requirement, which may be satisfied.
+    2) If you want to make sure the requirement fails and indicate that the whole authorization process
+        fails, you can call context.Fail() explicitly, and set the InvokeHandlersAfterFailure
+        property to false in the AddAuthorization() method in Program class, like this:
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy(AppAuthorizationPolicies.PremiumContent, policy =>
+                {
+                    policy.Requirements.Add(new PremiumContentRequirement("New Zealand"));
+                });
+                options.InvokeHandlersAfterFailure = false;
+            });

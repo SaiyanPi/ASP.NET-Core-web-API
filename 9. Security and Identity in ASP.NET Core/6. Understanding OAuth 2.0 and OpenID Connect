@@ -1,0 +1,8 @@
+Understanding OAuth2.0 and OpenId Connect:
+
+- previously we learned how to implement authentication and authorization using built-in Identity 
+    APIs in ASP.NET Core. However, we may encounter some terms such as OAuth2.0 and OpenID Connect
+    when working on a real project.
+- in this section we will introduce some basic concepts surrounding OAuth2.0 and OpenID Connect, as
+    well as some third-party authentication and authorization providers.
+    

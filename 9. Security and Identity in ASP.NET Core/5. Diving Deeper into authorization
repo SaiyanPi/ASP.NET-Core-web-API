@@ -1,0 +1,10 @@
+Diving deeper into authorization:
+
+- authorization is the process of determining whether a user is allowed to perform a specific acton.
+- In the previous section, we implemented a web API project that enables simple authentication and
+    authorization. By using the Authorize attribute, only authenticated users can access the API.
+    However, in many scenarios, we need to implement granular authorization.
+    For example, some resources are only accessible to the administrator, while some resources are
+    accessible to normal users.
+- In this section, we will explore how to implement granular authorization in ASP.NET Core, including
+    role-based authorization, claim-based authorization, and policy-based authorization.

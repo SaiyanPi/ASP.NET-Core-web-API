@@ -1,0 +1,54 @@
+GETTING STARTED WITH AUTHENTICATION AND AUTHORIZATION:
+
+
+- Authentication and authorization are two important aspects of security. Although these two terms are
+    often used together, they are distinct concepts.    
+
+- for some resources, we want to restrict access to only authenticated users. for eg, we have a resource
+    that contains some sensitive information that should not be available to anyone. in this case
+    the application should be able to identify the user who is making the request. if the user is
+    anonymous, the application should not allow the user to access the resource.
+
+- for some scenarios, we also want restrict access to some specific users. for eg, we want to allow
+    authenticated users to read the resource, but only admin users to upate or delete the resource.
+    in this case the application should be able to check whether the user is who they claim to be
+    and they have the required permission to access the resource.
+
+- ASP.NET Core provides the Identity framework, which has a rich set of fetaures for Authentication
+    and authorization.
+
+- we will use the following resources in this example:
+    
+    1) POST /acount/register:
+        this resource will be used to register a new user. the user should send the username and password
+        in the request body. after validating the username and password, the application will create a
+        new user in the database and return a JWT token to the user. This JWT token will be used to
+        authenticate the user in subsequent requests.
+
+    2) POST /account/login:
+        This resource will be used to log into an existing user. after the user sends the username and
+        password, the application will validate the credentials and return a JWT token to the user if
+        the credentials are valid. The JWT token will be used to authenticate the user in subsequent
+        requests.
+
+    3) GET /WeatherForecast: 
+        This resource will be used to get the weather forecast. it only allows authenticated users to 
+        access the resource. The user should send the JWT token in the authorization header to get
+        authenticated.
+
+* there should be more endpoints to manage users, such as updating the user profiles, deleting the
+    user, resetting the password and more. However we are not building a complete application in this
+    chapter. To keep things simple, we will only focus on the minimal features required to demonstrate
+    the authentication and authorization features in ASP.NET Core.
+
+
+WHAT IS JWT?
+-> JWT stands for JSON Web Token. 
+-> it is an industry standard for representing claims securely between 2 parties.
+-> JWT token consists of 3 parts: header, payload, and signature.
+    xxxxx.yyyyy.zzzzz
+    * header contains the algorithm used to sign the token.
+    * payload contains the claims.
+    * signature is used to verify the integrity of the token.
+-> RFC for JWT is RFC 7519.
+-> FOR MORE https://jwt.io/introduction

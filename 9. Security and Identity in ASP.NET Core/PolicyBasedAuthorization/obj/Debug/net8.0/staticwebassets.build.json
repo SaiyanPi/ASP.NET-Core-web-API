@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "7/Mp1+n4mWqC/pfPtajvNMUlhN3+mJul4gZ0SyqzV7Q=",
+  "Source": "PolicyBasedAuthorization",
+  "BasePath": "_content/PolicyBasedAuthorization",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

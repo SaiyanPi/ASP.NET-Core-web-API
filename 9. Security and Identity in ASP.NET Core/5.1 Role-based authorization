@@ -1,0 +1,264 @@
+Role-based authorization:
+
+- create an application from section 2.
+- a role is a set of permissions that are assigned to a user. 
+    For example, the administrator role has permission to access all resources, while the normal user
+    role has limited permissions. A user can be assigned to multiple roles. A role can be assigned
+    to multiple users. Now follow the steps.
+A) Create a class named AppRoles that defines a roles in the project.
+
+    public static class AppRoles
+    {
+        public const string Administrator = "Administrator";
+        public const string User = "User";
+        public const string VipUser = "VipUser";
+    }
+
+B) Now we need to explicitly cal the AddRoles() method after AddIdentityCore() method in the program
+    file.
+
+    builder.Services.AddIdentityCore<AppUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    // omitted
+
+    -> if we use AddIdentity() method, we do not need to call the AddRoles() method.
+        AddIdentity()  method will call the AddRoles() method internally.
+    
+C) Check whether the roles exist in the database(Table AspNetRoles). If not we can create by adding
+    following code after the 'app.UseAuthorization()' method in program file.
+
+    using (var serviceScope = app.Services.CreateScope())
+    {
+        var services = serviceScope.ServiceProvider;
+
+        // Ensure the database is created.
+        var dbContext = services.GetRequiredService<AppDbContext>();
+        dbContext.Database.EnsureCreated();
+
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        if (!await roleManager.RoleExistsAsync(AppRoles.User))
+        {
+            await roleManager.CreateAsync(new IdentityRole(AppRoles.User));
+        }
+        if (!await roleManager.RoleExistsAsync(AppRoles.VipUser))
+        {
+            await roleManager.CreateAsync(new IdentityRole(AppRoles.VipUser));
+        }
+        if (!await roleManager.RoleExistsAsync(AppRoles.Administrator))
+        {
+            await roleManager.CreateAsync(new IdentityRole(AppRoles.Administrator));
+        }
+    }
+
+    -> dotnet run the app, then the roles will be acreated in the database table.
+
+D) update the Register(), Login(), and GenerateToken() methods in AccountController as:
+
+   1) update the Register() method to assign the User role to the new user. Similarly, we can create a
+    new action to register an administrator or a VIP user.
+        
+        [HttpPost("register")]
+        public Task<IActionResult> Register([FromBody] AddOrUpdateAppUserModel model)
+        {
+            return RegisterUserWithRole(model, AppRoles.User);
+        }
+
+        [HttpPost("register-admin")]
+        public Task<IActionResult> RegisterAdmin([FromBody] AddOrUpdateAppUserModel model)
+        {
+            return RegisterUserWithRole(model, AppRoles.Administrator);
+        }
+
+        [HttpPost("register-vip")]
+        public Task<IActionResult> RegisterVip([FromBody] AddOrUpdateAppUserModel model)
+        {
+            return RegisterUserWithRole(model, AppRoles.VipUser);
+        }
+    
+        public async Task<IActionResult> RegisterUserWithRole(AddOrUpdateAppUserModel model, string roleName)
+        {
+            if (ModelState.IsValid)
+            {
+                var existedUser = await userManager.FindByNameAsync(model.UserName);
+                if(existedUser != null)
+                {
+                    ModelState.AddModelError("", "User name is already taken.");
+                    return BadRequest(ModelState);
+                }
+                // Create a new user object
+                var user = new AppUser()
+                {
+                    UserName = model.UserName,
+                    Email = model.Email,
+                    SecurityStamp = Guid.NewGuid().ToString()
+                };
+                // Try to save the user
+                var userResult = await userManager.CreateAsync(user, model.Password);
+                // Add the user to the role
+                var roleResult = await userManager.AddToRoleAsync(user, roleName);
+                // If the user is successfully created, return Ok
+                if (userResult.Succeeded && roleResult.Succeeded)
+                {
+                    var createdUser = await userManager.FindByNameAsync(model.UserName);
+                    var token = GenerateToken(createdUser!, model.UserName);
+                    return Ok(new { token });
+                }
+                // If there are any errors, add them to the ModelState object
+                // and return the error to the client
+                foreach (var error in userResult.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+            }
+            // If we got this far, something failed, redisplay form
+            return BadRequest(ModelState);
+        }
+
+    2) update the GenerateToken() method. we need to include the roles of the user in the token.
+        we can use GetRolesAsync() method to get the roles of the user in the token.
+
+        private async Task<string?> GenerateToken(AppUser user, string userName)
+        {
+            var secret = configuration["JwtConfig:Secret"];
+            var issuer = configuration["JwtConfig:ValidIssuer"];
+            var audience = configuration["JwtConfig:ValidAudiences"];
+            if (secret is null || issuer is null || audience is null)
+            {
+                throw new ApplicationException("Jwt is not set in the configuration");
+            }
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var userRoles = await userManager.GetRolesAsync(user);
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.Name, userName)
+            };
+            claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddDays(1),
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+            var token = tokenHandler.WriteToken(securityToken);
+            return token;
+        }
+
+    3) update Login() method. 
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        {
+        // Get the secret in the configuration
+        // Check if the model is valid
+            if (ModelState.IsValid)
+            {
+                var user = await userManager.FindByNameAsync(model.UserName);
+                if (user != null)
+                {
+                    if (await userManager.CheckPasswordAsync(user, model.Password))
+                    {
+                        var token = GenerateToken(user, model.UserName);
+                        return Ok(new { token });
+                    }
+                }
+            // If the user is not found, display an error message
+            ModelState.AddModelError("", "Invalid username or password");
+            }
+            return BadRequest(ModelState);
+        }
+    
+E) now we can run the app and register the users in different register endpoints.
+    after registering, copy the token and paste in 'https://jwt.io/#debugger' to decode the payload.
+
+    {
+        "unique_name": "goku",
+        "role": "Administrator",
+        "nbf": 1731463241,
+        "exp": 1731549641,
+        "iat": 1731463241,
+        "iss": "http://localhost:5050",
+        "aud": "http://localhost:5050"
+    }
+
+    -> see (5.1)payloadDecode.png
+    -> after the users are created, we can view the users and their roles in the database table AspNetUserRoles.
+        The data of the AspNetUserRoles table is used to store the relationship between users and
+        roles. The UserId column is the primary key of the AspNetUsers table, while the RoleId
+        column is the primary key of the AspNetRoles table. see (5.1)AspNetUserRolesTable.png
+
+
+F) let's update WeatherForecastController to implement role-based authorization.
+
+    [HttpGet("admin", Name = "GetAdminWeatherForecast")]
+    [Authorize(Roles = AppRoles.Administrator)]
+    public IEnumerable<WeatherForecast> GetAdmin()
+    {
+       // omitted
+    }
+
+    -> The Authorize attribute is used to specify the role that is allowed to access the API.
+        In the preceding code, only authenticated users with the Administrator role can access the
+        API.
+
+G) Now if we request to an endpoint /WeatherForecast/admin using user token, we will get a 403
+    Forbidden response.
+    Generally, the administrator role should have permission to access all resources. But in our
+    current application, the administrator user cannot access the /WeatherForecast endpoint.
+    There are multiple ways to fix this.
+    
+    1) The first way is that when we register a new administrator, we can assign the Administrator
+        role to the user and also assign the User role (or any other roles) to the user.
+        This way, the administrator user can access all resources
+    
+    2) update the Authorize attribute to allow multiple roles, like so:
+
+        [HttpGet("admin", Name = "GetWeatherForecast")]
+        [Authorize(Roles = $"{AppRoles.User},{AppRoles.VipUser},{AppRoles.Administrator}")]
+        public IEnumerable<WeatherForecast> Get()
+        {
+            // omitted
+        }
+
+        -> this means that the user must have one of the specified roles to access the API. i.e, all
+            Administrator, VipUser, and User can access the API.
+
+      OR 
+
+        [HttpGet("vip", Name = "GetVipWeatherForecast")]
+        [Authorize(Roles = AppRoles.User)]
+        [Authorize(Roles = AppRoles.VipUser)]
+        public IEnumerable<WeatherForecast> GetVip()
+        {
+            // Omitted for brevity
+        }
+
+        -> this means that the user must have both User and VipUser roles to access the API.
+    
+    3) we can also define a policy to specify the roles that are allowed to access the API.
+        -> add the following code in program file.
+
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("RequireAdministratorRole", policy => policy.RequireRole(AppRoles.Administrator));
+            options.AddPolicy("RequireVipUserRole", policy => policy.RequireRole(AppRoles.VipUser));
+            options.AddPolicy("RequireUserRole", policy => policy.RequireRole(AppRoles.User));
+            options.AddPolicy("RequireUserRoleOrVipUserRole", policy => policy.RequireRole(AppRoles.User, AppRoles.VipUser));
+        });
+
+        -> then, update the Authorize attribute to use the policy like this:
+
+            [HttpGet("admin-with-policy", Name = "GetAdminWeatherForecastWithPolicy")]
+            [Authorize(Policy = "RequireAdministratorRole")]
+            public IEnumerable<WeatherForecast> GetAdminWithPolicy()
+            {
+                // omitted
+            }
+
+        -> see WeatherForecastController file.
