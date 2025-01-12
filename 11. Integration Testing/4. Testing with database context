@@ -1,0 +1,222 @@
+Testing with database context:
+
+-> ContactController class has dependencies, such as the IContactRepository interface.
+    ContactRepository class implements this interface and uses the InvoiceDbContext class to access
+    the database. (see 2.5 repository patern from chapter 10)
+-> so if we want to test whether the SUT can correctly handle the HTTP requests, we need to create a
+    test database and configure the test web host to use the test database. Similar to unit test, we can
+    use seperate database for integration testing.
+-> WebApplicationFactory<T>type provides a way to configure the test web host.
+-> We can override the ConfigureWebHost method to configure the test web host.
+    for eg, we can replace the default database context with a test database context.
+
+
+    A) Create a test fixture class named IntegrationTestingDatabaseFixture:
+
+        public class IntegrationTestingDatabaseFixture : WebApplicationFactory<Program>
+        {
+            private const string ConnectionString = "Server=.;Database=IntegrationTestingDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
+            
+            protected override void ConfigureWebHost(IWebHostBuilder builder)
+            {
+                // Set up a test database
+                builder.ConfigureServices(services =>
+                {
+                    // finding the default database context
+                    var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<InvoiceDbContext>));
+                    // removing the default database context
+                    services.Remove(descriptor);
+                    // adding a new database context that uses the test database
+                    services.AddDbContext<InvoiceDbContext>(options =>
+                    {
+                        options.UseSqlServer(ConnectionString);
+                    });
+                });
+            }
+        }
+        -> we override the ConfigureWebHost() method to configure the test web host for the SUT.
+        -> when the test web host is created, the Program class will execute first, which means the
+            default database context defined in the Program class will be created.
+                
+                builder.Services.AddDbContext<InvoiceDbContext>();
+        
+        -> Then the ConfigureWebHost() method defined in the IntegrationTestingDatabaseFixture class
+            will be executed. So we need to find the default database context and then remove it 
+            from the service collection. Then we add a new database context that uses the test database.
+        -> we can also add more customizations to the test web host in the ConfigureWebHost() method.
+            for eg, we can configure the test web host to use different configuration file as:
+
+                builder.ConfigureAppConfiguration((context, config) =>
+                {
+                    config.AddJsonFile("appsettings.IntegrationTest.json");
+                });
+            
+            if we want to use different environment, we can use the UseEnvironment() method as follows:
+
+                builder.UseEnvironment("IntegrationTest");
+
+    B) Next, we need to create the test database and seed some test data. Create a static class named
+        Utilities as:
+
+        public static class Utilities
+        {
+            public static void InitializeDatabase(InvoiceDbContext context)
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+                SeedDatabase(context);
+            }
+            public static void Cleanup(InvoiceDbContext context)
+            {
+                context.Contacts.ExecuteDelete();
+                context.Invoices.ExecuteDelete();
+                context.SaveChanges();
+                SeedDatabase(context);
+            }
+            private static void SeedDatabase(InvoiceDbContext context)
+            {
+                // omitted
+            }
+        }
+        -> we need to initialize the test database before we run the tests and clean up the test database
+            after we run the tests that changes the data in the database.
+        -> when should we initialize the test database?
+            => we learned that the instance of the class fixture is created before the test class is
+                shared among all test methods in the test class. So we can initialize the test database
+                in the class fixture.
+
+    C) Initialize the test database in the class fixture. Update the ConfigureWebHost() method of the
+        IntegrationTestingDatabaseFixture class as:
+
+        builder.ConfigureServices(services =>
+        {
+            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<InvoiceDbContext>));
+            services.Remove(descriptor);
+            services.AddDbContext<InvoiceDbContext>(options =>
+            {
+                options.UseSqlServer(ConnectionString);
+            });
+            // initializing test database
+            using var scope = services.BuildServiceProvider().CreateScope();
+            var scopeServices = scope.ServiceProvider;
+            var dbContext = scopeServices.GetRequiredService<InvoiceDbContext>();
+            Utilities.InitializeDatabase(dbContext);
+        });
+
+        -> previously, we replaced the default database context with test database context while creating
+            the test web host and also initialize the test database, so that all the test methods in the
+            test class can use the same test database.
+        
+    D) Now we can create a new test class named InvoicesApiTests, which is used to test the /api/Invoices
+        endpoint.
+
+        public class InvoicesApiTests(IntegrationTestingDatabaseFixture factory) : IClassFixture<IntegrationTestingDatabaseFixture>
+        {
+            [Fact]
+            public async Task GetInvoices_ReturnsSuccessAndCorrectContentType()
+            {
+                // Arrange
+                var client = factory.CreateClient();
+                // Act
+                var response = await client.GetAsync("/api/invoice");
+                // Assert
+                response.EnsureSuccessStatusCode(); // Status Code 200-299
+                response.Content.Headers.ContentType.Should().NotBeNull();
+                response.Content.Headers.ContentType!.ToString().Should().Be("application/json; charset=utf-8");
+                // Deserialize the response
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var invoices = JsonSerializer.Deserialize<List<Invoice>>(responseContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+                invoices.Should().NotBeNull();
+                invoices.Should().HaveCount(2);
+            }
+            [Fact]
+            public async Task PostInvoice_ReturnsSuccessAndCorrectContentType()
+            {
+                // Arrange
+                var client = factory.CreateClient();
+                var invoice = new Invoice
+                {
+                    DueDate = DateTimeOffset.Now.AddDays(30),
+                    ContactId = Guid.Parse("8a9de219-2dde-4f2a-9ebd-b1f8df9fef03"),
+                    Status = InvoiceStatus.Draft,
+                    InvoiceItems = new List<InvoiceItem>
+                    {
+                        // omitted
+                    }
+                };
+                var json = JsonSerializer.Serialize(invoice);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                // Act
+                var response = await client.PostAsync("/api/invoice", data);
+                // Assert
+                response.EnsureSuccessStatusCode(); // Status Code 200-299
+                response.Content.Headers.ContentType.Should().NotBeNull();
+                response.Content.Headers.ContentType!.ToString().Should().Be("application/json; charset=utf-8");
+                // Deserialize the response
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var invoiceResponse = JsonSerializer.Deserialize<Invoice>(responseContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+                invoiceResponse.Should().NotBeNull();
+                invoiceResponse!.Id.Should().NotBeEmpty();
+                invoiceResponse.Amount.Should().Be(500);
+                invoiceResponse.Status.Should().Be(invoice.Status);
+                invoiceResponse.ContactId.Should().Be(invoice.ContactId);
+
+                // Clean up the database
+                var scope = factory.Services.CreateScope();
+                var scopedServices = scope.ServiceProvider;
+                var db = scopedServices.GetRequiredService<InvoiceDbContext>();
+                Utilities.Cleanup(db);
+            }
+            // omitted
+        }
+        -> InvoicesApiTests test class will be initialized with an instance of the IntegrationTestingDatabaseFixture
+            class.
+        -> in the PostInvoice_ReturnsSuccessAndCorrectContentType() method for testing POST /api/invoices
+            endpoint, the database changes so we need to clean up the database after we run the test.
+            To get the current instance of the database context, we need to create a new scope and get
+            the database context from the scope. Then we can use the Cleanup method of the Utilities
+            class to clean up the database.
+        -> a test for the sad path of the POST /api/invoices endpoint maight look as follows:
+            
+            [Fact]
+            public async Task PostInvoice_WhenContactIdDoesNotExist_ReturnsBadRequest()
+            {
+                // Arrange
+                var client = factory.CreateClient();
+                var invoice = new Invoice
+                {
+                    DueDate = DateTimeOffset.Now.AddDays(30),
+                    ContactId = Guid.NewGuid(),
+                    Status = InvoiceStatus.Draft,
+                    InvoiceItems = new List<InvoiceItem>
+                    {
+                        new()
+                        {
+                            Id = Guid.Parse("d38b3fbb-c31a-4176-a100-26529519045e"),
+                            Description = "Item 1",
+                            Quantity = 1,
+                            UnitPrice = 100,
+                        },
+                        new()
+                        {
+                            Id = Guid.Parse("2803187e-a093-4147-b554-bff800fcb80c"),
+                            Description = "Item 2",
+                            Quantity = 2,
+                            UnitPrice = 200,
+                        }
+                    }
+                };
+                var json = JsonSerializer.Serialize(invoice);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                // Act
+                var response = await client.PostAsync("/api/invoice", data);
+                // Assert
+                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            }
+     

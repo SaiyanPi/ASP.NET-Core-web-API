@@ -1,0 +1,13 @@
+Introduction to Integration testing:
+
+- Unit tests are used to test code units in isolation.
+- However, a code unit often depends on other components, such as the datbase, external services
+    and so on.
+- To test the code thoroughly, we need to test the code units in the context of the application.
+    In other words, we need to test how the code units interact with other parts of the application.
+    This type of testing is called integration testing.
+    
+- In this chapter, we will cover the following topics:
+    • Writing integration tests
+    • Testing with authentication and authorization
+    • Understanding code coverage

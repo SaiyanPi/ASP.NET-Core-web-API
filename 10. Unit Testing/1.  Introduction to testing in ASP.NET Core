@@ -1,0 +1,57 @@
+Introduction to testing in ASP.NET Core:
+
+- different types of testing can be performed on an ASP.NET Core web API application.
+
+a) Unit Testing:
+    - this process of testing individual units of code, such as methods and classes, to ensure
+        that they work as expected.
+    - Unit tests should be small, fast, and isolated from other units of code.
+    - Mocking frameworks can be used to isolate units of code from their dependencies, such as
+        databases and external services.
+    
+b) Integration testing:
+    - This involves testing the integration between different components of the application to ensure
+        that they work together as expected.
+    - Generally, integration tests are slower than unit tests. 
+    - Integration tests may use mock objects or real objects, depending on the scenario.
+        For example, if the integration test is to test the integration between the application and a
+        database, then a real database instance should be used. But if the integration test is to
+        test the application’s integration with an external service, such as a payment service, then
+        we should use a mock object to simulate the external service.
+    -  In the microservices architecture, integration tests are more complicated, as they may involve
+        multiple services. Besides the integration tests for each service, there should also be
+        integration tests for the entire system.
+
+c) End-to-end testing:
+    - This is the process of testing the application from the user’s perspective to ensure that the
+        entire system from start to finish, including the user interface, the web API, the database,
+        and more, is working as expected.
+
+d) Regression testing:
+    - This involves testing whether the application still works as expected after new features are
+        added or bugs are fixed.
+    - Regression testing is usually performed after the application is deployed to a production
+        environment. It helps to ensure that the new features or bug fixes don’t break existing
+        functionality.
+
+e) Load testing:
+    - This involves testing whether the application can handle a normal load of users and requests.
+        It helps to set the baseline for the performance of the application.
+    
+f) Stress testing:
+    - This involves testing whether the application can handle extreme conditions, such as a sudden
+        spike in the number of users and requests, or gradually increasing the load over a long period. 
+    - It also determines whether the application can recover from failures and how long it takes to
+        recover.
+
+g) Performance testing:
+    - This is a type of testing that evaluates the performance of the application under different
+        workloads, including response time, throughput, resource usage, and more.
+    - Performance testing is a superset of load testing and stress testing.
+    - Generally, unit testing and integration testing are performed in the development environment and the
+        staging environment, while performance testing is performed in a production-like environment,
+        such as a user acceptance testing (UAT) environment, which closely mirrors the production 
+        environment in terms of infrastructure and configuration.
+
+- Unit testing and integration testing are the most common types of testing that are written in .NET
+    by developers.

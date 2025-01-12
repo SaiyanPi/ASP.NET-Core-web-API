@@ -88,12 +88,16 @@ public class AccountController(UserManager<AppUser> userManager, IConfiguration 
         {
             Subject = new ClaimsIdentity(new[]
             {
-                new Claim(ClaimTypes.Name, userName),
                 // Suppose the user's information is stored in the database so that we can retrieve it from the database
-                new Claim(ClaimTypes.Country, "Nepal"),
+                new Claim(ClaimTypes.Name, userName),
+
                 // Add our custom claims
-                new Claim(AppClaimTypes.AccessNumber, "12345678"),
-                new Claim(AppClaimTypes.DrivingLicenseNumber, "123456789")
+                    // this claim value and claim value from 5.2/F) should be same for 5.2/F) to work.
+                new Claim(ClaimTypes.Country, "Nepal"), 
+                
+                // passing the value of AppClaimTypes.AccessNumber and DrivingLicenseNumber to the token
+                new Claim(AppClaimTypes.AccessNumber, "123"),
+                new Claim(AppClaimTypes.DrivingLicenseNumber, "XYZ 1234")
             }),
             Expires = DateTime.UtcNow.AddDays(1),
             Issuer = issuer,

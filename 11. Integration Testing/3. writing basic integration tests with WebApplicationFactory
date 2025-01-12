@@ -1,0 +1,74 @@
+Writing basic integration tests with WebApplicationFactory:
+
+- let's start with a simple integration test to check whether the SUT can correctly handle the
+    HTTP requests.
+- we will be tesing whether the WeatherForecastController returns the expected result i.e, a list
+    of weather forecasts.
+
+    A) Create a new file named WeatherForecastApiTests in the test project:
+
+        public class WeatherForecastApiTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+        {
+            
+        }
+        -> in the test class, we use the WebApplicationFactory<T> type to create a test web host and
+            use it as the class fixture. The instance of this class fixture will be shared across the
+            tests in the class.
+        -> WebApplicationFactory<T> type is provided by the Microsoft.AspNetCore.Testing package.
+            It is a generic type that allows us to create a test web host for the specified entry point.
+            In this case, we used the Program class defined in the web API project as the entry point.
+        -> But we will have an error that says CS0122'Program' is inaccessible due to its protection
+            level. this is because the program class is defined internal by default.
+
+    B) Solving error(CS0122'Program' is inaccessible due toits protection level):
+        -> we can solve the error in 2 ways:
+            1. Open the InvoiceApp.WebApi.csproj file and add the following line to the file:
+
+                <ItemGroup>
+                    <InternalsVisibleTo Include="MyTestProject" />
+                </ItemGroup>
+                * replace the MyTestProject with test project i.e, InvoiceApp.IntegrationTests
+                * this approach allows the test project to access the internal members of the web API
+                    project.
+
+            2. Alternatively, you can change the access modifier of the Program class to public by
+                adding following code to the end of the Program file.
+
+                public partial class Program { }
+
+    C) Now we can write the test method as:
+        
+        [Fact]
+        public async Task GetWeatherForecast_ReturnsSuccessAndCorrectContentType()
+        {
+            // Arrange
+            var client = factory.CreateClient();
+            // Act
+            var response = await client.GetAsync("/WeatherForecast");
+            // Assert
+            response.EnsureSuccessStatusCode(); // Status Code 200-299
+            Assert.Equal("application/json; charset=utf-8", response.Content.Headers.ContentType.ToString());
+                // Deserialize the response
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var weatherForecast = JsonSerializer.Deserialize<List<WeatherForecast>>(responseContent, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+            weatherForecast.Should().NotBeNull();
+            weatherForecast.Should().HaveCount(5);
+        }
+        -> Arrange => first we created an instance of the HttpClient class using the
+                        WebApplicationFactory<T> instance
+            Act => we send an HTTP GET request to the /WeatherForecast endpoint.
+            Assert => EnsureSuccessStatusCode() method ensures that the response has a status code in
+                        the 200-299 range. Then we check whether the content type of the response is
+                        application/json; charset=utf-8.
+                        Finally we deserialize the response content to a list of WeatherForecast objects
+                        and check whether the list contains 5 items.
+
+______________________________________________________________________________________________________________________
+
+because this controller does not have any dependencies, the test is simple.
+What if the controller has dependencies such as database context, other services, or other external
+dependencies?
+

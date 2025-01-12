@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "K0sLA+90q8Z28EHGux10aZwUO9/PMjRftuo9q639oWc=",
+  "Source": "ClaimBasedAuthorizationDemo",
+  "BasePath": "_content/ClaimBasedAuthorizationDemo",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

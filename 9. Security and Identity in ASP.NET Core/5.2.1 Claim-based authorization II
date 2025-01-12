@@ -15,10 +15,14 @@ method A):
     }
 
 method B): 
-wer cab use RequireAssertion() method, which allows us to execute a custom logic to check the 
-claims..
+we can use RequireAssertion() method, which allows us to execute a custom logic to check the 
+claims.
 
--> update Program file:
+-> add the new claim RequireDrivingLicenseNumberAndAccessNumber in AppAuthorizationPolicies.cs file:
+
+    public const string RequireDrivingLicenseNumberAndAccessNumber = "RequireDrivingLicenseNumberAndAccessNumber";
+
+-> now, update Program file:
      
     builder.Services.AddAuthorization(options =>
     {

@@ -1,0 +1,411 @@
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\appsettings.Development.json
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\appsettings.json
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.exe
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.deps.json
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.runtimeconfig.json
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.pdb
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Azure.Core.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Azure.Identity.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Humanizer.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.AspNetCore.OpenApi.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.Workspaces.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Data.SqlClient.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Identity.Client.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.OpenApi.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Mono.TextTemplating.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.CodeDom.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.AttributedModel.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.Convention.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.Hosting.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.Runtime.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.TypedParts.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Drawing.Common.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Memory.Data.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Runtime.Caching.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Security.Permissions.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\System.Windows.Extensions.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.GeneratedMSBuildEditorConfig.editorconfig
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.AssemblyInfoInputs.cache
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.AssemblyInfo.cs
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.csproj.CoreCompileInputs.cache
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.MvcApplicationPartsAssemblyInfo.cache
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets.build.json
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets.development.json
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.InvoiceApp.WebApi.Microsoft.AspNetCore.StaticWebAssets.props
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.build.InvoiceApp.WebApi.props
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.InvoiceApp.WebApi.props
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.InvoiceApp.WebApi.props
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets.pack.json
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\scopedcss\bundle\InvoiceApp.WebApi.styles.css
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceA.20186F19.Up2Date
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\refint\InvoiceApp.WebApi.dll
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.pdb
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.genruntimeconfig.cache
+X:\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\yanAPI\Web-API-Development-with-ASP.NET-Core-8-main\samples\chapter9\UnitTestsDemo\start\InvoiceApp\InvoiceApp.WebApi\obj\Debug\net8.0\ref\InvoiceApp.WebApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\appsettings.Development.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\appsettings.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.exe
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.deps.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.runtimeconfig.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.pdb
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Azure.Core.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Azure.Identity.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Humanizer.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.AspNetCore.OpenApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.Workspaces.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Data.SqlClient.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Identity.Client.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.OpenApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Mono.TextTemplating.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.CodeDom.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.AttributedModel.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.Convention.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.Hosting.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.Runtime.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.TypedParts.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Drawing.Common.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Memory.Data.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Runtime.Caching.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Security.Permissions.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\System.Windows.Extensions.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.csproj.AssemblyReference.cache
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.AssemblyInfoInputs.cache
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.AssemblyInfo.cs
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.csproj.CoreCompileInputs.cache
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.sourcelink.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets.build.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets.development.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.InvoiceApp.WebApi.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.build.InvoiceApp.WebApi.props
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.InvoiceApp.WebApi.props
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.InvoiceApp.WebApi.props
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets.pack.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\scopedcss\bundle\InvoiceApp.WebApi.styles.css
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceA.20186F19.Up2Date
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\refint\InvoiceApp.WebApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.pdb
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.genruntimeconfig.cache
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\InvoiceApp.WebApi\obj\Debug\net8.0\ref\InvoiceApp.WebApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\appsettings.Development.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\appsettings.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.exe
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.deps.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.runtimeconfig.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\InvoiceApp.WebApi.pdb
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Azure.Core.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Azure.Identity.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Humanizer.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.AspNetCore.OpenApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.CodeAnalysis.Workspaces.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Data.SqlClient.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Identity.Client.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.OpenApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Mono.TextTemplating.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.CodeDom.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.AttributedModel.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.Convention.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.Hosting.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.Runtime.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Composition.TypedParts.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Drawing.Common.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Memory.Data.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Runtime.Caching.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Security.Permissions.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\System.Windows.Extensions.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.csproj.AssemblyReference.cache
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.AssemblyInfoInputs.cache
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.AssemblyInfo.cs
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.csproj.CoreCompileInputs.cache
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.sourcelink.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets.build.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets.development.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.InvoiceApp.WebApi.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.build.InvoiceApp.WebApi.props
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.InvoiceApp.WebApi.props
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.InvoiceApp.WebApi.props
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\staticwebassets.pack.json
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\scopedcss\bundle\InvoiceApp.WebApi.styles.css
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceA.20186F19.Up2Date
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\refint\InvoiceApp.WebApi.dll
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.pdb
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\InvoiceApp.WebApi.genruntimeconfig.cache
+C:\Users\zlams\source\REST API\10. Unit Testing (I)\without dependencies\InvoiceApp.WebApi\obj\Debug\net8.0\ref\InvoiceApp.WebApi.dll

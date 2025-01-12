@@ -69,8 +69,10 @@ public class AccountController(UserManager<AppUser> userManager, IConfiguration 
             Subject = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.Name, userName),
-                new Claim(AppClaimTypes.Subscription, "Premium"),
-                new Claim(ClaimTypes.Country, country)
+                // passing the value of AppClaimTypes.Subscription to the token
+                new Claim(AppClaimTypes.Subscription, "Premium"), 
+                // also added a new claim ClaimTypes.Country to the token.
+                new Claim(ClaimTypes.Country, country) 
             }),
             Expires = DateTime.UtcNow.AddDays(1),
             Issuer = issuer,

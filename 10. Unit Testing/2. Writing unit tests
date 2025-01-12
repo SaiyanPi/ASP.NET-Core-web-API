@@ -1,0 +1,68 @@
+Writing unit tests:
+
+- Unit tests are typically written by developers who are familiar with the code.
+- When developers develop new features or fix bugs, they should also write unit tests to ensure that
+    the code works as expected.
+- There are many unit testing frameworks available for .NET, including NUnit, xUnit, and MSTest.
+    In this chapter, we will use xUnit to write unit tests since it is one of the most popular unit
+    testing frameworks for modern .NET applications at present.
+
+------------------------------------------------------------------------------------------------------------
+
+xUnit:
+
+- xUnit is a popular unit testing framework for .NET applications.
+- It is a free, open-source project that has been around for many years. It is also the default unit
+    testing framework for .NET Core and .NET 5+ applications. You can find more information about 
+    xUnit at https://xunit.net/.
+
+
+Setting up the unit tests project:
+
+# VS 2022:
+    i) create a new xunit test project by right-clicking on the solution and selecting Add | New Project.
+        Then, select xUnit Test Project from the list of project templates.
+        (InvoiceApp.UnitTest)
+
+
+    ii) after creating a project, add a project reference to the InvoiceApp.WebApi project so that the test
+        project can access the classes in the main web API project.
+
+# .NET CLI:
+    i) create a new xUnit test project.
+        cmd: dotnet new xunit -n InvoiceApp.UnitTests
+
+    ii) add the test project to the solution.
+        cmd: dotnet sln InvoiceApp.sln add InvoiceApp.UnitTests/InvoiceApp.UnitTests.csproj
+
+    iii) add the reference to the main project.
+        cmd: dotnet add InvoiceApp.UnitTests/InvoiceApp.UnitTests.csproj reference InvoiceApp.WebApi/InvoiceApp.WebApi.csproj
+    
+# If you create the test project starting from a blank .NET library project, you need to add the following
+    packages to the test project:
+    • Microsoft.NET.Test.Sdk: This is required for running unit tests
+    • xunit: This is the xUnit framework that we will use to write unit tests
+    • xunit.runner.visualstudio: This is required for running unit tests in Visual Studio
+        (gets installed by default when you create a test project)
+    • coverlet.collector: This is an open-source project that provides code coverage analysis for
+        .NET applications and
+
+- when we write unit tests, keep in mind that one unit test should test one unit of code, such as
+    a method or a class.
+- The unit test should be isolated from other units of code. If one method depends on another method,
+    we should mock the other method to isolate the unit of code to ensure that we focus on the behavior
+    of the unit of code that we are testing
+
+
+
+
+
+
+
+
+
+
+
+
+
+

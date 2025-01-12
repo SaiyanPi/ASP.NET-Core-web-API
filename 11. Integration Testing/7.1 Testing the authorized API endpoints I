@@ -1,0 +1,240 @@
+Setting up the authentication and authorization in the test
+------------------------------------------------------------------------------------------------------
+
+(second approach mentioned in previous section)
+
+Create a helper method to generate the access token. Then add the access token to the Authorization
+header of the HTTP request. This approach does not need to call the authentication endpoint in the
+test. However, it means that we need to know how to generate the access token. If the
+authentication logic is provided by a third-party provider, we may not be able to make the same
+implementation in the test. So, it is only available if we have full control of the authentication
+logic.
+
+A) Generating the access token in the test
+- we can see the GenerateToken method in the AccountController class. This m,ethod is invoked when
+    the user successfully logs in.
+- Create a new method(GenerateToken) in the test ficture class (IntegrationTestsFixture) as:
+
+    public string? GenerateToken(string userName)
+    {
+        using var scope = Services.CreateScope();
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+        var secret = configuration["JwtConfig:Secret"];
+        var issuer = configuration["JwtConfig:ValidIssuer"];
+        var audience = configuration["JwtConfig:ValidAudiences"];
+        if (secret is null || issuer is null || audience is null)
+        {
+            throw new ApplicationException("Jwt is not set in the configuration");
+        }
+        // omitted
+    }
+
+    -> all the codes are similar as the GenerateToken() method in AccountController class in sample
+        application except this one has first 2 line of new codes
+    -> we use IConfiguration service to get the secret, issuer, and audience from the configuration.
+        Note that the configuration comes from the appsettings.json file in the sample application.
+
+B) Now we can use the GenerateToken method in the test class(AuthTests) as:
+    
+    [Fact]
+    public async Task GetWeatherForecast_ShouldReturnOk_WhenAuthorized()
+    {
+        // Arrange
+        var token = fixture.GenerateToken("TestUser");
+        var client = fixture.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        // Act
+        var response = await client.GetAsync("/weatherforecast");
+        // Assert
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+        response.Content.Headers.ContentType.Should().NotBeNull();
+        response.Content.Headers.ContentType!.ToString().Should().Be("application/json; charset=utf-8");
+        // Deserialize the response
+        var responseContent = await response.Content.ReadAsStringAsync();
+        var weatherForecasts = JsonSerializer.Deserialize<List<WeatherForecast>>(responseContent, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        weatherForecasts.Should().NotBeNull();
+        weatherForecasts.Should().HaveCount(5);
+    }
+
+    -> we call the GenerateToken() method to generate an access token, and then add the access token
+        to the Authorization header of the HTTP request.
+
+___________________________________________________________________________________________________________________________________
+
+(third approach, recommended approach)
+
+Use WebApplicationFactory to set up the authentication and authorization and create a
+custom AuthenticationHandler to simulate the authentication and authorization process.
+This approach is more practical because it does not need to call the authentication
+endpoint in the test. Also, it does not need to duplicate the authentication logic in
+the test project.
+
+- in the actual authentication process, we need to gebnerate a JWT token that includes the claims
+    of the authenticated user and add it to the Authorization header of the HTTP request.
+- If we use the custom authentication handler, we can skip the process of generating the JWT
+    token, but we still need to find a way to define the claims that we need and pass them to
+    the custom authentication handler.
+
+A) Create a new class named TestAuthHandler, which inherits from the AuthenticationHandler class:
+
+    public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    {
+        public const string AuthenticationScheme = "TestScheme";
+        public const string UserNameHeader = "UserName";
+        public const string CountryHeader = "Country";
+        public const string AccessNumberHeader = "AccessNumber";
+        public const string DrivingLicenseNumberHeader = "DrivingLicenseNumber";
+        public
+        TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) :
+            base(options, logger, encoder, clock)
+        {
+        }
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        {
+            var claims = new List<Claim>();
+            if (Context.Request.Headers.TryGetValue(UserNameHeader, out var userName))
+            {
+                claims.Add(new Claim(ClaimTypes.Name, userName[0]));
+            }
+
+            if (Context.Request.Headers.TryGetValue(CountryHeader, out var country))
+            {
+                claims.Add(new Claim(ClaimTypes.Country, country[0]));
+            }
+            // omitted
+        }
+    }
+    -> we define the authentication scheme name as TestScheme, which is an alternative name to the
+        actual scheme name, Bearer.
+    -> we also define a few names for HTTP headers, which we will use to pass the claims to the
+        custom authentication handler.
+    -> HandleAuthenticateAsync() method is the method we need to override to implement the
+        authentication logic. The idea is that when we create the request in the test, we simply
+        add the claims to the request headers. so that the custom authentication handler can read
+        the values from the request headers.(see complete code)
+    -> instead of getting claims from the JWT token, we get the claims from the request headers.
+    ->  If the values exist, we add them to the ClaimsIdentity object. Then we create the
+        ClaimsPrincipal object and the AuthenticationTicket object. Finally, we return the
+        AuthenticateResult object with the Success status.
+        This method simulates the authentication process, which avoids the need to generate the JWT
+        token, but it still creates the ClaimsPrincipal object that we need to test the authorized
+        API endpoints.
+
+B) Next, we can test the authorized API endpoint ny using the custom authentication handler.In the
+    WeatherForecastController class, we can find a GetDrivingLicense method, which is an authorized
+    API endpoint that needs the DrivingLicenseNumber claim.
+
+    [Fact]
+    public async Task GetDrivingLicense_ShouldReturnOk_WhenAuthorizedWithTestAuthHandler()
+    {
+        // Arrange
+        var client = fixture.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = TestAuthHandler.AuthenticationScheme;
+                    options.DefaultChallengeScheme = TestAuthHandler.AuthenticationScheme;
+                    options.DefaultScheme = TestAuthHandler.AuthenticationScheme;
+                }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.AuthenticationScheme, options => { });
+            });
+        }).CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(TestAuthHandler.AuthenticationScheme);
+        client.DefaultRequestHeaders.Add(TestAuthHandler.UserNameHeader, "saiyan");
+        client.DefaultRequestHeaders.Add(TestAuthHandler.CountryHeader, "Nepal");
+        client.DefaultRequestHeaders.Add(TestAuthHandler.AccessNumberHeader, "12345678");
+        client.DefaultRequestHeaders.Add(TestAuthHandler.DrivingLicenseNumberHeader, "0123456789");
+        // Act
+        var response = await client.GetAsync("/weatherforecast/driving-license");
+        // Assert
+        response.EnsureSuccessStatusCode(); // Status Code 200-299
+        response.Content.Headers.ContentType.Should().NotBeNull();
+        response.Content.Headers.ContentType!.ToString().Should().Be("application/json; charset=utf-8");
+    }
+    -> in this method we specify the test web host of SUT with the WithWebHostBuilder method and
+        then call the AddAuthentication method to specify the authentication scheme.
+    -> then we call the AddScheme method to apply the TestAuthHandler authentication handler to the
+        authentication service.With this customized test web host, we can create a new HTTP client.
+    -> Before we send the request using this HTTP client, we need to add the Authorization header that
+        specifies the authentication scheme. We also add the claims to the request headers for 
+        simplicity, so that the custom authentication handler can read the values from the request
+        headers and create the ClaimsPrincipal object.
+
+        (Sad path for this method)
+    
+        [Fact]
+        public async Task GetDrivingLicense_ShouldReturnForbidden_WhenRequiredClaimsNotProvidedWithTestAuthHandler()
+        {
+            // Arrange
+            var client = fixture.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = TestAuthHandler.AuthenticationScheme;
+                        options.DefaultChallengeScheme = TestAuthHandler.AuthenticationScheme;
+                        options.DefaultScheme = TestAuthHandler.AuthenticationScheme;
+                    }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.AuthenticationScheme, options => { });
+                });
+            }).CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(TestAuthHandler.AuthenticationScheme);
+            client.DefaultRequestHeaders.Add(TestAuthHandler.UserNameHeader, "saiyan");
+            client.DefaultRequestHeaders.Add(TestAuthHandler.CountryHeader, "Nepal");
+            client.DefaultRequestHeaders.Add(TestAuthHandler.AccessNumberHeader, "12345678");
+            // client.DefaultRequestHeaders.Add(TestAuthHandler.DrivingLicenseNumberHeader, "0123456789");
+            // Act
+            var response = await client.GetAsync("/weatherforecast/driving-license");
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        }
+
+    - now, we found that there is some duplicate code in the preceding (sad and happy) test methods.
+        If we need to set up the test web host and create a HTTP client for each test methods, we
+        can move the code to the IntegrationTestsFixture class.
+
+        a) Create a method CreateClientWithAuth in the fixtuire class:
+
+            public HttpClient CreateClientWithAuth(string userName, string country, string accessNumber, string drivingLicenseNumber)
+            {
+                var client = WithWebHostBuilder(builder =>
+                {
+                    builder.ConfigureTestServices(services =>
+                    {
+                        services.AddAuthentication(options =>
+                        {
+                            options.DefaultAuthenticateScheme = TestAuthHandler.AuthenticationScheme;
+                            options.DefaultChallengeScheme = TestAuthHandler.AuthenticationScheme;
+                            options.DefaultScheme = TestAuthHandler.AuthenticationScheme;
+                        }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.AuthenticationScheme, options => { });
+                    });
+                }).CreateClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(TestAuthHandler.AuthenticationScheme);
+                // omitted
+                return client;
+            }
+            -> this method contains the common codes from Arrange section in test methods
+            -> except this method accepts the claims as a parameters and then creates the HttpClient with
+                customized test web host.
+
+        b) now update the test methods as:
+
+            [Fact]
+            public async Task GetDrivingLicense_ShouldReturnOk_WhenAuthorizedWithTestAuthHandler()
+            {
+                // Arrange
+                var client = fixture.CreateClientWithAuth("saiyan", "Nepal", "12345678", "0123456789");
+                // Act
+                var response = await client.GetAsync("/weatherforecast/driving-license");
+                // Assert
+                response.EnsureSuccessStatusCode(); // Status Code 200-299
+                response.Content.Headers.ContentType.Should().NotBeNull();
+                response.Content.Headers.ContentType!.ToString().Should().Be("application/json; charset=utf-8");
+            }
+
+            -> instead of writing the whole code we now, simply call the method in the fixture class.
+            

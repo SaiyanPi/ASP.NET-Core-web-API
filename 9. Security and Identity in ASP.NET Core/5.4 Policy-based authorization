@@ -27,7 +27,7 @@ A) In the Authentication folder, add two classes; AppClaimTypes and AppAuthoriza
     -> these classes define the claim types and authorization policies we need.
     
 
-B) In the AccountController class update the GenerateToken() method witha new claim and Register action
+B) In the AccountController class update the GenerateToken() method with a new claim and Register action
     method as:
 
     [HttpPost("register")]

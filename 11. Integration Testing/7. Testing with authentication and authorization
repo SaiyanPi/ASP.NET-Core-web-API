@@ -1,0 +1,131 @@
+Testing with authentication and authorization:
+
+- a common scenario in web APIs is that some API endpoints require authentication and authorization.
+    In chapter 9 we discussed how to implement authentication and authorization. in this section, we
+    will discuss how to test the API endpoints that require authentication and authorization.
+- we will be using ClaimBasedAuthorizationDemo as a sample application(created in chapter 9).
+    Create a integration test project(ClaimBasedAuthorizationDemo.IntegrationTest) and add the
+    following Nuget packages:
+        • Microsoft.AspNetCore.Mvc.Testing: This is the test web host of SUT
+        • xUnit: This is the test framework
+        • Moq: This is the mocking library
+        • FluentAssertions: This is the assertion library (optional)
+- we need to make program class of sample project public. so add the following code at the end of
+    program file
+    
+        public partial class Program { }
+
+- now we can start writing the integration tests for the API endpoints that require authentication
+    and authorization.
+______________________________________________________________________________________________________________________
+
+A) Creating a test fixture:
+    - we already know that we create a test fixture to share the common code among the tests.
+    - let's create a new class named IntegrationTestsFixture as:
+
+        public class IntegrationTestsFixture : WebApplicationFactory<Program>
+        {
+            protected override void ConfigureWebHost(IWebHostBuilder builder)
+            {
+                // This is where you can set up your test server with the services you need
+                base.ConfigureWebHost(builder);
+            }
+        }
+
+B) Creating the test class:
+    - create a new class named AuthTests as:
+         
+        public class AuthTests(IntegrationTestsFixture fixture) : IClassFixture<IntegrationTestsFixture>
+        {
+        }
+
+    (so farno special code, we are well familiar with these codes from previous sections and chapter)
+
+C) Testing the anonymous API endpoints:
+    - Next, let us test the API endpoints that do not require authentication and authorization.
+    i) in the weatherforecast controller, first let's create a anonymous endpoint 
+        /weatherforecast/anomymous as:
+
+        [AllowAnonymous]
+        [HttpGet("anonymous")]
+        public IEnumerable<WeatherForecast> GetAnonymous()
+        {
+            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+            })
+            .ToArray();
+        }
+    
+    ii) now, create a test method for anonymous endpoint in the AuthTests test class as:
+
+        [Fact]
+        public async Task GetAnonymousWeatherForecast_ShouldReturnOk()
+        {
+            // Arrange
+            var client = fixture.CreateClient();
+            // Act
+            var response = await client.GetAsync("/weatherforecast/anonymous");
+            // Assert
+            response.EnsureSuccessStatusCode(); // Status Code 200-299
+            response.Content.Headers.ContentType.Should().NotBeNull();
+            response.Content.Headers.ContentType!.ToString().Should().Be("application/json; charset=utf-8");
+            // Deserialize the response
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var weatherForecasts = JsonSerializer.Deserialize<List<WeatherForecast>>(responseContent, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+            weatherForecasts.Should().NotBeNull();
+            weatherForecasts.Should().HaveCount(5);
+        }
+        -> this is similar to a basic integration testing we discussed in section 3 of this chapter.
+        -> the test should pass when run.
+
+D) Testing the authorized API endpoints:
+    - The WeatherForecastController class has an Authorize attribute. So, the API endpoints that do not
+        have the AllowAnonymous attribute require authentication and authorization.
+    i) first let's test the sad path for the Get() method.
+        
+        [Fact]
+        public async Task GetWeatherForecast_ShouldReturnUnauthorized_
+        WhenNotAuthorized()
+        {
+            // Arrange
+            var client = fixture.CreateClient();
+            // Act
+            var response = await client.GetAsync("/weatherforecast");
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+        -> we expect the status code to be 401 Unauthorized because the API endpoint requires
+            authentication and authorization.
+        -> this test method should pass as well
+    
+    - Next, we need to set up the authentication and authorization in the test. There are several
+        ways to do this.
+        • In the test, call the authentication endpoint to get the access token. Then add the
+            access token to the Authorization header of the HTTP request. However, this approach
+            is not recommended because it needs additional effort to maintain the credentials,
+            such as the username, password, client ID, client secret, and so on. Also, the tests
+            may not be able to access the authentication endpoint in the test environment. If the
+            tests depend on the authentication endpoint, it increases the complexity of the tests.
+        • Create a helper method to generate the access token. Then add the access token to the
+            Authorization header of the HTTP request. This approach does not need to call the
+            authentication endpoint in the test. However, it means that we need to know how to
+            generate the access token. If the authentication logic is provided by a third-party
+            provider, we may not be able to make the same implementation in the test. So, it is
+            only available if we have full control of the authentication logic.
+            (since we have a source code ofm the sample application, we will learn how to use this
+            approach)
+            
+        • Use WebApplicationFactory to set up the authentication and authorization and create a
+            custom AuthenticationHandler to simulate the authentication and authorization process.
+            This approach is more practical because it does not need to call the authentication
+            endpoint in the test. Also, it does not need to duplicate the authentication logic in
+            the test project.
+            (we will also learn how to use this approach)
+
+            

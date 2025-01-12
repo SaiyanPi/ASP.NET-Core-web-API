@@ -1,0 +1,162 @@
+Using repository pattern:
+
+- in the previous section(2.4) we've discussed using real database to test the database access layers.
+    There is another way to test the database access layer, which is used to use a repository pattern
+    to decouple the controllers from the DbContext class.
+- The repository pattern is a common pattern that’s used to separate the application and the database
+    access layer. Instead of using DbContext directly in the controllers, we can add a separate
+    repository layer to encapsulate the database access logic. The controllers will use the repository
+    layer to access the database.
+
+                        APPLICATION
+                            |
+                            v
+                    REPOSITORY LAYER
+                            |
+                            |
+            ___production___|______test_________
+            |                                  |
+            |                                  |
+            v                                  v
+        EF Core                         Repository Mock
+            |
+            v
+         Database
+    
+    -> we can see that the application now has no dependency on EF Core. The application(controllers)
+        only depend on the repository layer, and the repository layer depends on EF Core. Therefore
+        the repository layer can be mocked in the tests and the controllers can be tested without a
+        real database.
+--------------------------------------------------------------------------------------------------------------
+
+IMPLEMENTATION
+
+- previously in unit test(both with and without dependencies) using real database system, we stored the
+    interfaces in Service folder. But for this we will create a few folders in web api project.
+
+A) Create a Interfaces folder and add a IInvoiceRepository class definead as:
+    
+    public interface IInvoiceRepository
+    {
+        Task<Invoice?> GetInvoiceAsync(Guid id);
+        Task<IEnumerable<Invoice>> GetInvoicesAsync(int page = 1, int pageSize = 10, InvoiceStatus? status = null);
+        Task<IEnumerable<Invoice>> GetInvoicesByContactIdAsync(Guid contactId, int page = 1, int pageSize = 10, InvoiceStatus? status = null);
+        Task<Invoice> CreateInvoiceAsync(Invoice invoice);
+        Task<Invoice?> UpdateInvoiceAsync(Invoice invoice);
+        Task DeleteInvoiceAsync(Guid id);
+    }
+
+B) Create a Repositories folder and create a class InvoiceRepository as:
+
+    public class InvoiceRepository(InvoiceDbContext dbContext) : IInvoiceRepository
+    {
+        public async Task<Invoice?> GetInvoiceAsync(Guid id)
+        {
+            return await dbContext.Invoices
+                .Include(i => i.Contact)
+                .SingleOrDefaultAsync(i => i.Id == id);
+        }
+
+        public async Task<IEnumerable<Invoice>> GetInvoicesAsync(int page = 1, int pageSize = 10, InvoiceStatus? status = null)
+        {
+            return await dbContext.Invoices
+                .Include(x => x.Contact)
+                .Where(x => status == null || x.Status == status)
+                .OrderByDescending(x => x.InvoiceDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+        // omitted
+    }
+    -> it is the implementation of the IInvoiceRepository interface.
+    -> it uses the DbContext class to access the database.
+    -> first we inject the DbContext class using constructor injection as in the preceeding code.
+    -> In the GetInvoiceAsync() method, we use a LINQ query to get the invoice by the specified
+        ID. Note that we use the Include method to include the Contact property in the query result.
+        This is because we want to get the contact information of the invoice. If we do not want to
+        include the navigation property in the query result, we can remove the Include() method, or
+        add a parameter to the GetInvoiceAsync() method to specify whether to include the navigation
+        property. The Include() method is defined in the Microsoft.EntityFrameworkCore namespace, so we
+        need to add the using Microsoft.EntityFrameworkCore; statement to the InvoiceRepository.cs file.
+        (see the complete implementation in project code)
+    
+C) up to this point our controller still depends on the InvoiceDbContext such as
+
+    public class InvoiceController(InvoiceDbContext dbContext, IEmailService emailService) : ControllerBase
+    {
+        // omitted
+    }
+    Instead of depending directly on DbContext it should depend on the repository layer(IInvoiceRepository)
+    since DbContext is injected on its implementation(InvoiceRepository). To do this update the
+    InvoiceController file as:
+
+    public class InvoiceController(IInvoiceRepository invoiceRepository, IEmailService emailService) : ControllerBase
+    {
+        // omitted
+    }
+    -> now the controller is much cleaner, and there is no dependency on EF Core.
+
+- at this point we've added a repository layer.
+
+-----------------------------------------------------------------------------------------------------------
+
+WRITING TEST(InvoiceApp.UnitTest2):
+
+- just like in the previous test with real database system we need to create a Fixture class. The only
+    dirrerence is that our test will use repository layer instead of the DbContext class.
+
+1) Create a TestFixture(equivalent to TestDatabaseFixture class) class as:
+
+    public class TestFixture
+    {
+        public List<Invoice> Invoices { get; set; } = new();
+        public List<Contact> Contacts { get; set; } = new();
+
+        public TestFixture()
+        {
+            InitializeDatabase();
+        }
+
+        public void InitializeDatabase()
+        {
+            // omitted
+        }
+    }
+    -> we've added 2 lists to mock the database tables.
+
+2) Now we can mock the tests. Create a InvoiceControllerTests class as:
+
+    public class InvoiceControllerTests(TestFixture fixture) : IClassFixture<TestFixture>
+    {
+        [Fact]
+        public async Task GetInvoices_ShouldReturnInvoices()
+        {
+            // Arrange
+            var repositoryMock = new Mock<IInvoiceRepository>();
+
+            repositoryMock.Setup(x => x.GetInvoicesAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<InvoiceStatus?>()))
+                .ReturnsAsync((int page, int pageSize, InvoiceStatus? status) =>
+                    fixture.Invoices.Where(x => status == null || x.Status == status)
+                        .OrderByDescending(x => x.InvoiceDate)
+                        .Skip((page - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList());
+            var emailServiceMock = new Mock<IEmailService>();
+            var controller = new InvoiceController(repositoryMock.Object, emailServiceMock.Object);
+            // Act
+            var actionResult = await controller.GetInvoicesAsync();
+            // Assert
+            var result = actionResult.Result as OkObjectResult;
+            Assert.NotNull(result);
+            var returnResult = Assert.IsAssignableFrom<List<Invoice>>(result.Value);
+            Assert.NotNull(returnResult);
+            Assert.Equal(2, returnResult.Count);
+            Assert.Contains(returnResult, i => i.InvoiceNumber == "INV-001");
+            Assert.Contains(returnResult, i => i.InvoiceNumber == "INV-002");
+        }
+        // omitted
+    }
+    -> we inject the previously created TestFixture object into the test class
+    -> we mock the repository layer and pass it to the controller. r. It follows the concept of
+        the unit tests: focus on the unit under test and mock the dependencies.

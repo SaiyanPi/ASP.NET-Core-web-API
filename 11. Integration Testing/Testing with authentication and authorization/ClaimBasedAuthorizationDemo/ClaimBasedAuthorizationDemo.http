@@ -1,0 +1,6 @@
+@ClaimBasedAuthorizationDemo_HostAddress = http://localhost:5274
+
+GET {{ClaimBasedAuthorizationDemo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

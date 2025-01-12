@@ -48,9 +48,12 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim(AppClaimTypes.DrivingLicenseNumber));
     options.AddPolicy(AppAuthorizationPolicies.RequireAccessNumber, policy => 
         policy.RequireClaim(AppClaimTypes.AccessNumber));
+    
+    // 5.2/F) only user who have the country claim with the value "Nepal" can access the resource
     options.AddPolicy(AppAuthorizationPolicies.RequireCountry, policy => 
         policy.RequireClaim(ClaimTypes.Country, "Nepal"));
 
+    // 5.2.1 using RequireAssertion() to apply multiple resources to a resource
     options.AddPolicy(AppAuthorizationPolicies.RequireDrivingLicenseNumberAndAccessNumber, policy => 
     policy.RequireAssertion(context =>
     {

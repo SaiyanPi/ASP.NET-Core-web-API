@@ -1,0 +1,79 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\zlams\\source\\REST API\\11. Integration Testing\\InvoiceApp.IntegrationTests\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{4C6E4F9C-BE87-41D3-BB0C-44112EEE43E3}|InvoiceApp.IntegrationTests.csproj|c:\\users\\zlams\\source\\rest api\\11. integration testing\\invoiceapp.integrationtests\\emailservicetestwithmockservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4C6E4F9C-BE87-41D3-BB0C-44112EEE43E3}|InvoiceApp.IntegrationTests.csproj|solutionrelative:emailservicetestwithmockservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4C6E4F9C-BE87-41D3-BB0C-44112EEE43E3}|InvoiceApp.IntegrationTests.csproj|c:\\users\\zlams\\source\\rest api\\11. integration testing\\invoiceapp.integrationtests\\integrationtestingdatabasefixture.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4C6E4F9C-BE87-41D3-BB0C-44112EEE43E3}|InvoiceApp.IntegrationTests.csproj|solutionrelative:integrationtestingdatabasefixture.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4C6E4F9C-BE87-41D3-BB0C-44112EEE43E3}|InvoiceApp.IntegrationTests.csproj|c:\\users\\zlams\\source\\rest api\\11. integration testing\\invoiceapp.integrationtests\\invoicesapitestswithcollection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4C6E4F9C-BE87-41D3-BB0C-44112EEE43E3}|InvoiceApp.IntegrationTests.csproj|solutionrelative:invoicesapitestswithcollection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "IntegrationTestingDatabaseFixture.cs",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\11. Integration Testing\\InvoiceApp.IntegrationTests\\IntegrationTestingDatabaseFixture.cs",
+              "RelativeDocumentMoniker": "IntegrationTestingDatabaseFixture.cs",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\11. Integration Testing\\InvoiceApp.IntegrationTests\\IntegrationTestingDatabaseFixture.cs",
+              "RelativeToolTip": "IntegrationTestingDatabaseFixture.cs",
+              "ViewState": "AQIAABYAAAAAAAAAAAAgwDIAAAA7AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-02T10:25:26.466Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "EmailServiceTestWithMockServices.cs",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\11. Integration Testing\\InvoiceApp.IntegrationTests\\EmailServiceTestWithMockServices.cs",
+              "RelativeDocumentMoniker": "EmailServiceTestWithMockServices.cs",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\11. Integration Testing\\InvoiceApp.IntegrationTests\\EmailServiceTestWithMockServices.cs",
+              "RelativeToolTip": "EmailServiceTestWithMockServices.cs",
+              "ViewState": "AQIAAA0AAAAAAAAAAAAIwDAAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-02T10:06:06.29Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "InvoicesApiTestsWithCollection.cs",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\11. Integration Testing\\InvoiceApp.IntegrationTests\\InvoicesApiTestsWithCollection.cs",
+              "RelativeDocumentMoniker": "InvoicesApiTestsWithCollection.cs",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\11. Integration Testing\\InvoiceApp.IntegrationTests\\InvoicesApiTestsWithCollection.cs",
+              "RelativeToolTip": "InvoicesApiTestsWithCollection.cs",
+              "ViewState": "AQIAAAwAAAAAAAAAAAAAABMAAAADAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-02T09:48:52.132Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

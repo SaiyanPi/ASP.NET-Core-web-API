@@ -1,0 +1,136 @@
+Writing unit tests without dependencies:
+
+- in the sample application (InvoiceApp.WebApi) you can find a Services folder, which includes the
+    IEmailService interface and its implementation, EmailService. The EmailService class has a
+    method named GenerateInvoiceEmail(). This method is a simple function that generates an email
+    according to the Invoice entity. 
+
+    public (string to, string subject, string body) GenerateInvoiceEmail(Invoice invoice)
+    {
+        var to = invoice.Contact.Email;
+        var subject = $"Invoice {invoice.InvoiceNumber} for {invoice.Contact.FirstName} {invoice.Contact.LastName}";
+        var body = $"""
+            Dear {invoice.Contact.FirstName} {invoice.Contact.LastName},
+
+            Thank you for your business. Here are your invoice details:
+            Invoice Number: {invoice.InvoiceNumber}
+            Invoice Date: {invoice.InvoiceDate.LocalDateTime.ToShortDateString()}
+            Invoice Amount: {invoice.Amount.ToString("C")}
+            Invoice Items:
+            {string.Join(Environment.NewLine, invoice.InvoiceItems.Select(i => $"{i.Description} - {i.Quantity} x {i.UnitPrice.ToString("C")}"))}
+
+            Please pay by {invoice.DueDate.LocalDateTime.ToShortDateString()}. Thank you!
+
+            Regards,
+            InvoiceApp
+            """;
+        return (to, subject, body);
+    }
+
+    -> Here, variable body is a Raw string literal.
+
+    ( RAW STRING LITERAL )
+    it is a new feature that was introduced in C# 11. Raw string literals are enclosed in triple quotes
+    ("""). They can span multiple lines and can contain double quotes without escaping them.
+    Raw satrings can also be used with interpolated strings, which is convenient for generating strings
+    with variables.
+
+- there is no dependency in the GenerateInvoiceEmail() method, so we can write a unit test for 
+    this method without mocking any other methods.
+    Create a class named EmailServiceTests in the InvoiceApp.UnitTests project then add the following
+    code to the class:
+
+    public class EmailServiceTests
+    {
+
+        [Fact]
+        public void GenerateInvoiceEmail_Should_Return_Email()
+        {
+            var invoiceDate = DateTimeOffset.Now;
+            var dueDate = invoiceDate.AddDays(30);
+            // Arrange
+            var invoice = new Invoice
+            {
+                Id = Guid.NewGuid(),
+                InvoiceNumber = "INV-001",
+                Amount = 500,
+                DueDate = dueDate,
+                Contact = new Contact
+                {
+                    Id = Guid.NewGuid(),
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john.doe@example.com"
+                },
+                Status = InvoiceStatus.Draft,
+                InvoiceDate = invoiceDate,
+                InvoiceItems = new List<InvoiceItem>
+                {
+                    new()
+                    {
+                        Id = Guid.NewGuid(),
+                        Description = "Item 1",
+                        Quantity = 1,
+                        UnitPrice = 100,
+                        Amount = 100
+                    },
+                    new()
+                    {
+                        Id = Guid.NewGuid(),
+                        Description = "Item 2",
+                        Quantity = 2,
+                        UnitPrice = 200,
+                        Amount = 400
+                    }
+                }
+            };
+
+            // Act
+            var (to, subject, body) = new EmailService().GenerateInvoiceEmail(invoice);
+
+            // Assert
+            Assert.Equal(invoice.Contact.Email, to);
+            Assert.Equal($"Invoice INV-001 for John Doe", subject);
+            Assert.Equal($"""
+                Dear John Doe,
+
+                Thank you for your business. Here are your invoice details:
+                Invoice Number: INV-001
+                Invoice Date: {invoiceDate.LocalDateTime.ToShortDateString()}
+                Invoice Amount: {invoice.Amount.ToString("C")}
+                Invoice Items:
+                Item 1 - 1 x $100.00
+                Item 2 - 2 x $200.00
+                
+                Please pay by {invoice.DueDate.LocalDateTime.ToShortDateString()}. Thank you!
+
+                Regards,
+                InvoiceApp
+                """, body);
+        }
+    }
+
+    -> Fact attribute indicates that the GenerateInvoiceEmail_Should_Return_Email() method is a unit
+        test so that xUnit can discover and run this method as a unit test.
+    -> in the GenerateInvoiceEmail_Should_Return_Email() method, we created Invoice object and passed
+        it to the GenerateInvoiceEmail() method.
+    -> Then, we used the Assert class to verify that the GenerateInvoiceEmail() method returns the
+        expected email.
+    -> when writing unit tests, we follow the Arrange-Act-Assert pattern.
+        • Arrange: This is where we prepare the data and set up the environment for the unit test
+        • Act: This is where we call the method that we want to test
+        • Assert: This is where we verify that the method returns the expected result or that th
+            method behaves as expected.
+-----------------------------------------------------------------------------------------------------------
+
+RUNNING THE UNIT TESTS
+
+#VS 2022:
+
+- right click on the InvoiceApp.UnitTests project or the EmailServiceTest.cs file and select Run Tests.
+    (see VS2022-test-output.png)
+    
+#.NET CLI:
+- cmd: dotnet test
+    (see CLI-test-output.png)
+- If you want to see the detailed test results. cmd: dotnet test --verbosity normal

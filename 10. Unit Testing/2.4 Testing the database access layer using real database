@@ -1,0 +1,13 @@
+Testing the database access layer:
+
+- In many web API applications, we need to access the database to perform CRUD operations. In this\
+    section, we will learn how to test the database access layer in unit tests.
+
+HOW CAN WE TEST THE DATABASE ACCESS LAYER?
+
+- Currently, we inject InvoiceDbContext into controllers to access the database. This approach
+    is easy for development, but it tightly couples the controllers with the InvoiceDbContext class.
+
+    /////// Code not working
+    /////// jumping to testing database access layer using repository pattern
+    

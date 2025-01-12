@@ -1,0 +1,65 @@
+Testing with mock services:
+
+- unit tests often use mock or stub services to isolate the code under test from other services.
+- Integration on the other hand, should test integration between the components. so techinically,
+    integration test should use real services instead of mock services.
+    However, in some cases, using mock dependencies in integration tests can be helpful.
+    for eg, in the simple invoice application, we need to call third party services to send emails.
+    if we use the reaL email services instead of mock services, it may have the following issues:
+    1. The actual email service may not be available in the test environment. For example, the email
+        service may be hosted in a different environment, and the test environment may not be able
+        to access the email service.
+    2. The email service may have rate limits, strict network policies, or other restrictions that may
+        cause issues in the integration tests or slow down the test execution.
+    3. The email service may cause unnecessary costs in the test environment, especially if the service
+        has usage-based pricing or requires a paid subscription. If we run the integration tests
+        frequently, it may incur high costs.
+    4. The test may impact production and cause issues for real users.
+
+- let's see how to use mock email service in the integration tests.
+    The service we used to send email is the IEmailSender interface. we can inject a mock service that
+    implements the IEmailSender interface in the integration test.
+    (see EmailServioceTestsWithMockServices.cs)
+
+        [Theory]
+        [InlineData("7e096984-5919-492c-8d4f-ce93f25eaed5")]
+        [InlineData("b1ca459c-6874-4f2b-bc9d-f3a45a9120e4")]
+        public async Task SendInvoiceAsync_ReturnsSuccessAndCorrectContentType(string invoiceId)
+        {
+            // Arrange
+                /// creating a mock email sender service
+            var mockEmailSender = new Mock<IEmailSender>();
+            mockEmailSender.Setup(x => x.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.CompletedTask).Verifiable();
+            var client = factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    /// finding the registered IEmailSender service
+                    var emailSender = services.SingleOrDefault(x => x.ServiceType == typeof(IEmailSender));
+                    /// removing
+                    services.Remove(emailSender);
+                    /// adding our mock service to the service collection
+                    services.AddScoped<IEmailSender>(_ => mockEmailSender.Object);
+                });
+            }).CreateClient();
+            // Act
+            var response = await client.PostAsync($"/api/invoice/{invoiceId}/send", null);
+            // Assert
+            response.EnsureSuccessStatusCode(); // Status Code 200-299
+            mockEmailSender.Verify(x => x.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            var scope = factory.Services.CreateScope();
+            var scopedServices = scope.ServiceProvider;
+            var db = scopedServices.GetRequiredService<InvoiceDbContext>();
+            var invoice = await db.Invoices.FindAsync(Guid.Parse(invoiceId));
+            invoice!.Status.Should().Be(InvoiceStatus.AwaitPayment);
+        }
+
+        -> we created a mock email sender service using the Moq library.
+        -> The test web host of SUT provides a WithWebHostBuilder() method to configure the we host builder.
+        -> in the WithWebHostBuilder() method, we can configure the service collection of the web host
+            using the CopnfigureTestServices() method. similar to a mock database context we discussed
+            in section 4 of this chapter(ConfigureServices() method).
+            we find the registered IEmailSender service and remove it from the service collection, then
+            add the mock service to the service collection .
+        -> Finally we created the HTTP client and send the request to the API endpoint.

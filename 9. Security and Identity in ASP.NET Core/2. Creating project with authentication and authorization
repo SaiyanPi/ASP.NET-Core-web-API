@@ -103,9 +103,9 @@ E) Next, we need to configure the authentication service. First let's update the
         -> we can update the configurations as per our requirements.
         -> Because we use the same web API to issue and validate the JWT token, we use the same URL for
             the ValidAudiences and ValidIssuer properties.
-        -> The Secret property is used to sign the JWT token. we can use any string as the secret. In this case, we can use a GUID value. Also, please note that this
-            is for demo purposes only. In a real-world application, you should store the secret in a secure
-            location, such as Azure Key Vault.
+        -> The Secret property is used to sign the JWT token. we can use any string as the secret. In this
+            case, we can use a GUID value. Also, please note that this is for demo purposes only. In a
+            real-world application, you should store the secret in a secure location, such as Azure Key Vault.
     
 F) update the program file as:
     
@@ -168,7 +168,7 @@ G) Create and upate database:
         -> The data for the users will be stored in these tables, which is convenient when using the
             default tables provided by ASP.NET Core Identity.
 
-H) Next, let's sapply the Authorize attribute to enable authentication and authorization for
+H) Next, let's apply the Authorize attribute to enable authentication and authorization for
     WeatherForecastController:
 
         [Authorize]
@@ -210,7 +210,7 @@ ________________________________________________________________________________
         -> this is used to validate the token.
 
 3) Now, let's create a controller named AccountController to handle the authentication request.
-    Cretae a AccountController class in the Controllers folder .
+    Create a AccountController class in the Controllers folder .
         
         [ApiController]
         [Route("[controller]")]

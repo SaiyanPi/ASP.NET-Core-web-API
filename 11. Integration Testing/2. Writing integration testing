@@ -1,0 +1,40 @@
+Writing Integration test:
+
+- previously in the unit testing, we created the instances of the controllers directly. This approach
+    does not consider some feature of ASP.NET Core, such as routing, model binding, adn validation and
+    so on.
+- to test the application throughly, we need to write integration test.
+- Unlike unit tests, which focus on isolated units, integration tests focus on the interactions between
+    components.
+- These integration tests may involve different layers, such as the database, the file system, the
+    network, the HTTP request/response pipeline and so on.
+- Integration tests ensure that the components of the application work together as expected. So,
+    normally, integration tests use actual dependencies instead of mocks.
+- Also, integration tests are slower than unit tests because they involve more components.
+- Considering the cost of integration tests, we do not need to write too many integration tests.
+    Instead, we should focus on the critical parts of the application. Most of the time, we can use
+    unit tests to cover the other parts.
+
+----------------------------------------------------------------------------------------------------------
+    
+    Setting up the integration test project:
+
+    -> we can continue to use xUnit as the test framework for integration tests.
+    -> a good practice is to create a seperate integration test project from the unit test project.
+        This approach allows us to run the unit tests and integration tests separately and also makes
+        it easier to use different configurations for the two types of tests.
+    
+    A) Similar to writing unit test.
+
+    B) Add Microsoft.AspNetCore.Mvc.Testing NuGet package to the integration test project.
+        - ASP.NET Core provides a built-in test web host that we can use to host the SUT(system
+            under test) to handle the HTTP requests.
+        -  The benefit of using a test web host is that we can use a different configuration for the
+            test environment, and it also saves the network traffic because the HTTP requests are
+            handled in the same process.
+        -  So, the tests using a test web host are faster than those using a real web host. To use the
+            test web host, we need this Nuget package
+    
+    C) we can install FluentAssertion if we want to use it in the tests.
+
+    -> now we can start writing the integration test.

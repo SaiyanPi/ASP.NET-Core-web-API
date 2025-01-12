@@ -1,0 +1,97 @@
+xUnit Assertion Methods:
+
+- xUnit provides a set of static assertion methods to verify the test results.
+    for eg, we can use Assert.Equal() method to verify if two objects are equal.
+- these methods cover most of the scenarios, such as verifying objects, collections, exceptions,
+    events, equality, types, and more.
+
+    (see xUnit-Assertion-methods.png, note that the list is not complete. for more assertion methods
+    in xUnit's GitHub repository https://github.com/xunit/assert.xunit)
+
+--------------------------------------------------------------------------------------------------------
+
+FluentAssertions:
+
+- Although the assertion methods provided by xUnit are enough for most case scenarios, they are not very
+    redable. A good way to make the unit tests more natural and readable is to use FluentAssertions,
+    an open source assertion library for .NET.
+- to install FluentAssertions
+    .NET CLI:
+        cmd: dotnet add package FluentAssertions
+    NuGet Package Manager:
+        FluentAssertions package
+- after installing the package, we can use the Should() method to verify the test result.
+    for eg, we can use the Should.Be() method to verify whether the GetInvoicesAsync() method returns a
+    list of invoices.
+
+        returnResult.Should().NotBeNull();
+        returnResult.Should().HaveCount(2);
+        // Or use returnResult.Count.Should().Be(2);
+        returnResult.Should().Contain(i => i.InvoiceNumber == "INV-001");
+        returnResult.Should().Contain(i => i.InvoiceNumber == "INV-002");
+    
+- to verify whether the SendEmailAsync() method will log the exception when the SendEmailAsync() method
+    throws an exception, we used
+
+        await Assert.ThrowsAsync<SmtpException>(() => emailService.SendEmailAsync(to, subject, body));
+
+    Now, Same thing can be done with FluentAssertions. we can use the Should.ThrowAsync<>() method of
+    FluentAssertions to verify the exception as:
+
+        var act = () => emailService.SendEmailAsync(to, subject, body);
+        await act.Should().ThrowAsync<SmtpException>().WithMessage("Test SmtpException");
+
+- FluentAssertions method is more intuitive and readable than the Assert.Equal() method.
+    Comparing some common assertion methods provided by xUnit and FluentAssertions
+    (see xUnit-FluentAssertions-comparision,png image)
+    Note that the preceding table is not an exhaustive list. You can find more extension methods in
+    the official documentation of FluentAssertions https://fluentassertions.com/introduction
+
+- FluentAssertions also provides better error messages if the test fails.
+    for eg, if we use Assert.Equal() method to verify whether returnResult contains 2 invoices,
+    the code will look like this:
+        
+        Assert.Equal(3, returnResult.count)
+
+    now, the error will be as follows:
+        
+        InvoiceApp.UnitTests.InvoiceControllerTests.GetInvoices_
+        ShouldReturnInvoices
+        Source:InvoiceControllerTests.csline21
+        Duration:372 ms
+        Message:
+        Assert.Equal() Failure
+        Expected: 3
+        Actual: 2
+        Stack Trace:
+        InvoiceControllerTests.GetInvoices_ShouldReturnInvoices()line34
+        InvoiceControllerTests.GetInvoices_ShouldReturnInvoices()line41
+        --- End of stack trace from previous location ---
+
+    -> if we have multiple Assert.Equal() methods in the test method, which is not recommended
+        but something we have to do occasionally, we cannot immediately know which Assert.Equal()
+        method fails. we need to check the line number of the error message to find the failing
+        assertion. This is not very convenient
+
+    Now, if we use FluentAssertion for the same case then the code will look like this
+
+        returnResult.Count.Should().Be(3);
+
+    and the error message will be as follows:
+
+        InvoiceApp.UnitTests.InvoiceControllerTests.GetInvoices_
+        ShouldReturnInvoices
+        Source:InvoiceControllerTests.cs line 21
+        Duration:408 ms
+        Message:
+        Expected returnResult.Count to be 3, but found 2.
+    
+    -> Now, the error message is more detailed and intuitive and tells us which assertion fails.
+        This is very helpful when we have multiple assertions in the test method.
+    -> we can enrich the error message by adding a custom message to the assertion method as
+
+        returnResult.Count.Should().Be(3, "The number of invoices should be 3");
+   
+    Now the error message will be as follows:
+    
+        Expected returnResult.Count to be 3 because The number of invoices should be 3, but found 2.

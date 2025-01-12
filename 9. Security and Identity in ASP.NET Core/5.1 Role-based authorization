@@ -14,7 +14,7 @@ A) Create a class named AppRoles that defines a roles in the project.
         public const string VipUser = "VipUser";
     }
 
-B) Now we need to explicitly cal the AddRoles() method after AddIdentityCore() method in the program
+B) Now we need to explicitly call the AddRoles() method after AddIdentityCore() method in the program
     file.
 
     builder.Services.AddIdentityCore<AppUser>()

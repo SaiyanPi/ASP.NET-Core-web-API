@@ -1,0 +1,191 @@
+Writing unit tests with dependencies:
+
+- In the EmailService class there is another method SendEmailAsync() to send an email to the recipient.
+    To make the SendService class testable, we've created IEmailSender interface and its implementation,
+    EmailSender.
+    ( IEmailSender class is a wrapper of the SmtpClient class, which is used to send emails.)
+
+    public async Task SendEmailAsync(string to, string subject, string body)
+    {
+        // These configurations can be moved to appsettings.json
+        var fromAddress = new MailAddress("from@example.com", "InvoiceApp");
+        var fromPassword = "from_password";
+
+        var toAddress = new MailAddress(to);
+
+        using var smtp = new SmtpClient
+        {
+            Host = "smtp.gmail.com",
+            Port = 587,
+            EnableSsl = true,
+            DeliveryMethod = SmtpDeliveryMethod.Network,
+            UseDefaultCredentials = false,
+            Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+        };
+
+        MailMessage message = new(fromAddress, toAddress)
+        {
+            Subject = subject,
+            Body = body
+        };
+
+        await smtp.SendMailAsync(message);
+    }
+
+- we've also update the EmailService class as:
+
+    public class EmailService(ILogger<IEmailService> logger, IEmailSender emailSender) : IEmailService
+    {
+        public (string to, string subject, string body) GenerateInvoiceEmail(Invoice invoice)
+        {
+            // omitted
+        }
+        public async Task SendEmailAsync(string to, string subject, string body)
+        {
+            // omitted
+        }
+    }
+
+- so now EmailService has a dependency on the IEmailSender interface. To test the behaviour of the
+    SendEmailAsync() method of EmailService class, we need to mock the IEmailSender interface to 
+    isolate the EmailService class from the EmailSender class.
+    Otherwise, if any error occurs in the unit test, we cannot say for sure whether the error is
+    caused by the EmailService class or the EmailSender class.
+- install Moq Nuget package to mock the IEmailSender interface. Moq is a popular mocking library
+    for .NET. It is available as a NuGet package.
+        cmd: dotnet add package Moq
+- Now we can create the unit test for the SendEmailAsync() method.
+    Because the SendEmailAsync() method may throw an exception if the email-sending process fails, we
+    need to write two unit tests to test the success and failure scenarios.
+
+
+1) For success scenario.
+
+    Update the EmailServiceTests class in test project as:
+
+       
+    public class EmailServiceTests
+    {
+        private readonly Mock<ILogger<IEmailService>> _loggerMock = new();
+        private readonly Mock<IEmailSender> _emailSenderMock = new();
+
+        [Fact]
+        public void GenerateInvoiceEmail_Should_Return_Email()
+        {
+        // omitted
+        }
+
+        [Fact]
+        public async Task SendEmailAsync_Should_Send_Email()
+        {
+            // Arrange
+            var to = "user@example.com";
+            var subject = "Test Email";
+            var body = "Hello, this is a test email";
+
+            // using the SetUp() method to mock the SendEmailAsync() method of the IEmailSender interface.
+            _emailSenderMock.Setup(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.CompletedTask);
+            _loggerMock.Setup(l => l.Log(It.IsAny<LogLevel>(), It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(), (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>())).Verifiable();
+            var emailService = new EmailService(_loggerMock.Object, _emailSenderMock.Object);
+
+            // Act
+            await emailService.SendEmailAsync(to, subject, body);
+
+            // Assert
+            _emailSenderMock.Verify(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            _loggerMock.Verify(
+                l => l.Log(
+                    It.IsAny<LogLevel>(),
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Sending email to {to} with subject {subject} and body {body}")),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()
+                ),
+                Times.Once
+            );
+            _loggerMock.Verify(
+                l => l.Log(
+                    It.IsAny<LogLevel>(),
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Email sent to {to} with subject {subject}")),
+                    It.IsAny<Exception>(),
+                    (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()
+                ),
+                Times.Once
+            );
+        }
+    }
+    -> in the preceeding code, we use the Mock class to create mock objects of the IEmailSender and 
+        ILogger interface.
+    -> we use the SetUp() method to mock the SendEmailAsync() method of the IEmailSender interface as:
+        
+        _emailSenderMock.Setup(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.CompletedTask);
+
+        *  SetUp() method takes a lambda expression as the parameter, which is used to configure the
+            behaviour of the SendEmailAsync() method.
+        * It.IsAny<string>() method to specify that the SendEmailAsync() method can accept any string 
+            value as the parameter.
+        *  Returns() method to specify the return value of the SendEmailAsync() method. In this case, 
+            we use the Task.CompletedTask property to specify that the SendEmailAsync() method will
+            return a completed task. If you need to return a specific value, you can also use the
+            Returns() method to return a specific value.
+            For example, if the SendEmailAsync() method returns a bool value, you can use the
+            following code to return a true value:
+
+        _emailSenderMock.Setup(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(true);
+
+
+2) For failure scenario.
+
+    Add the following code in EmailServiceTests class.
+
+    [Fact]
+    public async Task SendEmailAsync_Should_Log_SmtpException()
+    {
+        // Arrange
+        var to = "user@example.com";
+        var subject = "Test Email";
+        var body = "Hello, this is a test email";
+
+        _emailSenderMock.Setup(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ThrowsAsync(new SmtpException("Test SmtpException"));
+        _loggerMock.Setup(l => l.Log(It.IsAny<LogLevel>(), It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(), (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>())).Verifiable();
+        var emailService = new EmailService(_loggerMock.Object, _emailSenderMock.Object);
+
+        // Act + Assert
+        await Assert.ThrowsAsync<SmtpException>(() => emailService.SendEmailAsync(to, subject, body));
+
+        _loggerMock.Verify(
+        l => l.Log(
+        It.IsAny<LogLevel>(),
+        It.IsAny<EventId>(),
+        It.Is<It.IsAnyType>((v, t) =>
+        v.ToString().Contains($"Failed to send email to {to} with subject { subject}")),
+        It.IsAny<SmtpException>(),
+        (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()),
+        Times.Once);
+    }
+
+    -> Mocking the ILogger interface:
+        EmailService class uses the ILogger interface to log the information and errors.
+        we cannot mock the LogInformation() or LogError() method directly because they are extension
+        methods on top of the ILogger interface. These extension methods, such as LogInformation(),
+        LogError(), LogDebug(), LogWarning(), LogCritical(), LogTrace(), and others, all call the Log()
+        method of the ILogger interface. Therefore, to verify that a given log message is logged, it is
+        necessary to mock only the Log() method of the ILogger interface.
+    -> if the SendEmailAsync() method throws an exception, we need to ensure the logger will log the
+        exception when the exception occurs.
+    -> to test the failure scenario, we need to mock the SendEmailAsync() method so that it throws an
+        exception. We can use ThrowAsync() method to mock the SendEmailAsync() to throw an exception
+        explicitly.
+
+            _emailSenderMock.Setup(m => m.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ThrowsAsync(new SmtpException("Test SmtpException"));
+
+------------------------------------------------------------------------------------------------------------------------
+For more information about how to use the Mock library to create mock objects, see https://github.com/devlooped/moq

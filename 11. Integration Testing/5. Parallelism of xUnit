@@ -1,0 +1,66 @@
+Parallelism of xUnit:
+
+- This topic should've been discussed in chapter 10 but since we had a issue in unit testing 2.4, we
+    did not so let's discuss about it here.
+
+- by default, the latest version of xUnit (v2+) runs tests in parallel to improve the performance
+    of the test and time. Alos it can leverage the multi-core CPU to run the tests. However, we need
+    to understand how xUnit runs tests in parallel, just in case it causes the problem.
+- xUnit uses a concept called test collection to represent a group of tests. by default each test class
+    is a unique test collection. Note that the tests in the same class will not run in parallel.
+    for eg, we have InvoicesApiTest.cs file in a test project InvoicesApiTestpp.IntegrationTests.
+    also we could have ContactsApiTests.cs file for testing ContactController.cs file. So, xUnit
+    will run these two test classes in parallel, but the tests in the same test class will not run
+    in parallel.
+- from previous sections, we learned that a class fixture(IntegrationTestingDatabaseFixture) is shared
+    among all the tests in the same test class. So, if we use class fixture to create a database
+    context, the database context will be shared among all the tests in the same test class.
+
+    So, Will xUnit create only one instance of IntegrationTestingDatabaseFixture class for these 2 test
+    classes?
+    -> the answer is no.
+
+- we need to ensure the test database is clean before each test class runs and clean up the test
+    database after each test class runs.
+    For example, if we have another ContactsApiTests class that also uses CustomIntegrationTestsFixture,
+    xUnit will run InvoicesApiTests and ContactsApiTests in parallel. This may cause issues because
+    both test classes try to initialize the test database at the same time. To avoid this issue, we can
+    use the Collection attribute to group these test classes into one collection so that xUnit will not
+    run them in parallel. This can help us avoid the concurrency issue.
+
+    A) Create a definition for collection. Create a IntegrationTestsCollection class as:
+
+        [CollectionDefinition("IntegrationTests")]
+        public class IntegrationTestCollection : ICollectionFixture<IntegrationTestingDatabaseFixture>
+        {
+        }
+        
+        -> we declared that the IntegrationTestCollection class is a collection fixture that uses the
+            CollectionDefinition attribute.
+        -> we also specify the a name for this collection, which is IntegrationTests.
+        -> we use the ICollectionFixture<T> interface to specify that that the IntegrationTestCollection
+            class is a collection fixture.
+
+    B) Add the Collection attribute to the test classes.
+        Update the InvoicesApiTests.cs file or create a new test class InvoicesApiTestsWithCollection
+        as:
+            (InvoicesApiTestsWithCollection.cs)
+
+        [Collection("IntegrationTests")]
+        public class InvoicesApiTestsWithCollection(IntegrationTestingDatabaseFixture factory) : IDisposable
+        {
+            // omitted
+        }
+
+            (ContactsApiTestsWithCollection.cs)
+
+        [Collection("IntegrationTests")]
+        public class ContactsApiTestsWithCollection(IntegrationTestingDatabaseFixture factory) : IDisposable
+        {
+            // omitted
+        }
+        
+        -> this way xUnit will not run these 2 test classes in parallel and this ensure the test
+            database is clean before each test class runs and clea up the test database after each
+            test class runs.
+

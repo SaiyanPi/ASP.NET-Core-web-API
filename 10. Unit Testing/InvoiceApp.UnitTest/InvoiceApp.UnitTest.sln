@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvoiceApp.UnitTest", "InvoiceApp.UnitTest.csproj", "{B8F26E29-9BEA-4A97-8452-F81D3BD0EA4A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InvoiceApp.WebApi", "..\InvoiceApp.WebApi\InvoiceApp.WebApi.csproj", "{A3AD2275-5D7C-48C2-91F2-EBAE4E5DA814}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B8F26E29-9BEA-4A97-8452-F81D3BD0EA4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8F26E29-9BEA-4A97-8452-F81D3BD0EA4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8F26E29-9BEA-4A97-8452-F81D3BD0EA4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8F26E29-9BEA-4A97-8452-F81D3BD0EA4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3AD2275-5D7C-48C2-91F2-EBAE4E5DA814}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3AD2275-5D7C-48C2-91F2-EBAE4E5DA814}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3AD2275-5D7C-48C2-91F2-EBAE4E5DA814}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3AD2275-5D7C-48C2-91F2-EBAE4E5DA814}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {263EB2B3-A99F-474D-944D-C1538C0D0C67}
+	EndGlobalSection
+EndGlobal

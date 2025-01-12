@@ -16,8 +16,8 @@ Claim-based authorization:
 
 -> When the user logs in, the claims can be retrieved from the database and added to the token. In this
     demo, we will hard-code the claims in the code for simplicity.
--> ASP.NET Core provides a built-in ClainTypes class that contains the common claim types, such as
-    NameIdentifierr, DateOfBirth, Email, Gender, GivenName, Name, PostalCode, and others, including Role.
+-> ASP.NET Core provides a built-in ClaimTypes class that contains the common claim types, such as
+    NameIdentifier, DateOfBirth, Email, Gender, GivenName, Name, PostalCode, and others, including Role.
 -> You can also define your own claim types like:
 
     public static class AppClaimTypes
@@ -56,10 +56,10 @@ Claim-based authorization:
                 {
                     new Claim(ClaimTypes.Name, userName),
                     // Suppose the user's information is stored in the database so that we can retrieve it from the database
-                    new Claim(ClaimTypes.Country, "New Zealand"),
+                    new Claim(ClaimTypes.Country, "Nepal"),
                     // Add our custom claims
-                    new Claim(AppClaimTypes.AccessNumber, "12345678"),
-                    new Claim(AppClaimTypes.DrivingLicenseNumber, "123456789")
+                    new Claim(AppClaimTypes.AccessNumber, "123"),
+                    new Claim(AppClaimTypes.DrivingLicenseNumber, "XYZ 1234")
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),
                 Issuer = issuer,
@@ -104,7 +104,7 @@ Claim-based authorization:
             to the end point again, we will see a 200OK response.
 
             o/p:    {
-                        "drivingLicenseNumber": "123456789"
+                        "drivingLicenseNumber": "XYZ 1234"
                     }
         
         -> decoding the token to see the claims.
@@ -120,6 +120,7 @@ Claim-based authorization:
                 "iss": "http://localhost:5274",
                 "aud": "http://localhost:5274"
             }
+            
     F) Current approach only checks whether the token contains the claim(Driving license), it does not
         check the value of the claim(driving license number). we can check the value as well.
         in the Program file we added a policy with RequireClaim() method. It also has an overload that
@@ -132,12 +133,14 @@ Claim-based authorization:
                     policy.RequireClaim(ClaimTypes.Country, "Nepal"));
             });
         
+
         -> The allowedValues parameter is an array of strings. So, we can pass multiple values to
             the allowedValues parameter. For example, we can allow users from New Nepal and
             Norway to access the resource as:
 
                 options.AddPolicy(AppAuthorizationPolicies.RequireCountry, policy => 
                     policy.RequireClaim(ClaimTypes.Country, "Nepal", "Norway"));
+
     
     G) Update the policy by adding the above code in Program file.
 

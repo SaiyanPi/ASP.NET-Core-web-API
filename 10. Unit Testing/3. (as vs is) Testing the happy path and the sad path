@@ -1,0 +1,85 @@
+Testing the happy path and the sad path:
+
+- So far, we have written some tests to cover the happy path. However, we should also test the sad path.
+- In testing, the terms happy path and sad path are used to describe different scenarios or test
+    cases:
+
+    Happy path:
+    -> refers to the ideal or expected scenario where the code unit being tested
+        performs as intended. The input data is valid, and the code unit produces the expected output.
+    -> Happy path tests are designed to validate the typical or desired behavior of the code unit.
+        These tests ensure that the code works as expected without any errors or exceptions when the
+        input data is valid. For example, in the GetInvoiceAsync(Guid id) method, the happy path is
+        that the invoice with the specified ID exists in the database, and the method returns the
+        invoice.
+
+    Sad path:
+    -> refers to the scenario where the code unit encounters an error or exception. The input data may
+        be invalid, or the dependencies may not work as expected. 
+    -> Sad path tests are designed to validate whether the code unit can handle errors or exceptions
+        gracefully. For example, in the GetInvoiceAsync(Guid id) method, the sad path is that the
+        invoice with the specified ID does not exist in the database, and the method returns the
+        404 Not Found error.
+
+- By combining both happy path and sad path tests, we can ensure that the code unit works as expected
+    in different scenarios.
+
+    -> Happy path example:
+        [Fact]
+        public async Task GetInvoice_ShouldReturnInvoice()
+        {
+            // Arrange
+            var repositoryMock = new Mock<IInvoiceRepository>();
+            repositoryMock.Setup(x => x.GetInvoiceAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid id) => fixture.Invoices.FirstOrDefault(x => x.Id == id));
+            var emailServiceMock = new Mock<IEmailService>();
+            var controller = new InvoiceController(repositoryMock.Object, emailServiceMock.Object);
+            // Act
+            var invoice = fixture.Invoices.First();
+            var actionResult = await controller.GetInvoiceAsync(invoice.Id);
+            // Assert
+            var result = actionResult.Result as OkObjectResult;
+            Assert.NotNull(result);
+            var returnResult = Assert.IsAssignableFrom<Invoice>(result.Value);
+            Assert.NotNull(returnResult);
+            Assert.Equal(invoice.Id, returnResult.Id);
+            Assert.Equal(invoice.InvoiceNumber, returnResult.InvoiceNumber);
+        }
+    
+        * in this method we pass the ID of the first invoice in the Invoices list to the
+            GetInvoiceAsync(Guid id) method.
+        * Since the invoice with the specified ID exists in the database, the method should return
+            the invoice.
+
+    -> Sad path example:
+        [Fact]
+        public async Task GetInvoice_ShouldReturnNotFound()
+        {
+            // Arrange
+            var repositoryMock = new Mock<IInvoiceRepository>();
+            repositoryMock.Setup(x => x.GetInvoiceAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid id) => _fixture.Invoices.FirstOrDefault(x => x.Id == id));
+            var emailServiceMock = new Mock<IEmailService>();
+            var coentroller = new InvoiceController(repositoryMock.Object, emailServiceMock.Object);
+            // Act
+            // line missing here
+            var actionResult = await controller.GetInvoiceAsync(Guid.NewGuid());
+            // Assert
+            var result = actionResult.Result as NotFoundResult;
+            Assert.NotNull(result);
+        }
+
+_______________________________________________________________________________________________________________
+
+'as' vs 'is' in C#
+i) as operator =>
+-> as operator is used to perform conversions between compactible types.
+-> if the coversion is not possible, the as operator returns a null instead of raising an exception.
+
+ii) is operator =>
+-> is operator is used to check if the run-time type of an object is compactible with the given type.
+-> if the given object is of the same type it return true otherwise false.
+-> From C# 7, we can use is to check and convert the type at the same time.
+    for eg, we can use if (result is NotFound notFound) to check whether result is NotFound, and
+            convert it into notFound at the same time.
+
