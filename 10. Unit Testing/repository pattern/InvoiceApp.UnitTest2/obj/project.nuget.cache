@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "1/atld0N6UBhVKi27rCWIjRHP8OoPrXYmz4ZQAk8QEvWbwKa6lfdaKSUB5inTVLOzpFqWz3nQAzeaHtp4G/N+w==",
+  "dgSpecHash": "oOzah5C4fds=",
   "success": true,
-  "projectFilePath": "C:\\Users\\zlams\\source\\REST API\\10. Unit Testing (I)\\repository pattern\\InvoiceApp.UnitTest2\\InvoiceApp.UnitTest2.csproj",
+  "projectFilePath": "C:\\Users\\zlams\\source\\REST API\\10. Unit Testing\\repository pattern\\InvoiceApp.UnitTest2\\InvoiceApp.UnitTest2.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\zlams\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\zlams\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

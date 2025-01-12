@@ -1,0 +1,34 @@
+Code Coverage:
+
+- Code coverage is a metric that measures the extent to which the source code of the application is
+    covered by the test suite during testing.
+- if the code coverage is low, it means that there are many parts of the code that are not covered
+    by the test. In this case we are not confident that the code is working as expected. Also, when
+    we make changes or refactor the code, we are not sure Whether the changes will break the
+    existing code.
+- Code coverage provides insights into which parts of the code are covered (or not covered) by the
+    tests. It can help us identify areas that may require additional testing and ensure that the code
+    is tested thoroughly.
+- Code coverage plays a vital role in assessing the effectiveness and reliability of the testing
+    process. By analyzing code coverage, we can gain confidence in the quality of the code and
+    identify potential areas of weakness or untested code. Adequate code coverage is essential to
+    improve the quality of the code and reduce the risks of bugs and defects.
+- It is important to note that code coverage is not the sole indicator of code quality. While high
+    code coverage is desirable, achieving 100% code coverage does not guarantee that the code is
+    bug-free. Code coverage should be accompanied by other factors such as effective test design,
+    code reviews, static analysis, manual testing, and so on. Additionally, factors such as code
+    design, architecture, and development practices also play a role in the quality of the code.
+    We need to find a balance between code coverage and other factors.
+
+- To analyze the code coverage, we have 2 steps:
+    1) collecting test data
+        -> Data collector can monitor the test ececution and collect the code coverage data during
+            test runs.
+        -> it can report code coverage data in different formats, such as XML or JSON.
+
+    2) generating the report
+        -> report generator can read the collected data and generate the code coverage report, often
+            in HTML format
+
+Next, we will see how to use data collector and report generator. We will be using test project
+InvoiceApp.UnitTests2 from repository pattern section from chapter 10.

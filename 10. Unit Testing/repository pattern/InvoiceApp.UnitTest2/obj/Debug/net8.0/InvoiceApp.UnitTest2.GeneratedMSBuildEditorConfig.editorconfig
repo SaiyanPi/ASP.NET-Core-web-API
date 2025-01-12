@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = InvoiceApp.UnitTest2
-build_property.ProjectDir = C:\Users\zlams\source\REST API\10. Unit Testing (I)\repository pattern\InvoiceApp.UnitTest2\
+build_property.ProjectDir = C:\Users\zlams\source\REST API\10. Unit Testing\repository pattern\InvoiceApp.UnitTest2\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

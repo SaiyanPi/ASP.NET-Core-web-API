@@ -1,0 +1,47 @@
+Using data collectors:
+
+- To use data collectors, we can use Coverlet. Coverlet is a cross-platform code coverage framework
+    for .NET, with support for line, branch, and method coverage. It can be used either as a
+    .NET Core global tool or a NuGet package.
+    For more information, please check the Coverlet repo on GitHub: https://github.com/coverlet-coverage/coverlet.
+
+- xUnit project template already includes the Coverlet package. Ifit does not include then we can
+    manually include the Coverlet package
+        cmd: dotnet add package coverlet.collector
+    
+a) To get coverage data, navigate to the test project folder and run the following command.
+
+    cmd: dotnet test --collect:"XPlat Code Coverage"
+
+    -> --collect:"XPlat Code Coverage" option tells the dotnet test command to collect the code
+        coverage data.
+    ->  XPlat Code Coverage parameter is a friendly name for the collector. You can use any name you
+        like but note that it is case insensitive.
+
+b) After running the command code coverage data will be saved in the TestResults folder.
+    (See the test project InvoiceApp.UnitTests2 from repository pattern section from chapter 10)
+    (see (2)coverage-data.png file)
+
+    -> in the data we can see the following informations
+        • line-rate: This is the percentage of lines covered by tests
+        • branch-rate: This is the percentage of branches covered by tests
+        • lines-covered: This is the number of lines covered by tests
+        • lines-valid: This is the number of lines in the source code
+        • branches-covered: This is the number of branches covered by tests
+        • branches-valid: This is the number of branches in the source code
+
+- You can also use Coverlet as a .NET global tool. To do this, you can run the following command to
+    install Coverlet as a .NET global tool
+        
+        cmd: dotnet tool install --global coverlet.console
+
+    Then we can use it as follows:
+
+        cmd: coverlet /path/to/InvoiceApp.UnitTests.dll --target "dotnet" --targetargs "test /path/to/test-project --no-build"
+
+    ->  update the paths in the preceding command to match your project structure. The --no-build
+        option is used to skip building the test project, which is useful if you have already built
+        the test project.
+
+- Now we have the code coverage data. However, the coverage.cobertura.xml file is not humanreadable.
+    So, we must generate a human-readable report, which we will introduce in the next section.
