@@ -1,0 +1,29 @@
+What is gRPC?
+
+- One of the most popular RPC frameworks is gRPC.
+- It is a high-performance, open-source modern RPC framework for building network services and
+    distributed applications.
+- gRPC was initially created by Google, which used a RPC framework called Stubby. In March 2015, 
+    Google decided to make it open-source, resulting in gRPC, which is now used in many organizations
+    outside of Google.
+- gRPC has some awesome features, such as the following:
+    • Interoperability: gRPC uses a Protocol Buffer (protobuf) file to declare services and messages,
+        which enables gRPC to be completely language- and platform-agnostic. You can find gRPC
+        tools and libraries for all major programming languages and platforms.
+    • Performance: protobuf is a binary format, which has a smaller size and faster performance
+        than JSON. It is not readable by humans, but it is readable by computers. HTTP/2 also supports
+        multiplexing requests over a single connection. It needs fewer resources, even in slower networks.
+    • Streaming: gRPC is based on the HTTP/2 protocol, which makes it support bidirectional streaming.
+    • Productivity: Developers author protobuf files (.proto) to describe services with input
+        and output. Then, they can use the .proto files to generate stubs for different languages or
+        platforms. It is similar to the OpenAPI specification. Teams can focus on business logic and
+        work on the same service in parallel.
+    • Security: gRPC is designed to be secure. HTTP/2 is built on top of Transport Layer Security
+        (TLS) end-to-end encrypted connection. It also supports client certificate authentication.
+
+    With these benefits, gRPC is a good choice for microservices-style architecture.
+
+- While gRPC offers some advantages over RESTful APIs, it is not considered a complete replacement.
+    gRPC is an excellent choice for high-performance, low-latency communication between microservices,
+    but RESTful APIs are more suitable for web-based applications and scenarios where simplicity,
+    flexibility, and wide adoption are more critical.

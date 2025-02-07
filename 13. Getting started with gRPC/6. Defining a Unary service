@@ -1,0 +1,75 @@
+Defining a unary service: (see GrpcDemo-v3/GrpcDemo for source code)
+    
+-> i) simplest type of RPC method. following code shows a unary service:
+
+    message CreateContactRequest {
+        string first_name = 1;
+        string last_name = 2;
+        string email = 3;
+        string phone = 4;
+        int32 year_of_birth = 5;
+        bool is_active = 6;
+    }
+    message CreateContactResponse {
+        string contact_id = 1;
+    }
+    service Contact {
+        rpc CreateContact(CreateContactRequest) returns (CreateContactResponse);
+    }
+
+    * in the preceeding code, we define A CreateContactRequest message and a CreateContactResponse
+        message, and then we define a Contact service , which contains a CreateContact() 
+        RPC method.
+        CreateContact() method requires a CreateContactRequest request message and a
+        CreateContactResponse response message.
+-> The generated code for the CreateContact() RPC method is as follows
+    (in the generated InvoiceGrpc.cs file)
+
+    public abstract partial class ContactBase
+    {
+      public virtual global::System.Threading.Tasks.Task<global::GrpcDemo.CreateContactResponse> 
+        CreateContact(global::GrpcDemo.CreateContactRequest request, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+    }
+
+    * ContactBase class is a base class for the service implementation.
+    * it contains the CreateContact() method, which is virtual method
+    * By default, the CreateContact() method throws an exception because the method is not
+        implemented. We need to override this method in the service implementation.
+
+-> ii) Next let's create a ContactService.cs file in the Service folder.
+    In this file we need to implement the ContactService class which is derived from the
+    ContactBase class.
+
+    public class ContactService(ILogger<ContactService> logger) : Contact.ContactBase
+    {
+        public override Task<CreateContactResponse> CreateContact(CreateContactRequest request,
+            ServerCallContext context)
+        {
+            // TODO: Save contact to database
+            return Task.FromResult(new CreateContactResponse
+            {
+            ContactId = Guid.NewGuid().ToString()
+            });
+        }
+    }
+
+    * in the preceeding code we override the CreateContact() method and implement the method.
+    * this CreateContact() method allows us to execute some logic we need, such as saving the contact
+        to the database. for eimplicity, we just return a new CreateContactResponse object with a new
+        ContactId value. In reality we may have additional logic.
+
+-> iii) Next we need to register the ContactService class in the DI container. Open the Program file and
+    add the following code to the ConfigureServices() method:
+    
+    app.MapGrpcService<ContactService>();
+
+-> Our new unary service simplifies the process of handling HTTP requests, eliminating the need to
+    write any code or manage different HTTP methods. All RPC calls are handled by the gRPC framework,
+    allowing for a streamlined process.
+-> To call a gRPC service, a gRPC client must be created as current browsers do not support this
+    protocol. Alternatively, tools such as Postman can be used to access the service. In the
+    following section, we will demonstrate how to create a console application to call the service.

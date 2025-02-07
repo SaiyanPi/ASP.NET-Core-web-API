@@ -1,0 +1,70 @@
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\appsettings.Development.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\appsettings.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\GrpcDemoFinal.exe
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\GrpcDemoFinal.deps.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\GrpcDemoFinal.runtimeconfig.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\GrpcDemoFinal.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\GrpcDemoFinal.pdb
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\Google.Protobuf.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\Grpc.AspNetCore.Server.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\Grpc.AspNetCore.Server.ClientFactory.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\Grpc.Core.Api.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\Grpc.Net.Client.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\Grpc.Net.ClientFactory.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\bin\Debug\net8.0\Grpc.Net.Common.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.csproj.AssemblyReference.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.AssemblyInfoInputs.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.AssemblyInfo.cs
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.csproj.CoreCompileInputs.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.sourcelink.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets.build.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets.development.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets\msbuild.GrpcDemoFinal.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets\msbuild.build.GrpcDemoFinal.props
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.GrpcDemoFinal.props
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.GrpcDemoFinal.props
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets.pack.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\scopedcss\bundle\GrpcDemoFinal.styles.css
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemo.E5816652.Up2Date
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\refint\GrpcDemoFinal.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.pdb
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.genruntimeconfig.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemoFinal\obj\Debug\net8.0\ref\GrpcDemoFinal.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\appsettings.Development.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\appsettings.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\GrpcDemoFinal.exe
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\GrpcDemoFinal.deps.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\GrpcDemoFinal.runtimeconfig.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\GrpcDemoFinal.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\GrpcDemoFinal.pdb
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\Google.Protobuf.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\Grpc.AspNetCore.Server.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\Grpc.AspNetCore.Server.ClientFactory.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\Grpc.Core.Api.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\Grpc.Net.Client.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\Grpc.Net.ClientFactory.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\bin\Debug\net8.0\Grpc.Net.Common.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.csproj.AssemblyReference.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.AssemblyInfoInputs.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.AssemblyInfo.cs
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.csproj.CoreCompileInputs.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.sourcelink.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets.build.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets.development.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets\msbuild.GrpcDemoFinal.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets\msbuild.build.GrpcDemoFinal.props
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.GrpcDemoFinal.props
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.GrpcDemoFinal.props
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\staticwebassets.pack.json
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\scopedcss\bundle\GrpcDemoFinal.styles.css
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemo.E5816652.Up2Date
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\refint\GrpcDemoFinal.dll
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.pdb
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\GrpcDemoFinal.genruntimeconfig.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\consuming gRPC services in ASP.ET Core application\GrpcDemoFinal\obj\Debug\net8.0\ref\GrpcDemoFinal.dll

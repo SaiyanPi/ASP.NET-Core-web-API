@@ -1,0 +1,82 @@
+Defining a client streaming service:
+
+-> A client streaming service allows the client to send a stream of messages to the server over a
+    single request. The server then sends a single response message to the client when it finishes
+    processing the stream request messages.
+-> Once the server sends the response message, the client streaming call is complete.
+-> Here are some scenarios where a client streaming service is useful:
+    
+    • File uploading:
+        When the client uploads a large file to the server, the client can split the file
+        into small chunks and send them one by one as a stream request message, which can be more
+        efficient than sending the entire file in a single request.
+
+    • Real-time data capture: 
+        When the client needs to send a stream of data to the server, such as sensor data, user
+        interactions, or any continuous stream of data, the server can process the data and respond
+        to the batch of data.
+
+    • Data aggregation:
+        When the client needs to send a batch of data to the server for aggregation or analysis.
+    
+
+-> first copy the project folder GrpcDemo-v4, paste it and rename it GrpcDemo-v5. let's also delete
+    or comment down the files related to RandomNumber from previous section(Server Streaming RPC)
+    from both client and server project.
+
+-----------------------------------------------------------------------------------------------------
+
+i) The following code shows a client streaming service with the required message types:
+
+    message SendRandomNumbersRequest {
+        int32 min = 1;
+    }
+
+    message SendRandomNumbersResponse {
+        int32 count = 1;
+        int32 sum = 2;
+    }
+
+    service RandomNumbers {
+        rpc GetRandomNumbers(stream SendRandomNumbersRequest) returns ( SendRandomNumbersResponse);
+    }
+
+    * To define client streaming service, we need to use stream keyword to annotate the request message
+    * The preceding .proto file defines two messages: SendRandomNumbersRequest and
+        SendRandomNumbersResponse. The client sends a stream message containing a series of numbers
+        to the server. The server then processes the stream message and calculates the sum of the
+        numbers. Finally, the server sends a response message to the client, which contains the count
+        of the numbers and the sum of the numbers.
+
+ii) Let's create a RandomNumberService.cs file where we can implement the SendRandomNumbers()
+    method as follows:
+
+    public class RandomNumbersService(ILogger<RandomNumbersService>logger) : RandomNumbers.RandomNumbersBase
+    {
+        public override async Task<SendRandomNumbersResponse> 
+        SendRandomNumbers(IAsyncStreamReader<SendRandomNumbersRequest> requestStream, ServerCallContext context)
+        {
+            var count = 0;
+            var sum = 0;
+            await foreach (var request in requestStream.ReadAllAsync())
+            {
+                logger.LogInformation($"Received: {request.Number}");
+                count++;
+                sum += request.Number;
+            }
+            return new SendRandomNumbersResponse
+            {
+                Count = count,
+                Sum = sum
+            };
+        }  
+    }
+
+    * We utilize the IAsyncStreamReader<T>.ReadAllAsync() method in the preceding code to read all
+        the stream request messages from the client.
+    * Subsequently, we use await foreach to iterate over the stream request messages. Lastly, we
+        compute the count and sum of the numbers and return a SendRandomNumbersResponse object.
+
+iii) Next, we will register the RandomNumbersService class in the DI container in the Program file.
+
+    app.MapGrpcService<RandomNumbersService>();

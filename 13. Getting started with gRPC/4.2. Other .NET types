@@ -1,0 +1,345 @@
+continue from previous section....
+
+Other .NET types:
+
+# GUID values =>
+    ->  GUID type (on other platforms, it may have another name, UUID) is a 128-bit structure that is
+        used to identify objects.
+    -> It is a very common type in .NET applications.
+    -> Normally, a GUID value can be represented as a string that contains 32 hexadecimal digits.
+        For example, 31F6E4E7-7C48-4F91-8D33-7A74F6729C8B
+    -> However, protobuf does not support the GUID type. The best way to represent a GUID value in
+        protobuf is to use a string field.
+    ->  In the .NET code, we can use Guid.Parse() to convert a string into a GUID value and use
+        Guid.ToString() to convert a GUID value into a string
+
+
+# DateTime values =>
+    -> .NET has several types to represent a date and time value, such as DateTime, DateTimeOffset,
+        and TimeSpan.
+    -> Although protobuf does not support these types directly, it provides several extensions
+        to support them.
+    -> To use these extension types, we need to import the google/protobuf/xxx.proto file into
+        the proto file. for eg,
+
+        syntax = "proto3";
+
+        import "google/protobuf/timestamp.proto";
+        import "google/protobuf/duration.proto";
+
+        message UpdateInvoiceDueDateRequest {
+            string invoice_id = 1;
+            google.protobuf.Timestamp due_date = 2;
+            google.protobuf.Duration grace_period = 3;
+        }
+    
+    -> check the generated code of the UpdateInvoiceDueDateRequest message. we will find that the
+        due_date field is converted into a Timestamp type and the grace_period  field is converted
+        into a Duration type as:
+
+        public const int DueDateFieldNumber = 2;
+        private global::Google.Protobuf.WellKnownTypes.Timestamp dueDate_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public global::Google.Protobuf.WellKnownTypes.Timestamp DueDate {
+            get { return dueDate_; }
+            set {
+                dueDate_ = value;
+            }
+        }
+
+        public const int GracePeriodFieldNumber = 3;
+        private global::Google.Protobuf.WellKnownTypes.Duration gracePeriod_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public global::Google.Protobuf.WellKnownTypes.Duration GracePeriod {
+            get { return gracePeriod_; }
+            set {
+                gracePeriod_ = value;
+            }
+        }
+
+    -> The Timestamp type and the Duration type are not native .NET types. They are defined in the
+        Google.Protobuf.WellKnownTypes namespace, which includes some well-known types that
+        are not supported by protobuf. The source code for these types can be found at
+        https://github.com/protocolbuffers/protobuf/tree/main/csharp/src/Google.Protobuf/WellKnownTypes.
+    -> Because these types are not native .NET types, we need to convert them into native .NET types
+        when using them. The Google.Protobuf.WellKnownTypes namespace provides some methods to
+        do the conversion.
+        Here is an example of converting .NET types into protobuf types:
+
+        var updateInvoiceDueDateRequest = new UpdateInvoiceDueDateRequest
+        {
+            InvoiceId = Guid.Parse("3193C36C-2AAB-49A7-A0B1-6BDB3B69DEA1"), // not clear
+            DueDate = Timestamp.FromDateTime(DateTime.UtcNow.AddDays(30)),
+            GracePeriod = Duration.FromTimeSpan(TimeSpan.FromDays(10))
+        };
+
+        i) The Timestamp.FromDateTime() method is used to convert a DateTime value into Timestamp value.
+        ii) The Timestamp.FromDateTimeOffset() method is used to convert a DateTimeOffset value.
+        iii) Duration.FromTimeSpan() method to convert a TimeSpan value into a Duration value.
+        iv) Guid.Parse() method is used to convert a string value into Guid value which is not right
+            because protobuf does not support Guid value. So marking this as not clear
+
+        Similarly, we can convert protobuf types into .NET types:
+
+        var dueDate = updateInvoiceDueDateRequest.DueDate.ToDateTime();
+        var gracePeriod = updateInvoiceDueDateRequest.GracePeriod.ToTimeSpan();
+
+        i) ToDateTime() method can be used to convert a Timestamp value into a DateTime value.
+        ii) ToTimeSpan() method can be used to convert a Duration value into a TimeSpan value.
+        iii) ToDateTimeOffset() method can be used to convert a Timestamp value into a DateTimeOffset value.
+
+
+# Decimal values =>
+    -> At the time of writing, protobuf does not support the decimal type directly. There are some
+        discussions about adding the decimal type to protobuf, but it hasn’t been implemented yet.
+    -> As a workaround, Microsoft Docs provides a DecimalValue type, which can be used to represent
+        a decimal value in protobuf.
+    ->  The following code shows how to define a decimal value in protobuf:
+
+        // Example: 12345.6789 -> { units = 12345, nanos = 678900000 }
+        message DecimalValue {
+            // Whole units part of the amount
+            int64 units = 1;
+
+            // Nano units of the amount (10^-9)
+            // Must be same sign as units
+            sfixed32 nanos = 2;
+        }
+    
+    ->  find more information at https://learn.microsoft.com/en-us/dotnet/architecture/grpc-for-wcf-developers/protobuf-data-types#decimals.
+
+
+# Enum values =>
+    -> The enum type is very common in .NET applications. protobuf supports the enum type.
+        eg,
+        
+        enum InvoiceStatus {
+            INVOICE_STATUS_UNKNOWN = 0;
+            INVOICE_STATUS_DRAFT = 1;
+            INVOICE_STATUS_AWAIT_PAYMENT = 2;
+            INVOICE_STATUS_PAID = 3;
+            INVOICE_STATUS_OVERDUE = 4;
+            INVOICE_STATUS_CANCELLED = 5;
+        }
+    
+    -> preceding enum definition is similar to the enum definition in C#, but we need to define it in
+        the proto file.
+    ->  In the preceding code, we define an InvoiceStatus enum type with six values.
+    -> Note that every enum type must contain a 0 value, which is the default value and must be placed
+        at the first position. The InvoiceStatus enum type is converted into a .NET enum type, as
+        follows:
+            public enum InvoiceStatus {
+                [pbr::OriginalName("INVOICE_STATUS_UNKNOWN")] Unknown = 0,
+                [pbr::OriginalName("INVOICE_STATUS_DRAFT")] Draft = 1,
+                [pbr::OriginalName("INVOICE_STATUS_AWAIT_PAYMENT")] AwaitPayment = 2,
+                [pbr::OriginalName("INVOICE_STATUS_PAID")] Paid = 3,
+                [pbr::OriginalName("INVOICE_STATUS_OVERDUE")] Overdue = 4,
+            }
+
+            * as we can see, e INVOICE_STATUS prefix in the original names is removed because the
+                prefix is the same as the enum name.
+            *  In the .NET code, the enum names are converted into PascalCase.
+
+
+# Nullable values =>
+    -> Protobuf scalar value types, such as int32, sint32, fixed32, and bool, cannot be null.
+    -> But in .NET, nullable value types are very common. For example, we can use int? to declare an
+        integer value that can be null.
+    -> To support nullable value types, protobuf provides some wrapper types, which are defined in
+        the google/protobuf/wrappers.proto file. We can import this file into the proto file and use
+        the wrapper types.
+        For eg,
+            import "google/protobuf/wrappers.proto";
+            
+            message AddInvoiceItemRequest {
+                string name = 1;
+                string description = 2;
+                google.protobuf.DoubleValue unit_price = 3;
+                google.protobuf.Int32Value quantity = 4;
+                google.protobuf.BoolValue is_taxable = 5;
+            }
+
+            *  google.protobuf.DoubleValue type is used to represent a nullable double value
+            * google.protobuf.Int32Value type is used to represent a nullable int32 value
+            * google.protobuf.BoolValue type is used to define a nullable bool value.
+    -> generated code for AddInvoiceItemRequest message is as follows:
+
+        private double? unitPrice_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public double? UnitPrice {
+        get { return unitPrice_; }
+        set {
+            unitPrice_ = value;
+        }
+        }
+
+        private int? quantity_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int? Quantity {
+        get { return quantity_; }
+        set {
+            quantity_ = value;
+        }
+        }
+
+        private bool? isTaxable_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool? IsTaxable {
+        get { return isTaxable_; }
+        set {
+            isTaxable_ = value;
+        }
+        }
+
+        * as we can see, the unitPrice, quantity, and IsTaxable fields are converted into nullable
+            types in .NET.
+    -> besides these 3, protobuf also provides the following wrapper types:
+        • google.protobuf.FloatValue: This type is used to represent a float? value.
+        • google.protobuf.Int64Value: This type is used to represent a long? value.
+        • google.protobuf.UInt32Value: This type is used to represent a uint? value.
+        • google.protobuf.UInt64Value: This type is used to represent a ulong? value.
+        • google.protobuf.StringValue: This type is used to represent a string value.
+        • google.protobuf.BytesValue: This type is used to represent a ByteString value.
+    
+    -> there are 2 special types in the preceeding list:
+        google.protobuf.StringValue and google.protobuf.BytesValue
+        the corrsponding .NET types are string and ByteString. ByteString type is class that represents
+        an immutable array of bytes which is defined in the protobuf runtime. The default values of
+        these 2 types is null.
+
+        So if google.protobuf.StringValue is mapped to string in .NET, what is the difference between
+        google.protobuf.StringValue and string in protobuf?
+        The difference is the default value.
+
+    
+# Default values =>
+    -> following is the list of default values of the scalar types:
+
+            Protobuf Type         |      Default value
+            -------------------------------------------
+                string                  an empty string
+                bytes                   an empty byte array
+                bool                    false
+                Numeric types           0
+                enums                   the first enum value
+    
+    -> if we use string as the type of a field, the default value will be an empty string.
+    -> However, the default value of a google.protobuf.StringValue field is null.
+    -> Similarly, the default value of a bytes field is an empty byte array.
+    -> while the default value of a google.protobuf.BytesValue field is null.
+    -> All other wrapper types also have a default value of null.
+    -> All numeric types, including int32, double, and float, have a default value of 0. This applies
+        to all numerical data types.
+    -> Enum types in protobuf have a default value of the first value in the enum type, which must be
+        0. For instance, the InvoiceStatus enum type has a default value of INVOICE_STATUS_UNKNOWN,
+        which is 0.
+
+
+# Repeated fields =>
+    -> Similar to .NET collections, protobuf supports repeated fields. A repeated field can contain
+        zero or more items. The following code shows how to define a repeated field:
+
+        message UpdateBatchInvoicesStatusRequest {
+            repeated string invoice_ids = 1;
+            InvoiceStatus status = 2;
+        }
+    
+    -> In the preceding code, we use the repeated keyword to define a repeated field.
+    -> generated code for the repeated invoice_ids field in the UpdateInvoicesStatusRequest message
+        is :
+        private readonly pbc::RepeatedField<string> invoiceIds_ = new pbc::RepeatedField<string>();
+        // omitted
+        public pbc::RepeatedField<string> InvoiceIds {
+            get { return invoiceIds_; }
+        }
+
+        * from the generated code, we can see that the repeated string field is converted into a
+            RepeatedField<string> type.
+        * The RepeatedField<T> type is defined in the Google. Protobuf.Collections namespace,
+            and it implements the .NET collection interfaces, as follows: (press F12)
+
+            public sealed class RepeatedField<T> : IList<T>, ICollection<T>, IEnumerable<T>,
+            IEnumerable, IList, ICollection, IDeepCloneable<RepeatedField<T>>,
+            IEquatable<RepeatedField<T>>, IReadOnlyList<T>, IReadOnlyCollection<T>
+            {
+                // omitted
+            }
+    
+    -> The RepeatedField<T> type can be used as a normal .NET collection type, and any LINQ methods
+        can be applied to it. This makes it a powerful and versatile tool for data manipulation.
+    -> we can also see that the InvoiceIds field is a read-only property.
+        To add one or multiple items to the collection, the Add() method can be used.
+        Here’s an example:
+
+            var updateInvoicesStatusRequest = new UpdateBatchInvoicesStatusRequest();
+            // Add one item
+            updateInvoicesStatusRequest.InvoiceIds.Add("3193C36C-2AAB-49A7-A0B1-6BDB3B69DEA1");
+            // Add multiple items
+            updateInvoicesStatusRequest.InvoiceIds.Add(new[]
+                { "99143291-2523-4EE8-8A4D-27B09334C980", "BB4E6CFE-6AAE4948-941A-26D1FBF59E8A" });
+    -> The default value of a repeated field is an empty collection.
+
+
+# Map fields =>
+    -> Protobuf supports map fields, which are collections of key-value pairs similar to a .NET
+        dictionary.
+    -> example of how to define a map field:
+
+        message UpdateInvoicesStatusRequest {
+            map<string, InvoiceStatus> invoice_status_map = 1;
+        }
+
+    -> generated code for invoice_status_map field is:
+
+        private readonly pbc::MapField<string, global::GrpcDemo.InvoiceStatus> invoiceStatusMap_ = 
+            new pbc::MapField<string, global::GrpcDemo.InvoiceStatus>();
+        
+        public pbc::MapField<string, global::GrpcDemo.InvoiceStatus> InvoiceStatusMap {
+            get { return invoiceStatusMap_; }
+        }
+
+        * The MapField<Tkey, TValue> type is defined in the Google.Protobuf.Collections
+            namespace and it implements the IDictionary<TKey, TValue> interface as follows:
+
+        public sealed class MapField<TKey, TValue> :
+        IDeepCloneable<MapField<TKey, TValue>>, IDictionary<TKey, TValue>, 
+        ICollection<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>, 
+        IEnumerable, IEquatable<MapField<TKey, TValue>>, IDictionary, ICollection, 
+        IReadOnlyDictionary<TKey, TValue>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>
+        {
+            // omitted
+        }
+    
+    -> The MapField<TKey, TValue> type can be used as a normal .NET dictionary type. This type
+        provides the same functionality as a standard dictionary, allowing for the storage and
+        retrieval of key-value pairs.
+    -> Similar to the repeated field, the InvoiceStatusMap field is also a read-only property.
+        We can use the Add() method to add one key-value pair or multiple key-value pairs to the
+        collection, as follows:
+
+        var updateInvoicesStatusRequest = new UpdateInvoicesStatusRequest();
+        // Add one key-value pair
+        updateInvoicesStatusRequest.InvoiceStatusMap
+            .Add("3193C36C-2AAB-49A7-A0B1-6BDB3B69DEA1", InvoiceStatus.AwaitPayment);
+        // Add multiple key-value pairs
+        updateInvoicesStatusRequest.InvoiceStatusMap
+            .Add(new Dictionary<string, InvoiceStatus>
+            {
+                { "99143291-2523-4EE8-8A4D-27B09334C980", InvoiceStatus.Paid },
+                { "BB4E6CFE-6AAE-4948-941A-26D1FBF59E8A", InvoiceStatus.Overdue }
+            });
+    
+    -> Note that
+        i) map fields cannot be repeated.
+        ii) the key of a map field must be a string or integer type.
+        iii) we cannot use an enum type as the key of a map field.
+        iv) The value of a map field can be any type, including a message type but the value type
+            cannot be another map field.
+
+Next, we’ll examine the various protobuf services. We will explore the various types of RPC methods
+and how to create a gRPC client for the service.

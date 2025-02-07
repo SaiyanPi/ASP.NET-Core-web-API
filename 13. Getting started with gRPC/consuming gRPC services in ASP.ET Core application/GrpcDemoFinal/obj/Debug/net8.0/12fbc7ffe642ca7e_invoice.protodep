@@ -1,0 +1,5 @@
+Generated\Protos/Invoice.cs \
+Generated\Protos/InvoiceGrpc.cs: C:/Users/zlams/.nuget/packages/grpc.tools/2.57.0/build/native/include/google/protobuf/timestamp.proto\
+ C:/Users/zlams/.nuget/packages/grpc.tools/2.57.0/build/native/include/google/protobuf/duration.proto\
+ C:/Users/zlams/.nuget/packages/grpc.tools/2.57.0/build/native/include/google/protobuf/wrappers.proto\
+ Protos/invoice.proto

@@ -1,0 +1,91 @@
+Concept of protobuf messgaes:
+
+A) Creating protobuf messages
+
+    - gRPC is a contract-first framework, meaning that the gRPC service and messages must be defined
+        in a proto file. When we talk about messages, we are talking about the data that is sent
+        between the client and the server.
+    - While gRPC messages/data may be similar to the data model in RESTful APIs, they are not the same.
+        RESTful APIs are centered around resources, and the data model is usually a resource
+        model that can be mapped to one or multiple database tables. In contrast, gRPC is action-based, and
+        the message can be any other type of data model or other message sent between the client and
+        the server. Therefore, gRPC messages may not be exactly mapped to a resource model in RESTful
+        APIs.
+        For example, when creating an invoice through a RESTful API using JSON as the data format,
+        we need to send an HTTP POST request with a JSON body to the server. The JSON body will be
+        deserialized into a .NET object, which serves as the data model for the invoice. To retrieve
+        an invoice, we need to send an HTTP GET request to the server. The server will
+        serialize the data model into a JSON string and send it back to the client. We may also have
+        other actions, such as updating an invoice, deleting an invoice, and so on. All these actions
+        are mapped to HTTP methods.
+        To implement the same functionality using gRPC, we need to define a gRPC service with several
+        methods: CreateInvoice(), GetInvoice(), UpdateInvoice(), DeleteInvoice(), and others.
+        For each of these methods, we must also define the corresponding request and response
+        messages. For example, the CreateInvoice() method requires a CreateInvoiceRequest message
+        containing the properties of the invoice, as well as a CreateInvoiceResponse message
+        containing the ID of the created invoice.
+        It is important to note that the request and response messages are distinct from the data
+        model of the invoice, which is used to represent the invoice entity in the system. The request
+        and response messages are used to send data between the client and the server.
+    - Note that gRPC and protobuf are not the same thing.
+        1) protobuf is a language-neutral, platform-neutral data serialization format. 
+        2) gRPC is a framework that uses protobuf as the default data serialization format.
+
+    a) Defining a protobuf message:
+        - create a new invoice.proto file in the Protos folder as:
+
+            syntax = "proto3";
+
+            option csharp_namespace = "MyApp.Namespace";
+
+            -> At the time of writing, the latest version of the proto file is version 3, which
+                was released in 2016.
+                find more at https://protobuf.dev/programming-guides/proto3/
+            -> The option csharp_namespace line specifies the namespace of the generated code in C#.
+                we can change the namespace according to your needs.
+            -> option is used to avoid naming conflicts between different proto files.
+            -> Note that even though a proto file is language-neutral, the option csharp_namespace
+                attribute is only used by the C# code generator.
+                we can change the namespace to GrpcDemo to match the namespace of the existing code.
+            
+            IMPORTANT NOTE
+            -----------------
+            Protobuf supports a package keyword to avoid naming conflicts, depending on the language.
+            For eg, 
+            package com.company is equivalent to option csharp_namespace= "Com.Company" in C#
+            package com.company is equivalent to option java_package = "com.company" in Java.
+            (the name will be converted into PascalCase)
+            However, package com.company will be ignored in Python since Python modules are organized
+            by filesystem directories.
+            Since we are using C#, we use the option csharp_namespace attribute, which can override
+            the package keyword for C# applications. If you share the proto file with other applications
+            that use other languages, you can use the package keyword or the language-specific option
+            to avoid naming conflicts.
+
+B) Add proto file to the project file. Open the GrpcDemp.csproj and add the following code to an
+    <ItemGroup> element 
+
+        <Protobuf Include="Protos\invoice.proto" GrpcServices="Server" OutputDir="Generated"/>
+
+    -> now the gRPC tooling will generate the code for the invoice.proto file when we build the
+        project or automatically in the Generated/Protos folder.
+    
+C) Let's start with a simple message.
+    We can define an Address message as follows: 
+
+        message CreateAddressRequest {
+            string street = 1;
+            string city = 2;
+            string state = 3;
+            string zip_code = 4;
+            string country = 5;
+        }
+
+        -> gRPC proto3 uses similar concepts as .NET classes to define messages. However, there are
+            some differences. For example, proto3 does not support GUID and decimal types.
+        - it is similar to a .NET class. We use a message keyword to define a gRPC message.
+            In the message body, we can use string to declare a string field. However,
+            • Why do we assign a number to each property? Is it the default value?
+            • Why does the number start with 1? Can we use 0?
+            • Should we use these numbers in a specific order?
+            Let’s answer these questions in the next section

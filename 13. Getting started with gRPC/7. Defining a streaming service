@@ -1,0 +1,114 @@
+Defining a server streaming service:
+
+-> as we've learned in the section 5, streaming service has also a request and a response message
+    similar to a unary service. The only difference is that the response message is a stream message.
+-> Once the server starts to send the stream response message, the client cannot send any more
+    messages to the server, unless the server finishes sending the stream response message or the
+    client cancels the RPC call by raising ServerCallContext.CancellationToken.
+-> it is useful when we need to send a stream of data to the client. In this case, the server
+    can send multiple messages to the client over a single RPC call.
+    Here are some scenarios where a server streaming service is useful:
+    
+    • Events streaming: When the server needs to send a stream of event messages to the client so
+                        that the client can process the event messages.
+
+    • Real-time data feeds: When the server has a continuous stream of data to send to the client,
+                            such as stock prices, weather data, and so on.
+
+    • File streaming: When the server needs to send a large file to the client, the server can split
+                        the file into small chunks and send them one by one as a stream response
+                        message. This can reduce the memory usage on the server and the client
+                        because the server and the client do not need to load the entire file into
+                        memory.
+
+-> first copy the project folder GrpcDemo-v3, paste it and rename it GrpcDemo-v4. let's also delete
+    or comment down the files related to ContactService related previous section(Unary RPC) from both
+    client and server project.
+
+----------------------------------------------------------------------------------------------------------
+
+i) Following code shows a server streaming service with the required message types:
+    (Create a proto file demo.proto as:)
+
+        message GetRandomNumbersRequest {
+            int32 min = 1;
+            int32 max = 2;
+            int32 count = 3;
+        }
+
+        message GetRandomNumbersResponse {
+            int32 number = 1;
+        }
+
+        service RandomNumbers {
+            rpc GetRandomNumbers(GetRandomNumbersRequest) returns (stream GetRandomNumbersResponse);
+        }
+
+        * in the preceeding proto code, we define 2 messages named GetRandomNumbersRequest and
+            GetRandomNumbersResponse. Then we define a RandomNumbers service which contains a
+            GetRandomNumbers() RPC method.
+        * Note that the response message of the GetRandomNumbers() RPC method is annotated with the stream
+            keyword. This means that the response message is a stream message.
+    
+    -> the generated code for the GetRandomNumbers() RPC method is as follows:
+        (in the generated demoGrpc.cs file)
+
+        public abstract partial class RandomNumbersBase
+        {
+            public virtual global::System.Threading.Tasks.Task GetRandomNumbers
+                (global::GrpcDemo.GetRandomNumbersRequest request, 
+                grpc::IServerStreamWriter<global::GrpcDemo.GetRandomNumbersResponse> responseStream, 
+                grpc::ServerCallContext context)
+            {
+                throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+            }
+        }
+
+        * In the generated code, we can see that the type of the response message is
+            IServerStreamWriter<GetRandomNumbersResponse>. 
+
+ii) Next let's create a RandomNumberService.cs file in the Service folder.
+    In this file we need to implement the RandomNumberService class which is derived from the
+    RandomNumbersBase class.
+
+    public class RandomNumbersService(ILogger<RandomNumbersService>logger) : RandomNumbers.RandomNumbersBase
+    {
+        public override async Task GetRandomNumbers(GetRandomNumbersRequest request, 
+            IServerStreamWriter<GetRandomNumbersResponse> responseStream, ServerCallContext context)
+        {
+            var random = new Random();
+            for (var i = 0; i < request.Count; i++)
+            {
+                await responseStream.WriteAsync(new GetRandomNumbersResponse
+                {
+                    Number = random.Next(request.Min, request.Max)
+                });
+                await Task.Delay(1000);
+            }
+        }
+
+        // The following code continues to stream random numbers until the client cancels the request.
+        //public override async Task GetRandomNumbers(GetRandomNumbersRequest request,
+        //    IServerStreamWriter<GetRandomNumbersResponse> responseStream, ServerCallContext context)
+        //{
+        //    var random = new Random();
+        //    while (!context.CancellationToken.IsCancellationRequested)
+        //    {
+        //        await responseStream.WriteAsync(new GetRandomNumbersResponse
+        //        {
+        //            Number = random.Next(request.Min, request.Max)
+        //        });
+        //        await Task.Delay(1000, context.CancellationToken);
+        //    }
+        //}
+    }
+
+    * In the implementation of the GetRandomNumbers() method, we use a for loop to generate random
+        numbers and send them to the client every second.
+    * Note that we use the responseStream.WriteAsync() method to send the stream response message to
+        the client.
+    * The message finishes sending when the loop ends.
+
+iii) Next, we will register the RandomNumbersService class in the DI container in the Program file.
+
+    app.MapGrpcService<RandomNumbersService>();

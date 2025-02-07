@@ -1,0 +1,15 @@
+- Besides RESTful APIs, there are other types of APIs. One of them is the remote procedure call
+    (RPC)-based API.
+- gRPC is a high-performance RPC framework developed by Google. Now, it is an open-source project
+    under the Cloud Native Computing Foundation (CNCF), and it is becoming more and more popular.
+- ASP.NET Core provides a set of gRPC tools to help us build gRPC services. In this chapter, we will
+    introduce the fundamentals of gRPC and Protocol Buffers (Protobuf) messages.
+- First, we will learn how to define protobuf messages and gRPC services. Then, we will learn how to
+    implement gRPC services in ASP.NET Core, empowering us to communicate seamlessly between different
+    applications.
+    We will be covering the following topics in this chapter:
+    • what is gRPC
+    • Setting up a gRPC project
+    • Defining gRPC services and messages
+    • Implementing gRPC services and clients
+    • Consuming gRPC services in ASP.NET Core applications

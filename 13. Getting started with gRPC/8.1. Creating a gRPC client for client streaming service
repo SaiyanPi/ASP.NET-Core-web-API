@@ -1,0 +1,56 @@
+Creating a client for client streaming service:
+
+1) copy the proto files from the GrpcDemo project to the GrpcDemo.Client project. Then, we will
+    create a ClientStreamingClient class in the GrpcDemo.Client project and add the following code:
+    (GrpcDemo-v6)
+    
+    internal class ClientStreamingClient
+    {
+        public async Task SendRandomNumbers()
+        {
+            using var channel = GrpcChannel.ForAddress("https://localhost:5140");
+            var client = new RandomNumbers.RandomNumbersClient(channel);
+            // Create a streaming request
+            using var clientStreamingCall = client.SendRandomNumbers();
+            var random = new Random();
+            for (var i = 0; i < 20; i++)
+            {
+                await clientStreamingCall.RequestStream.WriteAsync(new
+                SendRandomNumbersRequest
+                {
+                    Number = random.Next(1, 100)
+                });
+                await Task.Delay(1000);
+            }
+            await clientStreamingCall.RequestStream.CompleteAsync();
+            // Get the response
+            var response = await clientStreamingCall;
+            Console.WriteLine($"Count: {response.Count}, Sum: {response.Sum}");
+            Console.ReadKey();
+        }
+    }
+
+    * In the SendRandomNumbers() method, we create an AsyncClientStreamingCall object by calling the
+        SendRandomNumbers() method of the RandomNumbersClient class.
+    * Note that the client streaming call starts when the SendRandomNumbers() method is called.
+    * but the client does not send any messages until the RequestStream.CompleteAsync() method is
+        called.
+    * In a for loop, we use the RequestStream.WriteAsync() method to send the stream request
+        message to the server. At the end of the method, we call the RequestStream.CompleteAsync()
+        method to indicate that the stream request message is complete.
+
+2) In the Program.cs file of the GrpcDemo.Client project, call the SendRandomNumbers() method, as
+    follows:
+
+    var clientStreamingClient = new ClientStreamingClient();
+    await clientStreamingClient.SendRandomNumbers();
+
+3) To secure the gRPC channel using TLS(Transport Layer Security), we need to run the gRPC service
+    with HTTPS as:
+
+    cmd: dotnet run --urls=https://localhost:5140 
+
+4) We've ran our gRPC server now let's run the gRPC client in the different terminal.
+    Now we will be able to see the following output in the gRPC client terminal.
+
+        Count: 20, Sum: 1000

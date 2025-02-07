@@ -1,0 +1,65 @@
+Defining bidirectional streaming service:
+
+-> A bidirectional streaming service allows the client and the server to send a stream of messages to
+    each other over a single request concurrently.
+-> Once the connection has been established, the client and the server can send messages to each other
+    at any time in any order because the two streams are independent.
+    For example, the server can respond to each message from the client, or the server can send a
+    response message after receiving a series of messages from the client.
+-> Here are some scenarios where a bidirectional streaming service is useful:
+
+    • Chat applications:
+        When the client and the server need to send instant messages to each other
+    
+    • Real-time data dashboard:
+        When the client continuously sends data to the server and the server builds a real-time
+        dashboard to display the data
+
+    • Multiplayer games:
+        When the players need to interact with each other in real-time and the server needs to
+        synchronize the game state between the players
+
+-------------------------------------------------------------------------------------------------------
+
+i) Let’s define a bidirectional streaming service. In this example, the client sends some sentences to
+    the server and the server responds to each sentence with the uppercase version of the sentence. The
+    following code shows the required message types:
+
+    message ChatMessage {
+        string sender = 1;
+        string message = 2;
+    }
+    service Chat {
+        rpc SendMessage(stream ChatMessage) returns (stream ChatMessage);
+    }
+
+    * we have defined a ChatMessage message containing two fields: sender and message
+    * Additionally, we have defined a Chat service with a SendMessage RPC method.
+    * It is important to note that both the request and response of this method are annotated with
+        the stream keyword.
+
+ii) Create a ChatService.cs file in the service folder as:
+
+    public class ChatService(ILogger<ChatService> logger) : Chat.ChatBase
+    {
+        public override async Task SendMessage(IAsyncStreamReader<ChatMessage> requestStream,
+            IServerStreamWriter<ChatMessage> responseStream, ServerCallContext context)
+        {
+            await foreach (var request in requestStream.ReadAllAsync())
+            {
+                logger.LogInformation($"Received: {request.Message}");
+                await responseStream.WriteAsync(new ChatMessage
+                {
+                    Message = $"You said: {request.Message.ToUpper()}"
+                });
+            }
+        }
+    }
+
+    * we utilize the await foreach method to iterate over the stream request messages. 
+    * For each request message, we use the WriteAsync() method to send a response message back to
+        the client. This response message contains the uppercase version of the request message.
+
+iii) Next, we will register the ChatService class in the DI container in the Program file.
+
+    app.MapGrpcService<ChatService>();

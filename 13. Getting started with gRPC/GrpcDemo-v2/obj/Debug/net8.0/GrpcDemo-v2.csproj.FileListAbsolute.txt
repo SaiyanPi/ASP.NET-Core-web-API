@@ -1,0 +1,7 @@
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemo-v2\obj\Debug\net8.0\GrpcDemo-v2.csproj.AssemblyReference.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemo-v2\obj\Debug\net8.0\GrpcDemo-v2.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemo-v2\obj\Debug\net8.0\GrpcDemo-v2.AssemblyInfoInputs.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemo-v2\obj\Debug\net8.0\GrpcDemo-v2.AssemblyInfo.cs
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemo-v2\obj\Debug\net8.0\GrpcDemo-v2.csproj.CoreCompileInputs.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemo-v2\obj\Debug\net8.0\GrpcDemo-v2.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\zlams\source\REST API\13. Getting started with gRPC\GrpcDemo-v2\obj\Debug\net8.0\GrpcDemo-v2.sourcelink.json

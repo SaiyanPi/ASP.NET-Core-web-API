@@ -1,0 +1,215 @@
+Understanding field numbers:
+
+message CreateAddressRequest {
+    string street = 1;
+    string city = 2;
+    string state = 3;
+    string zip_code = 4;
+    string country = 5;
+}
+
+- the numbers following the field names are called field numbers.
+- These field numbers are used to identify the fields in the message.
+- What is the benefit of using field numbers instead of field names?
+=> Consioder the following example of an XML document:
+    
+        <address>
+            <street>1 Fake Street</street>
+            <city>Wellington</city>
+            <state>Wellington</state>
+            <zip_code>6011</zip_code>
+            <country>New Zealand</country>
+        </address>
+
+        -> each field is wrapped in a tag. We have to open and close the tags to wrap the values of
+            the fields.
+        -> XML syntax wastes a lot of space when transferring data.
+
+    ------------------------------------------------------------------
+    Now consider the following JSON document:
+
+        {
+            "street": "1 Fake Street",
+            "city": "Wellington",
+            "state": "Wellington",
+            "zip_code": "6011",
+            "country": "New Zealand"
+        }
+
+        -> we just use each field name once.
+        -> Normally, JSON format is more compact than XML format.
+
+    What if we get rid of the field names? That is why we use field numbers in the proto file.
+    By using field numbers instead of field names when encoding the message, we can make the gRPC
+    message more compact. This is because numbers are shorter than field names. Additionally,
+    protobuf uses a binary format, which is more compact than plain text formats such as JSON and
+    XML. This further helps reduce the size of the message.
+
+- There are a few things to note about field numbers according to the protobuf documentation:
+    • The range of field numbers is from 1 to 536,870,911. So we cannot use 0 as a field number.
+    • The field numbers must be unique within a message.
+    • Field numbers 19000 to 19999 are reserved for protobuf, so you cannot use them.
+    • Technically, the order of the field numbers does not matter. It is recommended to use the
+        ascending order of the field numbers. Smaller field numbers use fewer bytes to encode. For
+        example, a field number between 1 and 15 uses only one byte to encode, but numbers from
+        16 to 2047 use two bytes.
+    • Once a field number is assigned to a field, it cannot be changed if the proto file is used in
+        production. Changing a field number will break the backward compatibility of the proto file.
+
+    With that, we have learned what field numbers are and why we use them. Next, let’s understand
+    field types.
+
+_____________________________________________________________________________________________________________
+
+
+Understanding the field types:
+
+- similar to .NET classes, a gRPC message can have different types of fields.
+- protobuf provides a set of native types, which are called scalar value types.
+    These scalar value types have representations in most programming languages.
+    The following table lists the mapping between protobuf scalar value types and .NET types:
+
+-------------------------------------------------------------------------------------------------------
+    Protobuf Type    |     .NET Type    |              Notes
+------------------------------------------------------------------------------------------------------
+    double              double             ±5.0 × 10^−324 to ±1.7 × 10^308
+
+    float               float              ±1.5 x 10^−45 to ±3.4 x 10^38
+
+    int32               int                The length is variable. Use sint32 if the field has
+                                            negative numbers.
+
+    int64               long               The length is variable. Use sint64 if the field has
+                                            negative numbers.
+
+    uint32              uint               The length is variable. Unsigned integer. 0 to (2^32-1).
+
+    uint64              ulong              The length is variable. Unsigned integer. 0 to (2^64-1).
+
+    sint32              int                The length is variable. Signed integer. -2^31 to (2^31-1).
+
+    sint64              long               The length is variable. Signed integer. -2^63 to (2^63-1)
+
+    fixed32             uint               The length is always 4 bytes. This type is more efficient
+                                            than uint32 for serializing or deserializing values that
+                                            are greater than 228.
+
+    fixed64             ulong              The length is always 8 bytes. This type is more efficient
+                                            than uint64 for serializing or deserializing values that
+                                            are greater than 256. 
+
+    sfixed32            int                The length is always 4 bytes
+
+    sfixed64            long               The length is always 8 bytes
+
+    bool                bool
+
+    string              string             A string field must be encoded in UTF-8 or 7-bit ASCII.
+                                            The maximum length of a string field is 2^32.
+
+    bytes               bytes              This type is defined in protobuf runtime. It can be mapped
+                                            to and from C#’s byte[] type.
+------------------------------------------------------------------------------------------------------------
+
+continue from previous section....
+C) let's create another message names CreateContactRequest and add some fields to it:
+        
+        message CreateContactRequest {
+            string first_name = 1;
+            string last_name = 2;
+            string email = 3;
+            string phone = 4;
+            int32 year_of_birth = 5;
+            bool is_active = 6;
+        }
+    -> Next, we can run dotnet build to generate the code.
+    -> The generated code files contain some complicated code. However, we can find the definition
+        of the CreateContactRequest class, which is as follows:
+
+        public sealed partial class CreateContactRequest : pb::IMessage<CreateContactRequest>
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+            , pb::IBufferMessage
+        #endif
+        {
+            // omitted
+
+            /// <summary>Field number for the "first_name" field.</summary>
+            public const int FirstNameFieldNumber = 1;
+            private string firstName_ = "";
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+            [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+            public string FirstName {
+            get { return firstName_; }
+            set {
+                firstName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+            }
+            }
+
+            /// <summary>Field number for the "last_name" field.</summary>
+            public const int LastNameFieldNumber = 2;
+            private string lastName_ = "";
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+            [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+            public string LastName {
+            get { return lastName_; }
+            set {
+                lastName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+            }
+            }
+
+            /// <summary>Field number for the "email" field.</summary>
+            public const int EmailFieldNumber = 3;
+            private string email_ = "";
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+            [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+            public string Email {
+            get { return email_; }
+            set {
+                email_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+            }
+            }
+
+            /// <summary>Field number for the "phone" field.</summary>
+            public const int PhoneFieldNumber = 4;
+            private string phone_ = "";
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+            [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+            public string Phone {
+            get { return phone_; }
+            set {
+                phone_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+            }
+            }
+
+            /// <summary>Field number for the "year_of_birth" field.</summary>
+            public const int YearOfBirthFieldNumber = 5;
+            private int yearOfBirth_;
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+            [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+            public int YearOfBirth {
+            get { return yearOfBirth_; }
+            set {
+                yearOfBirth_ = value;
+            }
+            }
+
+           // omitted
+        }
+    
+    -> We can see that the CreateContactRequest message has been converted into a .NET class, which
+        includes the properties for each field.
+
+- IMPORTANT NOTES:
+
+    Protobuf has a style guide for naming fields and methods. The general rules are as follows:
+    • Use lower_snake_case for field names
+    • Use PascalCase for method/message names
+    • File names should be in lower_snake_case
+    • Using double quotes for string literals is preferred over single quotes
+    • The indentation should be two spaces in length
+    You can find more information at https://protobuf.dev/programming-guides/style/.
+
+- with this we've learned how to use protobuf scalar value types. Now let's consider other types.
+
+---------------------------------------------------------------------------------------------------------
+

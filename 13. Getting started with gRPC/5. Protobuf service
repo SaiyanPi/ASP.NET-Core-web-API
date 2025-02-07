@@ -1,0 +1,30 @@
+Protobuf service:
+
+-> Now that we've understood the definition of a protobuf message, we can move on to defining
+    protobuf services.
+-> These services are comprised of RPC methods, each of which has a request and response message.
+-> To facilitate the implementation of these services, gRPC tooling will generate the necessary
+    C# code, which can then be used as the base class for the service.
+-> gRPC supports 4 types of RPC methods:
+    
+    1) Unary RPC 
+    Client send a single request message to the server and recieves a single response message in
+    return. This type of method is suitable for applications that need single request-response
+    exchanges.
+
+    2) Server streaming RPC 
+    Client sends a single request message to the server and the server then responds with a stream
+    of response messages. This type of method allows for continious data exchange between the client
+    and the server.
+
+    3) Client streaming RPC
+    Client sends a stream request message to the server and the server then responds with a response
+    message. Similar to server streaming RPC, this type of method allows for a continious data
+    exchange but the data change is initiated by the client.
+
+    4) Bidirectional  streaming RPC
+    Client initiates the process by sending a stream request message, to which the server responds
+    with a stream response  message. This type of method enables communication between the client
+    and the server to be conducted in both directions.
+    
+

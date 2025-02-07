@@ -1,0 +1,124 @@
+Creating a gRPC client.
+
+-> a gRPC can be a console application, a web application, or any other type of application, such as
+    a WPF application.
+-> in this section, we will create a console application as the gRPC client for the unary service
+    we created in the previous section.
+
+    (see inside GrpcDemo-v3folder)
+1) Use the dotnet new command to create a new console project:
+
+    cmd: dotnet new console -o GrpcDemo.Client
+
+2) Now, we have two projects. let's create a solution file by running the command
+
+    cmd: dotnet new sln -n GrpcDemo
+
+3) Then, add the two projects to the solution:
+
+    cmd: dotnet sln GrpcDemo.sln add GrpcDemo/GrpcDemo.csproj
+    cmd: dotnet sln GrpcDemo.sln add GrpcDemo.Client/GrpcDemo.Client.csproj
+
+4) Next, navigate to the GrpcDemo.Client folder and add the Grpc.Net.Client package to the project:
+    cmd: cd GrpcDemo.Client
+    cmd: dotnet add GrpcDemo.Client.csproj package Grpc.Net.Client
+
+5) To use the gRPC tooling to generate the client code, we also need to add the following packages:
+    cmd: dotnet add GrpcDemo.Client.csproj package Google.Protobuf
+    cmd: dotnet add GrpcDemo.Client.csproj package Grpc.Tools
+
+    Now, updated GrpcDemo.Client.csproj contains following code:
+
+        <ItemGroup>
+            <PackageReference Include="Google.Protobuf" Version="3.29.3" />
+            <PackageReference Include="Grpc.Net.Client" Version="2.67.0" />
+            <PackageReference Include="Grpc.Tools" Version="2.69.0">
+                <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+                <PrivateAssets>all</PrivateAssets>
+            </PackageReference>
+        </ItemGroup>
+    
+    * we know from the previous section (section 3/#(GrpcDemo.csproj)) that the Grpc.Tools package
+        contains code-generation tooling for gRPC.
+    * It is a development-time dependency, which means that it is not required at runtime.
+    * So we need to add the <PrivateAssets>all</PrivateAssets> element to the Grpc.Tools package
+        to ensure that the pacakge is not included in the published application.
+
+6) Next, Copy the protos folder (currently with with files greet.proto and invoice.proto) from GrpcDemo
+    project to the GrpcDemo.Client project. Then add the following code to the GrpcDemo.Client.csproj
+    file.
+
+     <ItemGroup>
+        <Protobuf Include="Protos\greet.proto" GrpcServices="Client" OutputDir="Generated"/>
+        <Protobuf Include="Protos\invoice.proto" GrpcServices="Client" OutputDir="Generated"/>
+    </ItemGroup>
+
+    * in this case we use client as a GrpcServices because we are creating a gRPC client.
+    * when we make changes to the proto files in the GrpcDemo project, do not forget to Copy
+        the changes to the GrpcDemo.Client project to ensure that the client code is up to date.
+    * in the Generated/Protos folder we will see the following generated files.
+
+        Invoice.cs = this file contains the definition of the messages in the invoice.proto file.
+        InvoiceGrpc.cs = This file contains the gRPC client code for the services in the 
+                            invoice.proto file.
+
+7) Next, let's create a InvoiceClient.cs file in the project root folder and add the following code:
+
+    using Grpc.Net.Client;
+
+    namespace GrpcDemo.Client;
+    internal class InvoiceClient
+    {
+        public async Task CreateContactAsync()
+        {
+            using var channel = GrpcChannel.ForAddress("https://localhost:5140");
+            var client = new Contact.ContactClient(channel);
+            var reply = await client.CreateContactAsync(new CreateContactRequest()
+            {
+                Email = "abc@abc.com",
+                FirstName = "John",
+                LastName = "Doe",
+                IsActive = true,
+                Phone = "1234567890",
+                YearOfBirth = 1980
+            });
+            Console.WriteLine("Created Contact: " + reply.ContactId);
+            Console.ReadKey();
+        }
+    }
+    
+    * in the preceeding code, we use the GrpcChannel.ForAddress() method to create a gRPC channel,
+        which accepts the address of the gRPC server
+    * A gRPC channel is used to establish a connection to the gRPC server on the specified address
+        and port.
+    * Once we have a gRPC channel, we can create an instance of the ContactClient class, which is
+        generated from the proto file.
+    * then we call the CreateContactAsync() method to create a contact. CreateContactAsync() method
+        accepts a CreateContactRequest object as the parameter and it returns a CreateContactResponse
+        object, which contains the ContactId value.
+
+        To get the address of the gRPC server, we can use the dotnet run command in the GrpcDemo
+        project to start the gRPC server.
+        Alternatively, we can check the applicationUrl property in the Properties/launchSettings.json
+        file which is 5140.
+
+8) Then we can use the HTTPS adress to create a gRPC channel. Open the Program file and add the
+    following code.
+
+        using GrpcDemo.Client;
+
+        var contactClient = new InvoiceClient();
+        await contactClient.CreateContactAsync();
+
+9) To secure the gRPC channel using TLS(Transport Layer Security), we need to run the gRPC service
+    with HTTPS as:
+
+    cmd: dotnet run --urls=https://localhost:5140
+
+10) We've ran our gRPC server now let's run the gRPC client in the different terminal.
+    Now we will be able to see the following output in the gRPC client terminal.
+
+        Created Contact: 6f1fe484-a7b3-42f2-a118-22ad5de5a827
+
+-> This is a simple example of a gRPC client in a console application. In the next section, we will
+    create a server streaming service and the corresponding gRPC client.

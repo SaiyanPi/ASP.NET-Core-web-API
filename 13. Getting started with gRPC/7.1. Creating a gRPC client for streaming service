@@ -1,0 +1,58 @@
+Creating a gRPC client for streaming service:
+
+-> Copy the Client project from the previous section and paste it inside the GrpcDemo-v4 folder.
+    Also remove all the files related to previous section(Unary service) for clear understanding.
+
+1) Create a RandomNumbersClient.cs file in the project root folder and add the folowing code.
+
+    internal class ServerStreamingClient
+    {
+        public async Task GetRandomNumbers()
+        {
+            using var channel = GrpcChannel.ForAddress("https://localhost:5140");
+            var client = new RandomNumbers.RandomNumbersClient(channel);
+            var reply = client.GetRandomNumbers(new GetRandomNumbersRequest()
+                {
+                    Count = 100,
+                    Max = 100,
+                    Min = 1
+                });
+                await foreach (var number in reply.ResponseStream.ReadAllAsync())
+                {
+                    Console.WriteLine(number.Number);
+                }
+                Console.ReadKey();
+        }
+    }
+
+    * The code to create the client is similar to that of InvoiceClient from unary section.
+    * The only difference is in the response message, which is handled using the await foreach
+        statement.
+    * ReadAllAsync() method returns an IAsyncEnumerable<T> object, which can be iterated over using
+        the await foreach statement.
+
+2) In the Program.cs file of the GrpcDemo.Client project, call the GetRandomNumbers() method, as
+    follows:
+
+    var serverStreamingClient = new ServerStreamingClient();
+    await serverStreamingClient.GetRandomNumbers();
+
+3) To secure the gRPC channel using TLS(Transport Layer Security), we need to run the gRPC service
+    with HTTPS as:
+
+    cmd: dotnet run --urls=https://localhost:5140 
+
+4) We've ran our gRPC server now let's run the gRPC client in the different terminal.
+    Now we will be able to see the following output in the gRPC client terminal.
+
+        83
+        55
+        20
+        11
+        63
+        12
+        25
+        63
+        48
+        .
+        .

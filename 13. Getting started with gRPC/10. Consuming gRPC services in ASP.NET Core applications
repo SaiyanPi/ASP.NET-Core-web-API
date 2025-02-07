@@ -1,0 +1,116 @@
+Consuming gRPC services in ASP.NET Core applications:
+
+-> In the previous section, we learned how to create console applications to consume gRPC services.
+    In this section, we will integrate gRPC services into ASP.NET Core applications.
+-> We will reuse the gRPC services we created in the previous section, and we will create a new
+    ASP.NET Core application to consume the gRPC services.
+-> in the console applications, we used the GrpcChannel class to create a gRPC channel, after which
+    we used the gRPC channel to create a gRPC client as:
+
+        using var channel = GrpcChannel.ForAddress("https://localhost:5192");
+        var client = new Chat.ChatClient(channel);
+    
+    In ASP.NET Core applications, a better way to create a gRPC client is to use the IHttpClientFactory
+    interface with dependency injection. Let's see how to use the DI container to create a gRPC client.
+
+1) First, we must create a new ASP.NET Core application. In this ASP.NET Core application, we
+    will create a REST API to consume the gRPC services we created in the previous section.
+
+    cmd: dotnet new webapi -o GrpcDemo.Api -controllers
+
+2) Create a Solution file named GrpcDemo.sln
+    
+    cmd: dotnet new sln -n GrpcDemo
+
+3) Add the GrpcDemp.Api project we created in step 1 to the solution:
+
+    cmd: dotnet sln GrpcDemo.sln add GrpcDemo.Api/GrpcDemo.Api.csproj
+
+4) Next, add the Grpc.Net.ClientFactory and Grpc.Tools packages to the project GrpcDemp.Api project
+
+    cmd: cd GrpcDemp.Api
+    cmd: dotnet add GrpcDemo.Api.csproj package Grpc.Net.ClientFactory
+    cmd: dotnet add GrpcDemo.Api.csproj package Grpc.Tools
+
+    * Grpc.Net.ClientFactory allows developers to create a gRPC client using a dependency injection
+        container, eliminating the need for the 'new' keywprd.
+    * Grpc.Tools can be used to generate gRPC client code from proto files.
+
+5) Cpy the protos folder from the GrpcDemoFinal project to the GrpcDemo.Api project and add the
+    following code to the GrpcDemo.Api.csproj file.
+
+    <ItemGroup>
+	  <ProjectReference Include="..\GrpcDemoFinal\GrpcDemoFinal.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Protobuf Include="Protos\greet.proto" GrpcServices="Client" OutputDir="Generated"/>
+      <Protobuf Include="Protos\invoice.proto" GrpcServices="Client" OutputDir="Generated"/>
+      <Protobuf Include="Protos\demo.proto" GrpcServices="Client" OutputDir="Generated"/>
+    </ItemGroup>
+
+    * similar to the GrpcDemo.Client project, we use the GrpcServices="Client" attribute to specify
+        the type of the generated code.
+    * in this case we use Client because we will create a gRPC client to consume the gRPC services
+        in ASP.NET Core application.
+    
+6) Next we register the gRPC client in the DI container. Open the Program.cs file and add the
+    following code
+
+        builder.Services.AddGrpcClient<Contact.ContactClient>(x =>
+            x.Address = new Uri("https://localhost:5175"));
+
+        * note that the address of the gRPC server is hardcoded for simplicity. In real world
+            application, we should use a configuration file to store the address of the gRPC server.
+
+7) Next, we must create a controller to consume the gRPC services. Create a ContactController.cs file
+    and add the following code:
+
+        [ApiController]
+        [Route("[controller]")]
+        public class ContactController(Contact.ContactClient client, 
+        ILogger<ContactController> logger) : ControllerBase
+        {
+            [HttpPost]
+            public async Task<IActionResult> CreateContact(CreateContactRequest request)
+            {
+                var reply = await client.CreateContactAsync(request);
+                return Ok(reply);
+            }
+        }
+
+    * we use dependency injection to inject the gRPC client, ContactClient, which is generated from
+        the invoice.proto file.
+    * Then we created a CreateContact action method to call the CreateContactAsync() method of the
+        ContactClient class.
+    * CreateContactAsync() method accepts a CreateContactRequest object as a parameter, which is
+        also generated from the proto file.
+    * CreateContactAsync() method returns a CreateContactResponse object, which contains the ContactId
+        value.
+
+9) To secure the gRPC channel using TLS(Transport Layer Security), we need to run the gRPC service
+    with HTTPS as:
+
+    cmd: dotnet run --urls=https://localhost:5175
+
+10) Run the GrpcDemo.Api (ASP.NET Core application) in different terminal and navigate to the endpoint
+    http://localhost:5087/contact to test the CreateContact() action method.
+    for eg, we can use the following JSON object as a request body:
+
+        {
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john.doe@example.com",
+            "phone": "1234567890",
+            "yearOfBirth": 1980,
+            "isActive": true
+        }
+
+        we will see the following response:
+
+        {
+            "contactId": "8fb43c22-143f-4131-a5f5-c3700b4f3a08"
+        }
+
+-> This simple example shows how to use the AddGrpcClient() method to register a gRPC client in
+    the DI container in ASP.NET Core applications, and how to use the gRPC client to consume a unary
+    gRPC service. For other types of gRPC services, you need to update the code accordingly

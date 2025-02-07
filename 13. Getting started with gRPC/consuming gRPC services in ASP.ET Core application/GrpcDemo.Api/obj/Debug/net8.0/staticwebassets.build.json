@@ -1,0 +1,23 @@
+{
+  "Version": 1,
+  "Hash": "koWcZYv2ZxbMfabC/kzps7JDge3Pin9f7+BzfIAXQ9Q=",
+  "Source": "GrpcDemo.Api",
+  "BasePath": "_content/GrpcDemo.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\zlams\\source\\REST API\\13. Getting started with gRPC\\consuming gRPC services in ASP.ET Core application\\GrpcDemoFinal\\GrpcDemoFinal.csproj",
+      "Version": 2,
+      "Source": "GrpcDemoFinal",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

@@ -1,0 +1,82 @@
+Updating proto files:
+
+-> gRPC is a contract-first RPC framework. This means that the server and the client communicate with
+    each other using a contract, which is defined in a proto file.
+-> Inevitably, the contract will change over time. In this section, we will learn how to update the
+    contract and how to handle the changes in the server and the client.
+-> Once a proto file is used in production, we need to consider backward compatibility when we
+    update the proto file. This is because the existing clients may use the old version of the proto
+    file, which may not be compatible with the new version of the proto file. If the new version of
+    the contract is not backward compatible, the existing clients will break.
+
+-> The following changes are backward compatible:
+
+    • Adding new fields to a request message:
+        If the client does not send the new fields, the server can use the default values of the
+        new fields.
+    • Adding new fields to a response message:
+        If the response message contains the new fields but the client does not recognize the new
+        fields, the client will discard the new fields in proto 3. In the future version of proto,
+        known as 3.5, this behavior will be changed to preserve the new fields as unknown fields.
+    • Adding a new RPC method to a service:
+        The client that uses old versions of the proto file will not be able to call the new RPC
+        method. However, the old RPC methods will still work
+    • Adding a new service to a proto file:
+        Similar to adding a new RPC method, the new service will not be available to the old clients,
+        but the old services will still work.
+
+-> The following changes may cause breaking changes, which require the clients to be updated
+    accordingly:
+    • Removing a field from a message
+    • Renaming a field in a message
+    • Removing or renaming a message
+    • Changing a data type of a field
+    • Changing a field number
+    • Removing or renaming a service
+    • Removing or renaming an RPC method from a service
+    • Renaming a package
+    • Changing the csharp_namespace option
+
+-> Protobuf uses field numbers to serialize and deserialize messages. If we rename a field in a
+    message without changing the field number and the data type, the message can still be serialized
+    and deserialized correctly, but the field name in the .NET code will be different from the field
+    name in the proto file. This can be confusing for developers. So, the client code needs to be
+    updated to use the new field name.
+
+-> Removing a field from a message is a breaking change as the field number cannot be reused.
+    For example, if we remove the year_of_birth field from the CreateContactRequest message, the 
+    server will deserialize field number 5 as an unknown field. This could lead to errors in
+    serialization/de-serialization if a developer later decides to add a new field with field number
+    5 as a different data type while existing clients still send field number 5 as an integer value.
+
+-> To safely remove a field, we must ensure that the removed field number is not being used in the
+    future. To avoid any potential conflicts, we can reserve the removed field number by using the
+    reserved keyword.
+
+        message CreateContactRequest {
+            string first_name = 1;
+            string last_name = 2;
+            string email = 3;
+            string phone = 4;
+            int32 year_of_birth = 5;c
+            bool is_active = 6;
+        }
+
+    For example, if we delete the year_of_birth and is_active fields from the CreateContactRequest
+    message, we can reserve the field numbers, as follows:
+
+        message CreateContactRequest {
+            reserved 5, 6;
+            reserved "year_of_birth", "is_active";
+            string first_name = 1;
+            string last_name = 2;
+            string email = 3;
+            string phone = 4;
+        }
+    
+    The reserved field numbers and field names cannot be reused in the proto file. If we try to use
+    a reserved field number or field name, the gRPC tooling will report an error.
+
+    Note that the reserved field names should be listed, as well as the reserved field numbers.
+    This ensures that the JSON and text formats are backward compatible. When the field names are
+    reserved, they cannot be placed in the same reserved statement with the field numbers.
