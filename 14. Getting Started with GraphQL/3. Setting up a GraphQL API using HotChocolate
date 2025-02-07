@@ -1,0 +1,136 @@
+Setting up a GraphQL API using HotChocolate:
+
+-> we will be using the SchoolManagement project from the Start folder for this chapter. 
+    This sample project has some basic code for an AppDbContext class and a Teacher class, as well
+    as some seed data. The Teacher class has the following properties:
+        
+        public class Teacher
+        {
+            public Guid Id { get; set; }
+            public string FirstName { get; set; } = string.Empty;
+            public string LastName { get; set; } = string.Empty;
+            public string Email { get; set; } = string.Empty;
+            public string? Phone { get; set; }
+            public string? Bio { get; set; }
+        }
+
+    Let's copy the project and paste it inside End folder. We will integrate HotChocolate into the
+    project to create a GraphQL API following these steps:
+
+
+1) Add the HotChocolate.AspNetCore NuGet package to the project:
+
+    cmd: dotnet add package HotChocolate.AspNetCore
+
+    * This package contains the ASP.NET Core integration for HotChocolate.
+    * It also contains the GraphQL IDE(integrated development environment), which is a GraphQL client
+        that can be used to create and test GraphQL queries.
+
+2) Create a query root type, Query, in the GraphQL/Queries folder as:
+
+        public class Query
+        {
+            public async Task<List<Teacher>> GetTeachers([Service] AppDbContext context) =>
+                await context.Teachers.ToListAsync();
+        }
+
+        * the Query class will be used to define the queries that can be executed by the client.
+        * It has 1 method named GetTeachers() which returns a list of Teachers
+
+3) Then, we need to register the query root type in the Program.cs file. Add the following code
+
+        builder.Services
+            .AddGraphQLServer()
+            .AddQueryType<Query>();
+        
+        * preceeding code registers the GraphQL server and adds the Query type to the schema.
+
+4) Next, we need to map the GraphQL endpoint to expose the GraphQL schema. Add the following code
+    in the Program.cs file.
+
+        app.MapGraphQL();
+
+        * this maps the GraphQL endpoint to the /graphql URL.
+
+5) Now run the project using dotnet run and open http://localhost:5169/graphql/. we will be able
+    to see the GraphQL IDE.(see GraphQL-IDE.png)
+    Note: launch URL in the launchSettings.json file is changed to graphql to open the GraphQL IDE
+    directly. see the launchSettings.json file.
+
+6) Click the 'Browse Schema' button then click the Schema Definition tab(SDL tab) to view the GraphQL
+    schema. we should see the following schema
+
+        type Query {
+            teachers: [Teacher!]!
+        }
+        
+        type Teacher {
+            id: UUID!
+            firstName: String!
+            lastName: String!
+            email: String!
+            phone: String
+            bio: String
+        }
+
+        * preceeding schema defines a query root type; Query, and a Teacher type.
+        * The Query type has one field named teachers, which returns a [Teacher!]! object.
+        * GraphQL uses ! to indicate that the field is non-nullable. By default, all fields are
+            nullable.
+        * [Teacher!]! means that this field is a non-nullable array of non-nullable Teacher objects. 
+        * When there is no data, the field will return an empty array.
+        * The Teacher type has a few fields: id, firstName, lastName, email, phone, and bio.
+        * The id field is of the UUID type, which is a scalar type that represents a 128-bit universally
+            unique identifier (UUID). 
+        * The client can specify which fields to be returned in the query.
+
+7) Now let's try to query the data:
+    Click the 'Create Document' button to create a new query like the following and run it
+            
+            query {
+                teachers {
+                    id
+                    firstName
+                    lastName
+                    email
+                    phone
+                    bio
+                }
+            }
+    
+    This query will return all teachers in the database as follows: (see teacherQueryResult/png)
+
+            {
+                "data": {
+                    "teachers": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000401",
+                        "firstName": "John",
+                        "lastName": "Doe",
+                        "email": "john.doe@sampleschool.com"
+                    },
+                    {
+                        "id": "00000000-0000-0000-0000-000000000402",
+                        "firstName": "Jane",
+                        "lastName": "Doe",
+                        "email": ""
+                    }
+                    ]
+                }
+            }
+
+8) We can add or remove fields in the query to specify the data to be returned.
+    For example, to show a list of teachers on a web page, we do not need to return the id field and
+    the bio field. We can remove the bio field from the query as follows:
+
+        query {
+            teachers {
+                firstName
+                lastName
+                email
+                phone
+            }
+        }
+
+So far, we have created a GraphQL API using HotChocolate. We have also learned how to query data
+using GraphQL queries. Next, we will learn how to modify data using mutations.

@@ -1,0 +1,36 @@
+What is GraphQL:
+
+-> GraphQL offers a flexible way to query and mutate data.
+-> The main difference between GraphQL and REST is that GraphQL allows clients to specify the
+    data they need, whereas REST APIs return a fixed set of data.
+-> GraphQL treats data as a graph, and it uses a query language to define the shape of the data.
+    This addresses the issues of over-fetching and under-fetching data by enabling clients to specify
+    their data requirements. Additionally, it supports mutations, empowering clients to modify data
+    as needed.
+-> While REST APIs have multiple endpoints for different resources, GraphQL is typically served over
+    a single endpoint, usually /graphql, which exposes a schema that describes the data. All queries
+    and mutations are sent to this endpoint.
+-> The schema is defined using a GraphQL Schema Definition Language, which is the contract between
+    the client and the server.
+-> The schema defines the types of data and the operations that can be performed on the data.
+    The client can use the schema to validate the query and mutation requests.
+->  However, the backend development is more complex than REST APIs.
+-> GraphQL uses resolvers to fetch data from different levels of the graph. If the implementation of
+    the resolvers is not efficient, it can lead to performance issues.
+-> ASP.NET Core does not have built-in support for GraphQL. However, several third-party libraries
+    can be used to create GraphQL APIs:
+
+    • HotChocolate:
+        HotChocolate is an open-source GraphQL server for .NET. It is built on top of
+        ASP.NET Core and supports the newest GraphQL October 2021 specification. It is supported by
+        ChilliCream, a company that provides GraphQL tooling and consulting services. ChilliCream
+        also provides other products, such as Banana Cake Pop, which is a GraphQL IDE to create
+        and test GraphQL queries, and Strawberry Shake, which is a GraphQL client library for .NET.
+        You can find more information about HotChocolate at https://chillicream.com/docs/hotchocolate/.
+    
+    • GraphQL.NET: 
+        GraphQL.NET is another open-source GraphQL implementation for .NET.
+        It provides a set of libraries that can be used to create GraphQL APIs and clients.
+        You can find more information about GraphQL.NET at https://graphql-dotnet.github.io/.
+
+    In this chapter, we will use HotChocolate to create a GraphQL API in ASP.NET Core.

@@ -1,0 +1,17 @@
+-> Next, we will explore another shape of web APIs: GraphQL.
+-> GraphQL is a query-based API that allows clients to specify the data they need, which solves the
+    problem of over-fetching and under-fetching data. 
+-> Besides, GraphQL supports mutations, which allow clients to modify data.
+-> In this chapter, we will learn about some basic concepts of GraphQL and how to create a GraphQL
+    API in ASP.NET Core. We will cover the following topics in this chapter:
+    • Recap of GraphQL
+    • Setting up a GraphQL API using HotChocolate
+    • Adding mutations
+    • Using variables in queries
+    • Defining a GraphQL schema
+    • Retrieving related objects using resolvers
+    • Using data loaders
+    • Dependency injection
+    • Interfaces and union types
+    • Filtering, sorting, and paging
+    • Visualizing the GraphQL schema
