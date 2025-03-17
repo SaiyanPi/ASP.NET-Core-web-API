@@ -1,0 +1,159 @@
+Filtering logic in the resolver manually:
+
+1) The methods to retrieve the list of the Student type by the group ID are defined in the
+    IStudentService interface, as follows:
+
+    public interface IStudentService
+    {
+        // omitted
+        Task<List<Student>> GetStudentsByGroupIdAsync(Guid groupId);
+        Task<List<Student>> GetStudentsByGroupIdsAsync(List<Guid> groupIds);
+    }
+
+    * We have two methods for eq and in operations.
+        1. The GetStudentsByGroupIdAsync() method retrieves the list of Student objects by the group ID.
+        2. The GetStudentsByGroupIdsAsync() method retrieves the list of Student objects by the list of group IDs.
+    
+    *  These two methods return the list of Student objects instead of the IQueryable interface. So, 
+        we need to implement the filtering logic in the resolver manually.
+
+
+2) Define a customized filter for the Student type as follows:
+
+    public class CustomStudentFilterType : FilterInputType<Student>
+    {
+        protected override void Configure(IFilterInputTypeDescriptor<Student> descriptor)
+        {
+            descriptor.BindFieldsExplicitly();
+            descriptor.Name("CustomStudentFilterInput");
+            descriptor.AllowAnd(false).AllowOr(false);
+            descriptor.Field(t => t.GroupId).Type<CustomStudentGuidOperationFilterInputType>();
+        }
+    }
+    public class CustomStudentGuidOperationFilterInputType : UuidOperationFilterInputType
+    {
+        protected override void Configure(IFilterInputTypeDescriptor descriptor)
+        {
+            descriptor.Name("CustomStudentGuidOperationFilterInput");
+            descriptor.Operation(DefaultFilterOperations.Equals).Type<IdType>();
+            descriptor.Operation(DefaultFilterOperations.In).Type<ListType<IdType>>();
+        }
+    }
+
+    * we define a custom filter input type named CustomStudentFilterInput. The CustomStudentFilterInput
+        filter only includes the GroupId property.
+    * to make the filter more simple, we disable the 'and' and 'or' operations.
+    * then, we define a custom filter input type named CustomStudentGuidOperationFilterInputType.
+        this filter only includes the 'eq' and 'in' operations.
+    Note that we need to specify the names of the filter input types. Otherwise, HotChocolate will
+    report name conflicts because we already have a StudentFilterInput filter.
+
+3) add a new query type in the Query class:
+
+    public List<Student> StudentsWithCustomFilter { get; set; } = new();
+
+
+4) Configure the resolver and manually filter the data in the QueryType class as follows:
+
+    descriptor.Field(x => x.StudentsWithCustomFilter)
+        .Description("This is the list of students in the school.")
+        .UseFiltering<CustomStudentFilterType>().Resolve(async context =>
+        {
+            var service = context.Service<IStudentService>();
+            // The following code uses the custom filter.
+            var filter = context.GetFilterContext()?.ToDictionary();
+            if (filter != null && filter.ContainsKey("groupId"))
+            {
+                var groupFilter = filter["groupId"]! as Dictionary<string, object>;
+                if (groupFilter != null && groupFilter.ContainsKey("eq"))
+                {
+                    if (!Guid.TryParse(groupFilter["eq"].ToString(),out var groupId))
+                    {
+                    throw new ArgumentException("Invalid group id", nameof(groupId));
+                    }
+                    var students = await service.GetStudentsByGroupIdAsync(groupId);
+                    return students;
+                }
+                if (groupFilter != null && groupFilter.ContainsKey("in"))
+                {
+                    if (groupFilter["in"] is not IEnumerable<string> groupIds)
+                    {
+                        throw new ArgumentException("Invalid group ids", nameof(groupIds));
+                    }
+                    groupIds = groupIds.ToList();
+                    if (groupIds.Any())
+                    {
+                    var students = await service.GetStudentsByGroupIdsAsync(groupIds .Select(x => 
+                        Guid.Parse(x.ToString())).ToList());
+                        return students;
+                    }
+                    return new List<Student>();
+                }
+            }
+            var allStudents = await service.GetStudentsAsync();
+            return allStudents;
+        });
+    
+    * we need to get the filter from the context object. Then we check whether the filter contains
+        the groupId property.
+    * if the filter contains the groupId property, we check wheteher the eq or in operation is
+        specified.
+    * if the eq operation is specified, we retrieve the list of Student objects by the group Id.
+    * If the in operation is specified, we retrieve the list of Student objects by the list of
+        group IDs
+    * If the eq or in operation is not specified, we retrieve all the Student objects.
+
+
+5) Run the application and check the generated schema. We will find the studentsWithCustomFilter
+    query has a CustomStudentFilterInput filter
+
+    type Query {
+        studentsWithCustomFilter(where: CustomStudentFilterInput): [Student!]!
+    }
+
+    input CustomStudentFilterInput {
+        groupId: CustomStudentGuidOperationFilterInput
+    }
+
+    input CustomStudentGuidOperationFilterInput {
+        and: [CustomStudentGuidOperationFilterInput!]
+        or: [CustomStudentGuidOperationFilterInput!]
+        eq: ID
+        in: [ID]
+    }
+
+
+6) Then, we can use the following query to filter the Student objects:
+
+    query ($where: CustomStudentFilterInput) {
+        studentsWithCustomFilter(where: $where) {
+            id
+            firstName
+            lastName
+            email
+            phone
+            grade
+            dateOfBirth
+        }
+    }
+        i) to filter the Student objects by groupId, we can use the following variable.
+            {
+                "where": {
+                    "groupId": {
+                        "eq": "00000000-0000-0000-0000-000000000102"
+                    }
+                }
+            }
+        ii) to filter the Student objects by the list of group IDs, we can use the following variable.
+
+            {
+                "where": {
+                    "groupId": {
+                        "in": ["00000000-0000-0000-0000-000000000102", "00000000-0000-0000-0000-000000000103"]
+                    }
+                }
+            }
+
+- As the filtering variables may vary in different cases, the logic to filter the data may be
+    different. IT IS RECOMMENDED TO USE THE IQUERYABLE INTERFACE IF POSSIBLE, so that HotChocolate
+    can translate the GraphQL filter to SQL-native queries automatically.

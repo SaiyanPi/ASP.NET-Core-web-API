@@ -1,0 +1,378 @@
+Using data loaders:
+
+- in the previous section, we learned how to integrate HotChocolate with EF Core.
+- we also learned how to use the DbContextPool feature to fetch data in multiple resolvers.
+- However, we found that there are many database queries for each Department object in the
+    Teachers list. That is because the resolvers for each Department object are executed seperately,
+    querying the database by each DepartmentId property.
+- This is similar to the N+1 problems. The difference is that the N+1 problem occurs on the client
+    side in REST APIs, while it occurs on the server side in GraphQL.
+
+    • Under-fetching and the n+1 problem: 
+    Under-fetching is when the endpoint does not provide sufficient required information.
+    The client will have to make more requests to fetch the missing information.
+    For example, the API may provide a /posts/{postId} endpoint that shows the post information
+    and a /posts/{postId}/related endpoint that shows related posts.
+    If we want to show a post detail, the client will need to call the /posts/{postId} endpoint,
+    but the related posts are not provided in the response. So, the client will have to make
+    another request to /posts/{postId}/related to get the related posts.
+    The N+1 problem often refers to the parent-child relationship. The endpoint that returns the
+    collection resource does not provide enough information about the child resources for the
+    clients.
+    For example, the /posts endpoint returns a list of posts, but the response does not have the
+    content summary for each post. To show the content summary on the post list page, the client
+    will have to call the /posts/{postId} endpoint for each post to get the content summary.
+    So, the total number of requests will be n + 1, where n is the number of posts.
+
+- To solve this problem, we need to find a way to load the batch data effeciently. HotChocolate
+    provides a DataLoader mechanism to solve the N+1 problem.
+- DataLoaders fetches data in batches from the data source. Then the resolvers can retrieve the
+    data from the data loader, rather than querying the data source directly.
+- The data loader will cache the data for the current request. If the same data is requested again,
+    the resolver can retrieve the data from the data loader directly. This can avoid unnecessary
+    database queries
+
+- Before we learn how to use the data loader to solve the N+1 problem, let's prepare the examples:
+    a) Department type is defined as follows;
+
+        public class Department
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string? Description { get; set; }
+            public List<Teacher> Teachers { get; set; } = new();
+            public List<Group> Groups { get; set; } = new();
+            public List<Course> Courses { get; set; } = new();
+        }
+    b) Department class has a list of Teacher objects. Following the convention, we can defined
+        a DepartmentType class as follows:
+
+            public class DepartmentType : ObjectType<Department>
+            {
+                protected override void Configure(IObjectTypeDescriptor<Department> descriptor)
+                {
+                    descriptor.Field(x => x.Teachers)
+                        .Description("This is the list of teachers in the department.")
+                        .Type<ListType<TeacherType>>()
+                        .ResolveWith<DepartmentResolvers>(x => x.GetTeachers(default, default));
+                }
+            }
+
+            public class DepartmentResolvers
+            {
+                public async Task<List<Teacher>> GetTeachers([Parent] Department department,
+                    [Service] IDbContextFactory<AppDbContext> dbContextFactory)
+                {
+                    await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+                    var teachers = await dbContext.Teachers.Where(x => x.DepartmentId == department.Id).ToListAsync();
+                    return teachers;
+                }
+            }
+
+            * The preceding code is similar to TeacherType, which we defined previously. 
+
+    c) Then, configure the Departments field in the QueryType as follows:
+
+        descriptor.Field(x => x.Departments)
+            .Name("departments")
+            .Description("This is the list of departments in the school.")
+            .Type<ListType<DepartmentType>>()
+            .Resolve(async context =>
+            {
+                var dbContextFactory = context.Service<IDbContextFactory<AppDbContext>>();
+                await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+                var departments = await dbContext.Departments.ToListAsync();
+                return departments;
+            });
+
+        * at this point we have 3 queries; Teacher, Teachers, and Departments
+            (we've also added and tested the Department but for now it is commented)
+             The teachers query returns a list of Teacher objects, and each Teacher object has
+                a Department object
+             The departments query returns a list of Department objects, and each Department
+                object has a list of Teacher objects
+
+    d) Now let's use the following queries to test the departments query:
+
+        query{
+            departments{
+                id
+                name
+                description
+                teachers{
+                    id
+                    firstName
+                    lastName
+                    bio
+                }
+            }
+        }
+
+        as mentioned in the previous section we will find that the database queries are executed multiple
+        times.
+
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (102ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                SELECT [d].[Id], [d].[Description], [d].[Name]
+                FROM [Departments] AS [d]
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (55ms) [Parameters=[@__department_Id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+                SELECT [t].[Id], [t].[Bio], [t].[DepartmentId], [t].[Email], [t].[FirstName], [t].[LastName], [t].[Phone]
+                FROM [Teachers] AS [t]
+                WHERE [t].[DepartmentId] = @__department_Id_0
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (2ms) [Parameters=[@__department_Id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+                SELECT [t].[Id], [t].[Bio], [t].[DepartmentId], [t].[Email], [t].[FirstName], [t].[LastName], [t].[Phone]
+                FROM [Teachers] AS [t]
+                WHERE [t].[DepartmentId] = @__department_Id_0
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (1ms) [Parameters=[@__department_Id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+                SELECT [t].[Id], [t].[Bio], [t].[DepartmentId], [t].[Email], [t].[FirstName], [t].[LastName], [t].[Phone]
+                FROM [Teachers] AS [t]
+                WHERE [t].[DepartmentId] = @__department_Id_0
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (2ms) [Parameters=[@__department_Id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+                SELECT [t].[Id], [t].[Bio], [t].[DepartmentId], [t].[Email], [t].[FirstName], [t].[LastName], [t].[Phone]
+                FROM [Teachers] AS [t]
+                WHERE [t].[DepartmentId] = @__department_Id_0
+
+- Now, let's use the data loader to solve these N+1 problems
+
+-----------------------------------------------------------------------------------------------------------------------
+
+Batch data loader:
+
+- let's optimize the teachers query. To retrieve the teachers data with the department information,
+    we want to execute 2 SQL queries only. One is to retrieve the teachers data, and the other is to
+    retrieve the department data. Then HotChocolate should be able to map the department data to the
+    teachers in memory, instead of executing a SQL query for each teacher.
+
+1) Create a folder named DataLoaders in the GraphQL folder, then create a new
+    DepartmentByTeacherIdBatchDataLoader class, as follows:
+
+    public class DepartmentByTeacherIdBatchDataLoader( IDbContextFactory<AppDbContext> dbContextFactory,
+    IBatchScheduler batchScheduler, DataLoaderOptions? options = null) : BatchDataLoader<Guid,
+    Department>(batchScheduler, options)
+    {
+        protected override async Task<IReadOnlyDictionary<Guid, Department>> LoadBatchAsync(IReadOnlyList<Guid> keys,
+            CancellationToken cancellationToken)
+        {
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+            var departments = await dbContext.Departments.Where(x => keys.Contains(x.Id))
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+            return departments;
+        }
+    }
+
+    * preceeding code defines a data loader to fetch the batch of data for the Department object.
+    * parent resolver which is the teachers query will get a list of Teacher object. EachTeacher
+        object has a DepartmentId property.
+    * DepartmentByTeacherIdBatchDataLoader will fetch the Department objects for the DepartmentId
+        values in the list.
+    * The list of the Department objects will be converted to a dictionary. The key of the dictionary
+        is the DeapartmentId property and the value is the Department object.
+    * Then the parent resolver can map the Department object to the Teacher object in memory
+
+2) Update the TeacherResolvers class as follows:
+
+    public async Task<Department> GetDepartment([Parent] Teacher teacher, 
+        DepartmentByTeacherIdBatchDataLoader departmentByTeacherIdBatchDataLoader,
+        CancellationToken cancellationToken)
+    {
+        var department = await departmentByTeacherIdBatchDataLoader.LoadAsync(teacher.
+            DepartmentId, cancellationToken);
+        return department;
+    }
+
+    * Instead of querying the database directly, the resolver uses DepartmentByTeacherIdBatchDataLoader
+        to fetch the Department object for the DepartmentId property of the Teacher object.
+    * DepartmentByTeacherIdBatchDataLoader will be injected by HotChocolate automatically.
+
+3) Run the application and test the teachers query again. Now we will only see 2 SQL queries are
+    executed.
+
+    log:
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                SELECT [t].[Id], [t].[Bio], [t].[DepartmentId], [t].[Email], [t].[FirstName], [t].[LastName], [t].[Phone]
+                FROM [Teachers] AS [t]
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (9ms) [Parameters=[@__keys_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+                SELECT [d].[Id], [d].[Description], [d].[Name]
+                FROM [Departments] AS [d]
+                WHERE [d].[Id] IN (
+                    SELECT [k].[value]
+                    FROM OPENJSON(@__keys_0) WITH ([value] uniqueidentifier '$') AS [k]
+                )
+
+            * As we see, the first query is to get the list of the teachers.
+            * the second query is to use the IN clause to query the departments that match the
+                DepartmentId values in the list.
+            * This is much more efficient than the previous approach.
+
+
+- As it fetches the batch data for the Department object, it is called a batch data loader.
+- This data loader is often used for one-to-one relationships, such as one Teacher object has one
+    Department object.
+    NOTE that In GraphQL, the one-to-one relationship means that ONE OBJECT HAS ONE CHILD OBJECT.
+    this one-to-one relationship is not the same as the one-to-one relationship in the database.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

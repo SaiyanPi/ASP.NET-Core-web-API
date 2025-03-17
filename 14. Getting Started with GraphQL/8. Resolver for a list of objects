@@ -1,0 +1,283 @@
+Resolver for a list of objects:
+
+- we can use ListType<TeacherType> to define the teachers field and then use the Resolve() method
+    to define the resolver.
+- The ListType class is a wrapper type for the fluent code-first API. It is used to define a list
+    of objects.
+
+1) add a Teacher field in the Query class as:
+
+    public class Query
+    {
+        // omitted
+        public List<TeacherType> Teachers { get; set; } = new();
+    }
+
+2) Thenconfigure the Teachers field in the QueryType class as:
+    
+    public class QueryType : ObjectType<Query>
+    {
+        protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
+        {
+            descriptor.Field(x => x.Teachers)
+                .Name("teachers") // This configuration can be omitted if the name of the field is the same as the name of the property.
+                .Description("This is the list of teachers in the school.")
+                .Type<ListType<TeacherType>>()
+                .Resolve(async context =>
+                {
+                    var teachers = await context.Service<AppDbContext>().Teachers.ToListAsync();
+                    return teachers;
+                });
+
+            // Omitted for brevity
+        }
+    }
+
+    * this defines the Teachers field of QueryType
+        type Query {
+            "This is the teacher in the school."
+            teacher(id: UUID!): Teacher @cost(weight: "10")
+            "This is the list of teachers in the school."
+            teachers: [Teacher] @cost(weight: "10")
+        }
+    * it uses ListType<TeacherType> to define a list of TeacherType. Then, it uses the Resolve()
+        method to define the resolver.  The resolver retrieves all the Teacher objects from the
+        database.
+    * as TeachetType has a resolver for the Department field, we can retrieve the Department object
+        for each TeacherType object.
+
+3) Now we can test the teachersfield using the following query:
+    
+    query getTeachers {
+        teachers {
+            id
+            firstName
+            lastName
+            email
+            department{
+                id
+                name
+                description
+            }
+        }
+    }
+
+    Response: {
+                "data": {
+                    "teachers": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000401",
+                        "firstName": "John",
+                        "lastName": "Doe",
+                        "email": "john.doe@sampleschool.com",
+                        "department": {
+                        "id": "00000000-0000-0000-0000-000000000001",
+                        "name": "Mathematics",
+                        "description": "Mathematics Department"
+                        }
+                    },
+                    {
+                        "id": "00000000-0000-0000-0000-000000000402",
+                        "firstName": "Jane",
+                        "lastName": "Doe",
+                        "email": "",
+                        "department": {
+                        "id": "00000000-0000-0000-0000-000000000001",
+                        "name": "Mathematics",
+                        "description": "Mathematics Department"
+                        }
+                    }]
+                }
+             }
+            
+    However, we may encounter an error in the response. Some teachers can be retireve correctly,
+    but some may not. The error message us like this:
+
+        {
+            "errors": [
+                {
+                    "message": "Unexpected Execution Error",
+                    "locations": [
+                        {
+                            "line": 6,
+                            "column": 5
+                        }
+                    ],
+                    "path": [
+                        "teachers",
+                        7,
+                        "department"
+                    ],
+                    "extensions": {
+                        "message": "A second operation was started on this context
+                        instance before a previous operation completed. This is usually
+                        caused by different threads concurrently using the same instance of
+                        DbContext. For more information on how to avoid threading issues with
+                        DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.",
+                        ...
+                    }
+                },
+            ]
+        }
+
+    This is because we have multiple resolvers that execute database queries concurrently. However,
+    AppDbContext is registered as a scoped service, and the AppDbContext class is not thread-safe.
+    When multiple resolvers try to query the database in parallel, they will use the same AppDebContext
+    instance, which causes the error.
+    To fix this issue, we need to make sure that the resolvers do not access the same AppDbContext
+    instance concurrently. There are 2 ways to do that.
+    
+
+    One way is to execute the resolvers sequentially and the other is to use separate AppDbContext
+    instances for each resolvers. 
+
+    a) HotChocolate provides a RegisterDbContext<TDbContext>() method to manage DbContext for
+        resolvers. In order to use this feature, we need to install a NuGet package
+        named HotChocolate.Data.EntityFramework using the following command:
+ 
+        cmd: dotnet add package HotChocolate.Data.EntityFramework
+
+        NOTE: Do not mix up the versions while package referencing.
+        for eg, HotChocolate.Data.EntityFramework version 13.9.0 did not worked with
+                HotChocolate.AspNetCore version 15.3.0. So same version of HotChocolate.AspNetCore
+                was installed. HotChocolate.Data.EntityFramework version 15.3.0 did not worked
+
+    b) Then we can update the Program.cs file to register the AppDbContext class as follows:
+        
+        builder.Services
+            .AddGraphQLServer()
+            .RegisterDbContext<AppDbContext>()
+            // omitted
+
+        * preceeding code allows HotChocolate to manage the Lifetime of AppDbContext for resolvers.
+
+----------------------------------------------------------------------------------------------------------
+
+- The RegisterDbContext<TDbContext>() method can specify how DbContext should be injected. There are
+    three options:
+    i) DbContextKind.Synchronized:
+        This is to ensure that DbContext is never used concurrently. DbContext is still injected as a
+        scoped service.
+
+    ii) DbContextKind.Resolver: 
+        This way will resolve the scoped DbContext for each resolver. This option is the default
+        configuration. From the perspective of the resolver, DbContext is a transient service, so
+        HotChocolate can execute multiple resolvers concurrently without any issues.
+
+    iii) DbContextKind.Pooled: 
+        This mechanism will create a pool of DbContext instances. It leverages the DbContextPool
+        feature of EF Core. HotChocolate will resolve DbContext from the pool for each resolver.
+        When the resolver is completed, DbContext will be returned to the pool. In this way,
+        DbContext is also like a transient service for each resolver, so HotChocolate can parallelize
+        the resolvers as well.
+
+- To demonstrate how to benefit from the pooled DbContext, we will use the DbContextKind. Pooled
+    option. This approach requires a couple of additional steps:
+
+    A) First we need to register DbContext using the AddPooledDbContextFactory() method instead of
+        DbContext() method. Update the Program file as:
+
+        builder.Services.AddPooledDbContextFactory<AppDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        builder.Services
+            .AddGraphQLServer()
+            .RegisterDbContext<AppDbContext>(DbContextKind.Pooled)
+            //omitted
+
+        * preceeding code registers AddDbContext as a pooled service using the AddPooledDbContextFactory()
+            method. Then we use the RegisterDbContext() method to register AppDbContext as a pooled
+            service for HotChocolate resolvers.
+
+    B) Update the Configure method in the QueryType file to use the pooled DbContext:
+
+        descriptor.Field(x => x.Teachers)
+            .Name("teachers") 
+            .Description("This is the list of teachers in the school.")
+            .Type<ListType<TeacherType>>()
+            .Resolve(async context =>
+            {
+                var dbContextFactory = context.Service<IDbContextFactory<AppDbContext>>();
+                await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+                var teachers = await dbContext.Teachers.ToListAsync();
+                return teachers;
+            });
+
+        * preceeding code uses IDbContextFactory<TDbContext> to create a new AppDbContext instance for
+            each resolver
+        * then it retrieves the Teacher objects from the database using the new AppDbContext instance.
+        * Note that, we need to use the 'await using' statement to dispose of the AppDbContext instance
+            after the resolver  is completed in order to return the AppDbContext instance to the pool.
+        (also update the Configure method of teacher field)
+        
+    C) Update the other resolver(from TeacherType) as well.
+
+        descriptor.Field(x => x.Department)
+            .Name("department")
+            .Description("This is the department to which the teacher belongs.")
+            .Resolve(async context =>
+            {
+                var dbContextFactory = context.Service<IDbContextFactory<AppDbContext>>();
+                await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+                var department = await dbContext.Departments
+                    .FindAsync(context.Parent<Teacher>().DepartmentId);
+                return department;
+
+            });
+
+- Now we can test the teachers field again, we will see that all the teachers with the department
+    information can be retrieved correctly.
+    BUT IF WE CHECK THE LOGS, WE WILL FIND THAT THERE ARE MANY DATABASE QUERIES FOR EACH Department
+    OBJECT.
+
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (79ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [t].[Id], [t].[Bio], [t].[DepartmentId], [t].[Email], [t].[FirstName], [t].[LastName], [t].[Phone]
+      FROM [Teachers] AS [t]
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (28ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+        SELECT TOP(1) [d].[Id], [d].[Description], [d].[Name]
+        FROM [Departments] AS [d]
+        WHERE [d].[Id] = @__get_Item_0
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (1ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+        SELECT TOP(1) [d].[Id], [d].[Description], [d].[Name]
+        FROM [Departments] AS [d]
+        WHERE [d].[Id] = @__get_Item_0
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (1ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+        SELECT TOP(1) [d].[Id], [d].[Description], [d].[Name]
+        FROM [Departments] AS [d]
+        WHERE [d].[Id] = @__get_Item_0
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (1ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+        SELECT TOP(1) [d].[Id], [d].[Description], [d].[Name]
+        FROM [Departments] AS [d]
+        WHERE [d].[Id] = @__get_Item_0
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (1ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+        SELECT TOP(1) [d].[Id], [d].[Description], [d].[Name]
+        FROM [Departments] AS [d]
+        WHERE [d].[Id] = @__get_Item_0
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (1ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+        SELECT TOP(1) [d].[Id], [d].[Description], [d].[Name]
+        FROM [Departments] AS [d]
+        WHERE [d].[Id] = @__get_Item_0
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (1ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+        SELECT TOP(1) [d].[Id], [d].[Description], [d].[Name]
+        FROM [Departments] AS [d]
+        WHERE [d].[Id] = @__get_Item_0
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (1ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+        SELECT TOP(1) [d].[Id], [d].[Description], [d].[Name]
+        FROM [Departments] AS [d]
+        WHERE [d].[Id] = @__get_Item_0
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (3ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+        SELECT TOP(1) [d].[Id], [d].[Description], [d].[Name]
+        FROM [Departments] AS [d]
+        WHERE [d].[Id] = @__get_Item_0
+
+    What is the reason behind this? Let us find out in the next section.

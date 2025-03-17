@@ -1,0 +1,275 @@
+Retrieving related objects using resolvers:
+
+-> In the previous section, we defined a Teacher type and a Department type. The Teacher type
+    has a Department property of the Department type. When querying the Teacher object, we
+    may also want to retrieve the Department object. How can we do that?
+
+-> we may think that we can use Include() method to retrieve the Departmentobjects as:
+
+    public async Task<List<Teacher>> GetTeachers([Service] AppDbContext context) =>
+        await context.Teachers.Include(x => x.Department).ToListAsync();
+
+    Then we can query the Department object as follows:
+
+        query{
+            teachers {
+                id
+                firstName
+                lastName
+                department{
+                    id
+                    name
+                    description
+                }
+            }
+        }
+
+    It does work and we will see the following result
+
+        "data": {
+        "teachers": [
+        {
+            "id": "00000000-0000-0000-0000-000000000401",
+            "firstName": "John",
+            "lastName": "Doe",
+            "department": {
+            "id": "00000000-0000-0000-0000-000000000001",
+            "name": "Mathematics",
+            "description": "Mathematics Department"
+            }
+        },
+        {
+            "id": "00000000-0000-0000-0000-000000000402",
+            "firstName": "Jane",
+            "lastName": "Doe",
+            "department": {
+            "id": "00000000-0000-0000-0000-000000000001",
+            "name": "Mathematics",
+            "description": "Mathematics Department"
+            }
+        },
+        ]
+        }
+    
+    BUT THIS IS NOT THE BEST WAY TO DO IT 
+    
+-> Remember that GraphQL allows clients to specify the data they need. If the query does not specify
+    the department field, the Department object will still be retrieved from the database.
+    This is not efficient. We should only retrieve the Department object when the department field is
+    specified in the query. That leads us to the concept of resolvers.
+
+-------------------------------------------------------------------------------------------------------
+
+RESOLVER:
+
+-> a resolver is a function that is used to retrieve data from somewhere for a specific field.
+-> a resolver is exectued when the field is requested in the query.
+-> The resolver can fetch data from a database, a web API, or any other data source. It will drill
+    down the graph to retrieve the data for the field.
+    For example, when the department field is requested in the teachers query, the resolver will
+    retrieve the Department object from the database. But when the query does not specify the
+    department field, the resolver will not be executed. This can avoid unnecessary database queries.
+
+# Field resolvers:
+- Hot chocolate supports 3 ways to define schemas:
+    • Annotation-based:
+        The first way is to use the annotation-based approach, which is what we have been using so
+        far. HotChocolate automatically converts public properties and methods to a resolver that
+        retrieves data from the data source following conventions. If a method has a Get prefix or
+        an Async suffix, these prefixes or suffixes will be removed from the name.
+    • Code-first: 
+        This approach allows you to define the schema using explicit types and resolvers.
+        It uses the Fluent API to define the details of the schema. This approach is more flexible
+        when you need to customize the schema.
+    • Schema-first:
+        This approach allows you to define the schema using the GraphQL schema definition language.
+        If you are familiar with GraphQL, you can use this approach to define the schema directly.
+    
+- we will use the code-first approach to define the schema in the rest of this chapter, so we can
+    benefit from the Fluent API to fine-tune the schema.
+
+- Let us look back at the teacher query we defined in the previous section:
+
+    public async Task<Teacher?> GetTeacher(Guid id, [Service] AppDbContext context) =>
+        await context.Teachers.FindAsync(id);
+        
+    * preceding is the annotation-based approach.
+    * HotChocolate automatically converts the GetTeacher() method to a resolver named teacher.
+
+- Next, we want to retrieve the Department object only when the department field is requested.
+    Let's make some changes by following these steps:
+
+1) First we need to define TeacherType class. Create a Types folder inside a GraphQL folder and
+    create a TeacherType class as:
+
+    public class TeacherType : ObjectType<Teacher>
+    {
+        protected override void Configure(IObjectTypeDescriptor<Teacher> descriptor)
+        {
+            descriptor.Field(x => x.Department)
+                .Name("department")
+                .Description("This is the department to which the teacher belongs.")
+                .Resolve(async context =>
+                {
+                    var department = await context.
+                    Service<AppDbContext>().Departments.FindAsync(context. Parent<Teacher>().DepartmentId);
+                    return department;
+                });
+        }
+    }
+    * The TeacherType class inherits from the ObjectType<Teacher> class.
+    * TeacherType class has a Configure() method to configure the GraphQL object and specify how to
+        resolve the fields.
+    * we use the code-first approach to define the Department field of TeacherType.
+    * The Name method is used to specify the name of the field.
+         If the name of the field is the same as the name of the property following the convention,
+         we can omit the Name method. By convention, the Department field will be converted to the
+         departmentfield in the schema.
+    * we use the Description method to define the description of the field.
+         The description will be shown in the GraphQL IDE.
+    * Then, we use the Resolve() method to define the resolver. The resolver retrieves the
+        Department object from the database using the DepartmentId property of the Teacher object. 
+    * Note that we use the context.Parent<Teacher>() method to get the Teacher object because the
+        Teacher object is the parent object of the Department object.
+
+2) As we know the Query type is a special object type, we will create a QueryType class as well.
+    Create a Query class inside the Types folder as:
+
+    public class Query
+    {
+        public TeacherType? Teacher { get; set; } = new();
+    }
+    
+    * instead of using GetTeacher() method we add a Teacher property
+
+3) Create a new class named QueryType in the same file(Query.cs) as:
+
+    public class QueryType : ObjectType<Query>
+    {
+        protected override void Configure(IObjectTypeDescriptor<Query> descriptor)
+        {
+            descriptor.Field(x => x.Teacher)
+                .Name("teacher")
+                .Description("This is the teacher in the school.")
+                .Type<TeacherType>()
+                .Argument("id", a => a.Type<NonNullType<UuidType>>())
+                .Resolve(async context =>
+                {
+                    var id = context.ArgumentValue<Guid>("id");
+                    var teacher = await context.Service<AppDbContext>().Teachers.FindAsync(id);
+                    return teacher;
+                });
+        }
+    }
+    * This code defines the root query type.
+    * In this query type, we specify the type of the field to be TeacherType.
+    * we use the Argument() method to define the id argument, which is a non-nullable UUID type.
+    * Then, we use the Resolve() method to define the resolver. The resolver takes the id argument
+        and retrieves the Teacher object from the database.
+    * Note that AppDbContext is injected into the resolver from the context object.
+    
+4) Next, we need to update the Program.cs file to register QueryType.
+
+    builder.Services
+        .AddGraphQLServer()
+        .AddQueryType<QueryType>()
+        .AddMutationType<Mutation>();
+
+    * We use QueryType to replace the Query type we defined previously so that we can use the
+        resolver to retrieve the Department object when the department field is requested.
+
+5) Now, we can test the resolvers. Run the application using dotnet run and send the following
+    request to query a teacher.
+
+    query getTeacher($id: UUID!) {
+        teacher(id: $id) {
+            id
+            firstName
+            lastName
+            email
+            phone
+            department{
+                name
+            }
+        }
+    }
+
+    GraphQL variables:     
+    {
+        "id": "00000000-0000-0000-0000-000000000401"
+    }
+
+    Response:
+    {
+        "data": {
+            "teacher": {
+                "id": "00000000-0000-0000-0000-000000000401",
+                "firstName": "John",
+                "lastName": "Doe",
+                "email": "john.doe@sampleschool.com",
+                "phone": "111-111-1111",
+                "department": {
+                    "name": "Mathematics"
+                }
+            }
+        }
+    }
+
+    * , if we check the log, we will see that the Department object is retrieved from the database.
+        If we remove the department field from the query, we will only see one database query in the
+        log, which means that GraphQL does not fetch the Department object from the database.
+
+        (with department field in the query)
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (4ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+            SELECT TOP(1) [d].[Id], [d].[Description], [d].[Name]
+            FROM [Departments] AS [d]
+            WHERE [d].[Id] = @__get_Item_0
+
+        (without department field in the query)
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (1ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+            SELECT TOP(1) [t].[Id], [t].[Bio], [t].[DepartmentId], [t].[Email], [t].[FirstName], [t].[LastName], [t].[Phone]
+            FROM [Teachers] AS [t]
+            WHERE [t].[Id] = @__get_Item_0
+
+
+-> In this example, we defined a resolver using a delegate method. We can also define a resolver in a
+    separate class.
+
+-------------------------------------------------------------------------------------------------------
+    
+    We will define a resolver in a different class once we implement the pooled DbContext in next
+    section. After completing next section(9. Retrieving elated objects using resolver) we will get
+    back.
+    Okay now that we've implemented DbContextPool feature, let's learn how to define a resolver in
+    a separate class.
+
+    i) Create a separate class named TeacherResolvers in th e TeacherType.cs file as:
+
+        public class TeacherResolvers
+        {
+            public async Task<Department> GetDepartment([Parent] Teacher 
+                teacher, [Service] IDbContextFactory<AppDbContext> dbContextFactory)
+            {
+                await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+                var department = await dbContext.Departments.FindAsync(teacher.DepartmentId);
+                return department;
+            }
+        }
+
+        * GetDepartment() method takes a Teacher object as the parent object and return the Department
+            object.
+        * GetDepartment() method simply contains the logic of the resolvers.
+
+    ii) Now we can use the ResolveWith() method to define the resolver in the TeacherType class as;
+
+         descriptor.Field(x => x.Department)
+            .Name("department")
+            .Description("This is the department to which the teacher belongs.")
+            .ResolveWith<TeacherResolvers>(x => x.GetDepartment(default, default));
+
+    This approach is more flexible when the resolver is complex. But for the simple resolvers, we can
+    use the delegate method directly.
+
+                                        

@@ -1,0 +1,148 @@
+2. Offset-based pagination:
+    To use offset-based pagination, we need to use the UseOffsetPaging() method instead of the
+    UsePaging() method.
+
+1) Update the resolver for the students query
+
+        descriptor.Field(x => x.Students)
+            .Description("This is the list of students in the school.")
+            .UseOffsetPaging()
+            .UseFiltering<StudentFilterType>()
+            .UseSorting<StudentSortType>()
+            // omitted
+
+2) Run the application and check the generated schema. we will find the students query is now the
+    StudentsCollectionSegment type
+
+        students(
+            skip: Int
+            take: Int
+            where: StudentFilterInput
+            order: [StudentSortInput!]
+        ): StudentsCollectionSegment
+
+        type StudentsCollectionSegment {
+            pageInfo: CollectionSegmentInfo!
+            items: [Student!]
+        }
+
+        type CollectionSegmentInfo {
+            hasNextPage: Boolean!
+            hasPreviousPage: Boolean!
+        }
+
+        * the skip argument is used to skip the first n items.
+        * the take argument is used take the first n items
+
+3) Next we can query the paginated Student objects as follows:
+
+        query getStudentsWithPagination{
+            students {
+                items {
+                    id
+                    firstName
+                    dateOfBirth
+                }
+                pageInfo {
+                    hasNextPage
+                    hasPreviousPage 
+                }
+            }
+        }
+
+4) To query the next page, we need to specify the skip and take parameter as follows:
+
+    query getStudentsWithPagination{
+        students(skip: 5, take: 5) {
+            items {
+            id
+            firstName
+            dateOfBirth
+            }
+            pageInfo {
+            hasNextPage
+            hasPreviousPage 
+            }
+        }
+    }
+
+5) we can define the skip and take parameters in the query variable as follows:
+
+    {
+        "skip": 5,
+        "take": 5
+    }
+
+6) We can specify the pagination options in the UseOffsetPaging method:
+
+    descriptor.Field(x => x.Students)
+        .Description("This is the list of students in the school.")
+        .UseOffsetPaging(options: new PagingOptions()
+        {
+            MaxPageSize = 20,
+            DefaultPageSize = 5,
+            IncludeTotalCount = true
+        })
+        .UseFiltering<StudentFilterType>()
+        .UseSorting<StudentSortType>()
+        // Omitted for brevity 
+
+    * Now, we can include the totalCount field in the response similar to cursor-based pagination
+        in previous section.
+
+7) similar to cursor based pagination from previous section, we can use offset-based pagination
+    with filtering and sorting.
+    for eg, the following query will filter the Student objects by first name and sort the
+    results by first name and then by last name, and then fetch the second page.
+
+    query ($where: StudentFilterInput, $order: [StudentSortInput!], $skip: Int!, $take: Int!) {
+        students(where: $where, order: $order, skip: $skip, take: $take) {
+            items {
+                id
+                firstName
+                dateOfBirth
+            }
+            totalCount
+            pageInfo {
+                hasNextPage
+                hasPreviousPage
+            }
+        }
+    }
+
+    variable:
+
+    {
+        "where":{
+            "dateOfBirth":{
+                "gt":"2001-01-01"
+            }
+        },
+        "order":[
+            {
+                "firstName":"ASC"
+            },
+            {
+                "lastName":"ASC"
+            }
+        ],
+        "skip":5,
+        "take":5
+    }
+
+    Generated SQL query:
+
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (13ms) [Parameters=[@__p_0='?' (DbType = Date)], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM [Students] AS [s]
+      WHERE [s].[DateOfBirth] > @__p_0
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@__p_0='?' (DbType = Date), @__p_1='?' (DbType = Int32), @__p_2='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[DateOfBirth], [s].[Email], [s].[FirstName], [s].[Grade], [s].[GroupId], [s].[LastName], [s].[Phone]
+      FROM [Students] AS [s]
+      WHERE [s].[DateOfBirth] > @__p_0
+      ORDER BY [s].[FirstName], [s].[LastName]
+      OFFSET @__p_1 ROWS FETCH NEXT @__p_2 ROWS ONLY
+
+    * The preceding SQL query shows that the pagination is handled in the database.

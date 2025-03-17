@@ -1,0 +1,39 @@
+Using Variables in query:
+
+-> In this section, we will discuss how to use variables in queries.
+-> GraphQL allows you to use variables in queries.
+-> This is useful when you want to pass parameters to the query. We can create a query that accepts
+    an id parameter and returns the teacher with the specified ID. 
+
+1) Add a GetTeacher() method in the Query class, as follows:
+
+    public async Task<Teacher?> GetTeacher(Guid id, [Service] AppDbContext context) =>
+        await context.Teachers.FindAsync(id);
+
+2) Now, we can use the $ sign to define a variable in the query.
+    for eg, we can use the following query to get a teacher by ID:
+
+        query getTeacher($id: UUID!) {
+            teacher(id: $id) {
+                id
+                firstName
+                lastName
+                email
+                phone
+            }
+        }
+
+    * preceding query defines a variable named id of the UUID! type.
+    * The ! sign indicates that the variable is non-nullable.
+    * The teacher field takes the id variable as the parameter and returns the teacher with the
+        specified ID.
+    * In the GraphQL Variables panel, you can define the id variable to pass the value to the query,
+        as follows:
+
+        {
+            "id": "00000000-0000-0000-0000-000000000401"
+        }
+    
+    * You can define multiple variables in the query.
+    
+    Note that variables must be scalars, enums, or input object types.

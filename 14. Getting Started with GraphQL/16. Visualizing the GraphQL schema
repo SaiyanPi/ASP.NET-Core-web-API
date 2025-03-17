@@ -1,0 +1,26 @@
+Visualizing the GraphQL schema:
+
+- When the GraphQL API becomes more complex, it is difficult to understand the schema. We can use
+    GraphQL Voyager to visualize the GraphQL schema.
+- GraphQL Voyager is an open-source project that can visualize the GraphQL schema in an interactive
+    graph. It is a frontend application that can be integrated with the GraphQL API.
+- To use GrapgQL Voyager in our ASP.NET Core application, we can use the GraphQL.Server.Ui.Voyager 
+    package. This package is part of the GraphQL.NET project.
+
+1) Install the GraphQL.Server.Ui.Voyager package in our application.
+
+    cmd: dotnet add package GraphQL.Server.Ui.Voyager
+
+2) Add the following code to the Program.cs file:
+
+    app.MapGraphQL();
+    app.MapGraphQLVoyager();
+    // omitted
+
+    * the preceeding code adds a middleware that maps the Voyager UI to the deafult URL /ui/voyager.
+    * if we want to specify a different URL, we can pass the URL as a parameter like
+
+        app.MapGraphQLVoyager("/voyager");
+
+3) Run the application and navigate to /voyager URL. we will see the page (see voyager.png):
+

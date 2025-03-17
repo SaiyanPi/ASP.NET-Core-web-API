@@ -1,0 +1,432 @@
+Filtering, Sorting, and Pagination:
+
+- In this section, we will learn how to implement filtering, sorting, and pagination in HotChocolate.
+- we will use Student object as an example to demonstrate how to implement these features.
+    Student class is defined as follows:
+
+    public class Student
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string? Phone { get; set; }
+        public string Grade { get; set; } = string.Empty;
+        public DateOnly? DateOfBirth { get; set; }
+        public Guid GroupId { get; set; }
+        public Group Group { get; set; } = default!;
+        public List<Course> Courses { get; set; } = new();
+        public List<StudentCourse> StudentCourses { get; set; } = new();
+    }
+
+- To use filtering, sorting, and pagination, we need to install the HotChocolate.Data NuGet package.
+    But we've already installed HotChocolate.Data.EntityFramework package following the previous
+    sections, so we do not need to install the HotChocolate.Data package again.
+    The HotChocolate.Data package is a dependency of the HotChocolate.Data. EntityFramework package.
+
+        cmd: dotnet add package HotChocolate.Data
+
+-------------------------------------------------------------------------------------------------------
+
+Filtering:
+
+- HotChocolate supports filtering on the object type. A question is how we translate the GraphQL
+    filter to the SQL-native queries. 
+- if the resolver exposes the IQueryable interface, HotChocolate can translate the GraphQL filter
+    to SQL-native queries automatically.
+- We can also implement the filtering logic in the resolver manually.
+
+1) First, we need to register the Filtering middleware in the Program.cs file, as follows:
+
+    builder.Services
+        // omitted
+        .AddType<ClassroomType>()
+        .AddFiltering()
+        .AddMutationType<Mutation>();
+
+2) Add a query field in the Query class:
+
+    public List<Student> Students { get; set; } = new();
+
+3) Apply the filtering in the resolver of the Students field in the QueryType:
+
+    descriptor.Field(x => x.Students)
+        .Description("This is the list of students in the school.")
+        .UseFiltering()
+        .Resolve(async context =>
+        {
+            var dbContextFactory = context.Service<IDbContextFactory<AppDbContext>>();
+            var dbContext = await dbContextFactory.CreateDbContextAsync();
+            var students = dbContext.Students.AsQueryable();
+            return students;
+        });
+    
+    * The preceding code uses the UseFiltering() method to enable filtering on the Students field.
+    * Then, we use the AsQueryable() method to expose the IQueryable interface.
+        This allows HotChocolate to translate the GraphQL filter to SQL-native queries automatically.
+
+4) Run the application and check the generated schema. we will find the students query has
+    a StudentFilterInput filter as:
+        
+        type Query {
+            """
+            This is the list of students in the school.
+            """
+            students(where: StudentFilterInput): [Student!]!
+        }
+
+        The StudentFilterInput filter is an input type, as follows:
+
+        input StudentFilterInput {
+            and: [StudentFilterInput!]
+            or: [StudentFilterInput!]
+            id: UuidOperationFilterInput
+            firstName: StringOperationFilterInput
+            lastName: StringOperationFilterInput
+            email: StringOperationFilterInput
+            phone: StringOperationFilterInput
+            grade: StringOperationFilterInput
+            dateOfBirth: DateOperationFilterInput
+            groupId: UuidOperationFilterInput
+            group: GroupFilterInput
+            courses: ListFilterInputTypeOfCourseFilterInput
+            studentCourses: ListFilterInputTypeOfStudentCourseFilterInput
+        }
+
+5) Next, we can filter the students query, as follows:
+
+    query {
+        students(where: { firstName: { eq: "John" } }) {
+            id
+            firstName
+            lastName
+            email
+            phone
+            grade
+            dateOfBirth
+        }
+    }
+
+    * the preceeding query uses the where argument to filter the Student objects.
+    * The where argument is a StudentFilterInput type.
+    * The StudentFilterInput type includes all the properties of the Student object type. In this case ,
+        we used the firstName property to filter the Student objects. The firstName property is a
+        StringOperationFilterInput type.
+        The StringOperationFilterInput type includes the following operators:
+
+             eq: Equal to
+             neq: Not equal to
+             in: In the list
+             nin: Not in the list
+             contains: Contains
+             notContains: Does not contain
+             startsWith: Starts with
+             nstartsWith: Does not start with
+             endsWith: Ends with
+             nendsWith: Does not end with
+
+    o/p: {
+            "data": {
+                "students": [
+                {
+                    "id": "00000000-0000-0000-0000-000000000901",
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "email": "",
+                    "phone": null,
+                    "grade": "",
+                    "dateOfBirth": "2000-01-01"
+                }
+                ]
+            }
+         }
+
+    generated SQL query:
+
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (232ms) [Parameters=[@__p_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+                SELECT [s].[Id], [s].[DateOfBirth], [s].[Email], [s].[FirstName], [s].[Grade], [s].[GroupId], [s].[LastName], [s].[Phone]
+                FROM [Students] AS [s]
+            WHERE [s].[FirstName] = @__p_0
+        
+        * The preceding SQL query uses the WHERE clause to filter the Student objects, which means
+            the filtering is done in the database.
+
+6) The filtering can be define in the variable as well.
+    for eg, we can use the following query to filter the Student objects:
+
+        query ($where: StudentFilterInput) {
+            students(where: $where) {
+                id
+                firstName
+                lastName
+                email
+                phone
+                grade
+                dateOfBirth
+            }
+        }
+
+        variable:
+                    {
+                        "where": {
+                            "firstName": {
+                            "eq": "John"
+                            }
+                        }
+                    }
+
+        * we can also try other operators to filter the Student objects.
+            eg,
+            {
+                "where": {
+                    "firstName": {
+                        "in": ["John", "Jane"]
+                    }
+                }
+            }
+            -> preceeding variable uses the in operator to filter the Student objects.
+            -> returns the students list with name John and Jane.
+
+            {
+                "where": {
+                    "dateOfBirth": {
+                        "gt": "2001-01-01"
+                    }
+                }
+            }
+            -> preceeding variable uses the gt operator to filter the students who were born after
+                2001-01-01.
+
+------------------------------------------------------------------------------------------------------------
+
+- The generated filter input type contains all the properties of the object type.  Sometimes, we do
+    not need to filter all the properties.
+    for eg, we may want to allow filtering on a few properties only. In this case, we can create a
+    custom filter input type and specify the properties we want to filter. Follow these steps to
+    create a custom filter input type.
+
+1) Create a Filters folder in the GraphQL folder. Then, add a new class named StudentFilterType, as:
+
+    public class StudentFilterType : FilterInputType<Student>
+    {
+        protected override void Configure(IFilterInputTypeDescriptor<Student> descriptor)
+        {
+            descriptor.BindFieldsExplicitly();
+            descriptor.Field(t => t.Id);
+            descriptor.Field(t => t.GroupId);
+            descriptor.Field(t => t.FirstName);
+            descriptor.Field(t => t.LastName);
+        }
+    }
+
+2) Then, we need to specify the filter input type in the resolver. Update the resolver for the students
+    query, as follows:
+
+        descriptor.Field(x => x.Students)
+            .Description("This is the list of students in the school.")
+            .UseFiltering<StudentFilterType>()
+            // Omitted for brevity
+
+3) Check the generated schema. we will see StudentFilterInput only contains the fields we specified
+    in StudentFilterType, as:
+
+    input StudentFilterInput {
+        and: [StudentFilterInput!]
+        or: [StudentFilterInput!]
+        id: UuidOperationFilterInput
+        groupId: UuidOperationFilterInput
+        firstName: StringOperationFilterInput
+        lastName: StringOperationFilterInput
+    }
+
+    Now, if we query the students using the filter in dateOfBirth property in variable like:
+            {
+                "where": {
+                    "dateOfBirth": {
+                        "gt": "2001-01-01"
+                    }
+                }
+            }
+        
+        we will get the following error: 
+        {
+            "errors": [
+                {
+                "message": "The field `dateOfBirth` does not exist on the type `StudentFilterInput`.",
+                "path": [
+                    "where"
+                ],
+                "extensions": {
+                    "type": "StudentFilterInput"
+                }
+                }
+            ]
+        }
+
+4) if the model has many properties and we only want to ignore few properties, we can use the Ignore()
+    method to ignore the properties we do not want to filter.
+
+    override protected void Configure(IFilterInputTypeDescriptor<Student> descriptor)
+    {
+        descriptor.BindFieldsImplicitly();
+        descriptor.Ignore(t => t.Group);
+        descriptor.Ignore(t => t.Courses);
+    }
+
+    * In the preceding code, all the properties of the Student object type will be included in the
+        StudentFilterInput filter except the Group and Courses properties.
+    
+    * by default StringOperationFilterInput includes many operations, such as eq, neq, in, nin,
+        contains, not Contains, startsWith, and endsWith. If we do not want to include all these
+        operations, we can specify the operations by using a custom operations filter.
+
+        i) we can define a StudentStringOperationFilterInputType class as follows:
+
+            public class StudentStringOperationFilterInputType : StringOperationFilterInputType
+            {
+                protected override void Configure(IFilterInputTypeDescriptor descriptor)
+                {
+                    descriptor.Operation(DefaultFilterOperations.Equals).Type<StringType>();
+                    descriptor.Operation(DefaultFilterOperations.Contains).Type<StringType>();
+                }
+            }
+
+            -> The StudentStringOperationFilterInputType filter only includes the eq and contains
+                operations.
+        
+        ii) Then, we can use the StudentStringOperationFilterInputType filter in StudentFilterType,
+            as follows:
+
+            protected override void Configure(IFilterInputTypeDescriptor<Student> descriptor)
+            {
+                descriptor.Field(t => t.FirstName).Type<StudentStringOperationFilterInputType>();
+                descriptor.Field(t => t.LastName).Type<StudentStringOperationFilterInputType>();
+                descriptor.Field(t => t.Phone).Type<StudentStringOperationFilterInputType>();
+            }
+
+            -> this means we can use eq and contain operations on fields; FirstName, LastName, and
+                Phone.
+            -> but we still can use other operations on other fields.
+                for eg, if we use the variable dateOfBirth we can use operations like 'gt' but for the
+                        Field FirstName or LastName or Phone the operations must be eq or contains.
+
+                    variable:   {
+                                    "where": {
+                                        "dateOfBirth": {
+                                            "gt": "2001-01-20"
+                                        }
+                                    }
+                                } 
+                    o/p :       {
+                                    "data": {
+                                        "students": [
+                                        {
+                                            "id": "00000000-0000-0000-0000-000000000920",
+                                            "firstName": "Emma",
+                                            "lastName": "Doe",
+                                            "email": "",
+                                            "phone": null,
+                                            "grade": "",
+                                            "dateOfBirth": "2002-01-20"
+                                        },
+                                        
+                                        {
+                                            "id": "00000000-0000-0000-0000-000000000929",
+                                            "firstName": "Mia",
+                                            "lastName": "Doe",
+                                            "email": "",
+                                            "phone": null,
+                                            "grade": "",
+                                            "dateOfBirth": "2003-01-29"
+                                        },
+                                        {
+                                            "id": "00000000-0000-0000-0000-000000000930",
+                                            "firstName": "Alexander",
+                                            "lastName": "Doe",
+                                            "email": "",
+                                            "phone": null,
+                                            "grade": "",
+                                            "dateOfBirth": "2003-01-30"
+                                        }
+                                        ]
+                                    }
+                                }
+
+                    variable:   {
+                                    "where": {
+                                        "phone": {
+                                            "gt": "2001-01-20"
+                                        }
+                                    }
+                                }
+                    o/p:      {
+                                "errors": [
+                                    {
+                                    "message": "The field `gt` does not exist on the type `StudentStringOperationFilterInput`.",
+                                    "path": [
+                                        "where",
+                                        "phone"
+                                    ],
+                                    "extensions": {
+                                        "type": "StudentStringOperationFilterInput"
+                                    }
+                                    }
+                                ]
+                                }
+
+
+5) Filter supports 'and' and 'or' operations. we can find and and or property in the StudentFilterInput
+    filter. These 2 fields are used to combine multiple filters.
+    - the and field means the filter must match all the conditions
+    - the or field means the filter must match at least one condition.
+
+        eg: query {
+                students(where: { and: [{ firstName: { eq: "Ava" } }, {
+                dateOfBirth: { gt: "2001-01-01" } }] }) {
+                    id
+                    firstName
+                    lastName
+                    email
+                    phone
+                    grade
+                    dateOfBirth
+                }
+            }
+
+
+            query ($where: StudentFilterInput) {
+                students(where: $where) {
+                    id
+                    firstName
+                    lastName
+                    email
+                    phone
+                    grade
+                    dateOfBirth
+                }
+            }
+
+            variable: 
+                    {
+                        "where": {
+                        "or": [
+                            {
+                            "firstName": {
+                                "eq": "John"
+                            }
+                            },
+                            {
+                            "lastName": {
+                                "eq": "Doe"
+                            }
+                            }
+                            ]
+                        }
+                    }
+
+- In the preceding examples, we expose the IQueryable interface in the resolver, so HotChocolate
+    can translate the GraphQL filter to SQL-native queries automatically. However, sometimes, we cannot
+    expose the IQueryable interface in the resolver. In this case, we need to implement the filtering
+    logic in the resolver manually. The code would be more complex. Let us see how to implement the
+    filtering logic in the resolver manually in the next section.

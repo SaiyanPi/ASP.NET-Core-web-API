@@ -1,17 +1,40 @@
 using Microsoft.EntityFrameworkCore;
 
 using SchoolManagement.Data;
+using SchoolManagement.GraphQL.Mutations;
 using SchoolManagement.GraphQL.Queries;
+using SchoolManagement.GraphQL.Types;
+using SchoolManagement.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+// builder.Services.AddDbContext<AppDbContext>(options =>
+//     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddPooledDbContextFactory<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// registering Interface(Dependency Injection section)
+builder.Services.AddScoped<ITeacherService, TeacherService>();
+builder.Services.AddScoped<ISchoolRoomService, SchoolRoomService>();
+
+builder.Services.AddScoped<IEquipmentService, EquipmentService>();
+builder.Services.AddScoped<IFurnitureService, FurnitureService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Register the GraphQL services
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType<Query>();
+    // .RegisterDbContext<AppDbContext>()
+    .RegisterDbContext<AppDbContext>(DbContextKind.Pooled)
+    .RegisterService<ITeacherService>(ServiceKind.Resolver)   
+    // .AddQueryType<Query>()
+    .AddQueryType<QueryType>()
+    .AddType<LabRoomType>()
+    .AddType<ClassroomType>()
+    .AddFiltering()
+    .AddSorting()
+    .AddMutationType<Mutation>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -51,6 +74,9 @@ app.MapGet("/weatherforecast", () =>
 
 // map the GraphQL endpoint to expose the GraphQL schema
 app.MapGraphQL();
+
+// app.MapGraphQLVoyager();
+app.MapGraphQLVoyager("/voyager");
 
 app.Run();
 

@@ -1,0 +1,89 @@
+Group data loader:
+
+- Next let's optimize the departments query. In this case, one Department object has a list of Teacher
+    objects. We can use the group data loader to fetch the Teacher objects for each Department
+    object.
+- the group data loader is similar to the batch data loader. The difference is that the group data
+    loader fetches a list of objects for each key. The batch data loader fetches a single object for
+    each key.
+
+1) Create a TeachersByDepartmentIdDataLoader class in the DataLoaders folder, and add the following
+    code:
+
+    public class TeachersByDepartmentIdDataLoader( IDbContextFactory<AppDbContext> dbContextFactory,
+        IBatchScheduler batchScheduler, DataLoaderOptions? options = null)
+        : GroupedDataLoader<Guid, Teacher>(batchScheduler, options)
+    {
+        protected override async Task<ILookup<Guid, Teacher>> LoadGroupedBatchAsync(IReadOnlyList<Guid> keys,
+            CancellationToken cancellationToken)
+        {
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+            var teachers = await dbContext.Teachers.Where(x => keys.Contains(x.DepartmentId))
+                .ToListAsync(cancellationToken);
+            return teachers.ToLookup(x => x.DepartmentId);
+        }
+    }
+
+    * preceding code defines a group data loader and it returns an ILookup<Guid, Teacher> object in
+        the LoadGroupedBatchAsync() method.
+    * The ILookup<Guid, Teacher> object is similar to a dictionary.
+    * The key of the dictionary is the DepartmentId property and the value is a list of Teacher
+        objects.
+    * The parent resolver can map the Teacher objects to the Department object in memory.
+
+2) Update the DepartmentResolvers class as follows:
+
+    public class DepartmentResolvers
+    {
+        // following code is commented because it is replaced by Group data loader
+        
+        // public async Task<List<Teacher>> GetTeachers([Parent] Department department,
+        //     [Service] IDbContextFactory<AppDbContext> dbContextFactory)
+        // {
+        //     await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        //     var teachers = await dbContext.Teachers.Where(x => x.DepartmentId == department.Id).ToListAsync();
+        //     return teachers;
+        // }
+
+        public async Task<List<Teacher>> GetTeachers([Parent] Department department, 
+            TeachersByDepartmentIdDataLoader teachersByDepartmentIdDataLoader, CancellationToken cancellationToken)
+        {
+            var teachers = await teachersByDepartmentIdDataLoader.LoadAsync(department.Id, cancellationToken);
+            return teachers.ToList();
+        }
+    }
+
+    * preceding code uses TeachersByDepartmentIdDataLoader to fetch the Teacher objects for the
+        Department object.
+    *  TeachersByDepartmentIdDataLoader will be injected by HotChocolate automatically.
+
+3) Run the application and test the departments query again. Now, you will see only two SQL
+    queries are executed:
+
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (24ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+        SELECT [d].[Id], [d].[Description], [d].[Name]
+        FROM [Departments] AS [d]
+    info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (14ms) [Parameters=[@__keys_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+        SELECT [t].[Id], [t].[Bio], [t].[DepartmentId], [t].[Email], [t].[FirstName], [t].[LastName], [t].[Phone]
+        FROM [Teachers] AS [t]
+        WHERE [t].[DepartmentId] IN (
+            SELECT [k].[value]
+            FROM OPENJSON(@__keys_0) WITH ([value] uniqueidentifier '$') AS [k]
+        )
+
+    * The first query is to get the list of the departments.
+    * The second query is to use the IN clause to query the teachers that match the DepartmentId
+        values in the list.
+
+- In this case, each Department object has a list of Teacher objects, so this kind of data loader is
+    called a group data loader. It is often used for one-to-many relationships, such as one
+    Department object has a list of Teacher objects.
+
+- HotChocolate supports cache data loader as well. It also supports using multiple data loaders in a
+    resolver. As they are not used often, we will not discuss them in this chapter. We can refer to
+    the documentation for more details:
+    https://github.com/PacktPublishing/Web-API-Development-with-ASP.NET-Core-8/tree/main/samples/chapter12/start
+
+

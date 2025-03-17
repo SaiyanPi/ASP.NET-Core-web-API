@@ -50,9 +50,17 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "GraphQL.Server.Ui.Voyager": {
+              "target": "Package",
+              "version": "[8.2.0, )"
+            },
             "HotChocolate.AspNetCore": {
               "target": "Package",
-              "version": "[15.0.3, )"
+              "version": "[13.9.0, )"
+            },
+            "HotChocolate.Data.EntityFramework": {
+              "target": "Package",
+              "version": "[13.9.0, )"
             },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",

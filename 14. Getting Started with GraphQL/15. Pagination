@@ -1,0 +1,353 @@
+Pagination
+
+- Pagination is a common feature in web API development. In this section, we will learn how to
+    use pagination in HotChocolate.
+- similar to filtering and sorting, we need to install the HotChocolate.Data package to use
+    pagination.
+- HotChocolate supports 2 types of pagination:
+
+    1. Cursor-based pagination
+        This is the default pagination in HotChocolate. It uses a cursor to indicate the current
+        position in the list. The cursor is usually an ID or a timestamp, which is opaque to the
+        client.
+
+    2. Offset-based pagination
+        This pagination uses the skip and take agruments to paginate the list
+
+- As we introduced before, if we use the IQueryable interface in the resolver, HotChocolate can
+    translate the GraphQL pagination to SQL-native queries automatically. 
+
+-------------------------------------------------------------------------------------------------------------
+
+1.  Let's first use the cursor-based pagination to paginate the Student objects:
+
+1) Update the resolver for the students query:
+
+        descriptor.Field(x => x.Students)
+            .Description("This is the list of students in the school.")
+            .UsePaging()
+            // .UseFiltering()
+            .UseFiltering<StudentFilterType>()
+            // .UseSorting()
+            .UseSorting<StudentSortType>()
+            // omitted
+
+    NOTE: UsePaging() must be placed before before UseFiltering() and UseSorting().
+
+2) Run the application and check the generated schema. We will find that the students query now
+    is the StudentsConnection type:
+
+    students(
+        first: Int
+        after: String
+        last: Int
+        before: String
+        where: StudentFilterInput
+        order: [StudentSortInput!]
+    ): StudentsConnection
+
+    * The StudentsConnection type is a connection type as follows:
+
+        type StudentsConnection {
+            pageInfo: PageInfo!
+            edges: [StudentsEdge!]
+            nodes: [Student!]
+        }
+    * In GraphQL, the connecction type is a standard way to paginate the list. It includes 3 fields
+        pageInfo, edges, and nodes.
+    * The edges and pageInfo fields are defined in the StudentsEdge and PageInfo types respectively
+        as follows:
+
+            type PageInfo {
+                hasNextPage: Boolean!
+                hasPreviousPage: Boolean!
+                startCursor: String
+                endCursor: String
+            }
+
+            type StudentsEdge {
+                cursor: String!
+                node: Student!
+            }
+
+3) Next, we can query the paginated Student object as follows:
+
+    query getStudentsWithPagination{
+        students {
+            edges {
+                cursor
+                node {
+                    id
+                    firstName
+                    dateOfBirth
+                }
+            }
+            pageInfo {
+                hasNextPage
+                hasPreviousPage 
+            }
+        }
+    }
+
+    o/p:    {
+                "data": {
+                    "students": {
+                    "edges": [
+                        {
+                        "cursor": "MA==",
+                        "node": {
+                            "id": "00000000-0000-0000-0000-000000000901",
+                            "firstName": "John",
+                            "dateOfBirth": "2000-01-01"
+                        }
+                        },
+                        {
+                        "cursor": "MQ==",
+                        "node": {
+                            "id": "00000000-0000-0000-0000-000000000902",
+                            "firstName": "Jane",
+                            "dateOfBirth": "2000-01-02"
+                        }
+                        },
+                        {
+                        "cursor": "OQ==",
+                        "node": {
+                            "id": "00000000-0000-0000-0000-000000000910",
+                            "firstName": "Jack",
+                            "dateOfBirth": "2000-01-10"
+                        }
+                        }
+                    ],
+                    "pageInfo": {
+                        "hasNextPage": true,
+                        "hasPreviousPage": false
+                    }
+                    }
+                }
+            }
+
+    * the result contains a cursor field for each Student object. The cursor field is an opaque string
+        which is used to indicate the current position in the list.
+    * the PageInfo field indicates whether there are more pages. In this case, the hasNextPage field
+        is true, which means there are more pages.
+
+4) To query the next page, we need to specify the after parameter as:
+
+    query getStudentsWithPagination{
+        students(after: "MQ==") {
+            edges {
+            cursor
+            node {
+                id
+                firstName
+                dateOfBirth
+            }
+            }
+            pageInfo {
+                hasNextPage
+                hasPreviousPage 
+            }
+        }
+    }
+
+    The generated SQL query is as follows:
+
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+        Executed DbCommand (9ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+            SELECT [s].[Id], [s].[DateOfBirth], [s].[Email], [s].[FirstName], [s].[Grade], [s].[GroupId], [s].[LastName], [s].[Phone]
+            FROM [Students] AS [s]
+            ORDER BY (SELECT 1)
+            OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+
+        * preceeding SQL query uses the OFFSET and FETCH clauses to paginate the Student object,
+            which means the pagination is handled in the database.
+
+5) To query the previous page, we need to specify the before parameter as:
+
+    query getStudentsWithPagination{
+        students(after: "MTM=") {
+            edges {
+            cursor
+            node {
+                id
+                firstName
+                dateOfBirth
+            }
+            }
+            pageInfo {
+                hasNextPage
+                hasPreviousPage 
+            }
+        }
+    }
+
+6) we can specify the options for pagination in the UsePaging() method. For eg, we can specify
+    the default page size and include the total count in the UsePaging() method as follows:
+    
+        descriptor.Field(x => x.Students)
+            .Description("This is the list of students in the school.")
+            // .UsePaging()
+            .UsePaging(options: new PagingOptions()
+            {
+                MaxPageSize = 20,
+                DefaultPageSize = 5,
+                IncludeTotalCount = true
+            })
+            // omitted
+        
+    Now we can include a totalCount field in the pageInfo field as:
+
+        query getStudentsWithPagination{
+        students {
+            edges {
+                cursor
+                node {
+                    id
+                    firstName
+                    dateOfBirth
+                }
+            }
+            totalCount
+            pageInfo {
+                hasNextPage
+                hasPreviousPage 
+            }
+        }
+    }
+
+    o/p:    {
+                "data": {
+                    "students": {
+                    "edges": [
+                        {
+                        "cursor": "MA==",
+                        "node": {
+                            "id": "00000000-0000-0000-0000-000000000901",
+                            "firstName": "John",
+                            "dateOfBirth": "2000-01-01"
+                        }
+                        },
+                        {
+                        "cursor": "MQ==",
+                        "node": {
+                            "id": "00000000-0000-0000-0000-000000000902",
+                            "firstName": "Jane",
+                            "dateOfBirth": "2000-01-02"
+                        }
+                        },
+                        {
+                        "cursor": "Mg==",
+                        "node": {
+                            "id": "00000000-0000-0000-0000-000000000903",
+                            "firstName": "David",
+                            "dateOfBirth": "2000-01-03"
+                        }
+                        },
+                        {
+                        "cursor": "Mw==",
+                        "node": {
+                            "id": "00000000-0000-0000-0000-000000000904",
+                            "firstName": "Bob",
+                            "dateOfBirth": "2000-01-04"
+                        }
+                        },
+                        {
+                        "cursor": "NA==",
+                        "node": {
+                            "id": "00000000-0000-0000-0000-000000000905",
+                            "firstName": "Jill",
+                            "dateOfBirth": "2000-01-05"
+                        }
+                        }
+                    ],
+                    "totalCount": 30,
+                    "pageInfo": {
+                        "hasNextPage": true,
+                        "hasPreviousPage": false
+                    }
+                    }
+                }
+            }
+
+7) we can use pagination with filtering and sorting.
+    for eg, we can use the following query to filter the Student objects by first name and
+        dsort the results by first name and then by last name.
+
+        query ($where: StudentFilterInput, $order: [StudentSortInput!])
+        {
+            students(where: $where, order: $order) {
+                edges {
+                    cursor
+                    node {
+                        id
+                        firstName
+                        dateOfBirth
+                    }
+                }
+                totalCount
+                pageInfo {
+                    hasNextPage
+                    hasPreviousPage
+                }
+            }
+        }
+
+        variable: 
+        {
+            "where":{
+                "dateOfBirth":{
+                "gt":"2001-01-01"
+                }
+            },
+            "order":[
+            {
+                "firstName":"ASC"
+            },
+            {
+                "lastName":"ASC"
+            }
+            ]
+        }
+
+    After querying the first page, we can query the next page as follows:
+
+        query ($where: StudentFilterInput, $order: [StudentSortInput!])
+        {
+            students(where: $where, order: $order, after: "MTM=") {
+                edges {
+                    cursor
+                    node {
+                        id
+                        firstName
+                        dateOfBirth
+                    }
+                }
+                totalCount
+                pageInfo {
+                    hasNextPage
+                    hasPreviousPage
+                }
+            }
+        }
+
+    or we can define the after parameter in the query variable as follows:
+
+        variable:
+        {
+            "where":{
+                "dateOfBirth":{
+                    "gt":"2001-01-01"
+                }
+            },
+            "order":[
+            {
+                "firstName":"ASC"
+            },
+            {
+                "lastName":"ASC"
+            }
+            ]
+            after: "MTM="
+        }
+    
+- the query language of GraphQL is very flexible.

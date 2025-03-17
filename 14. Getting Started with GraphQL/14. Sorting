@@ -1,0 +1,144 @@
+Sorting:
+
+- In this section, we will learn how to use sorting in HotChocolate. The sorting is similar to
+    filtering. We can use the UseSorting() method to enable sorting on the object type.
+- if we use the IQueryable() interface in the resolver, HotChocolate can translate the GraphQL
+    sorting to SQL-native queries automatically. Otherwise we have to implement the sorting logic
+    in the reolver manually.
+
+--------------------------------------------------------------------------------------------------------
+
+- To enable sorting on the Student object type, the HotChocolate.Data package is required.
+    (same thing from Filtering section)
+
+1) Register the Sorting middleware in the Program.cs file, as follows:
+    
+    builder.Services
+        // omitted
+        .AddSorting()
+        .AddMutationType<Mutation>();
+
+2) Update the resolver for the students query:
+
+    descriptor.Field(x => x.Students)
+        .Description("This is the list of students in the school.")
+        .UseFiltering<StudentFilterType>()
+        .UseSorting()
+        // omitted
+
+    NOTE: UseSorting() must be placed after UseFiltering.
+    
+3) Run the application and check the generated schema. we will find the students query has an
+    orderBy argument as:
+
+    students(where: StudentFilterInput, order: [StudentSortInput!]): [Student!]!
+
+    input StudentSortInput {
+        id: SortEnumType
+        firstName: SortEnumType
+        lastName: SortEnumType
+        email: SortEnumType
+        phone: SortEnumType
+        grade: SortEnumType
+        dateOfBirth: SortEnumType
+        groupId: SortEnumType
+        group: GroupSortInput
+    }
+
+    * The StudentSortInput type includes all the properties of the Student object type. The SortEnumType
+        is an enum type, as follows:
+
+        enum SortEnumType {
+            ASC
+            DESC
+        }
+
+4) Next, we can query the Student type with sorting. The following query will sort the results by
+    the first name.
+
+    query ($order: [StudentSortInput!]){
+        students(order: $order){
+            id
+            firstName
+            lastName
+            email
+            phone
+            grade
+            dateOfBirth
+        }
+    }
+
+    variable:   {
+                    "order": [
+                        {
+                            "firstName": "ASC"
+                        }
+                    ]
+                }
+
+    generated SQL query in the log:
+        
+        info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+            Executed DbCommand (79ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+            SELECT [s].[Id], [s].[DateOfBirth], [s].[Email], [s].[FirstName], [s].[Grade], [s].[GroupId], [s].[LastName], [s].[Phone]
+            FROM [Students] AS [s]
+            ORDER BY [s].[FirstName]
+
+    * The sorting variable supports multiple properties. for eg, the following query variable
+        will sort the results by first name and last name.
+
+        variable:   {
+                        "order": [
+                            {
+                                "firstName": "ASC"
+                            },
+                            {
+                                "lastName": "ASC"
+                            }
+                        ]
+                    }
+
+-------------------------------------------------------------------------------------------------------------------
+
+- Similar to filtering, the default sorting includes all the properties of the object type. If we
+    want to sort on specific properties only, we can create a custom sort input type and specify the
+    properties we want to sort.
+
+1) Create a folder named Sorts in the GraphQL folder. Add a new class named StudentSortType, as
+    follows:
+
+    public class StudentSortType : SortInputType<Student>
+    {
+        protected override void Configure(ISortInputTypeDescriptor<Student> descriptor)
+        {
+            descriptor.BindFieldsExplicitly();
+            descriptor.Field(x => x.FirstName);
+            descriptor.Field(x => x.LastName);
+            descriptor.Field(x => x.DateOfBirth);
+        }
+    }
+
+    * the preceeding code defines a custom sort input type, which only includes the FirstName,
+        LastName, and DateOfBirth properties.
+    * similar to filtering, we can explicitly specify the properties we want to sort, or we can
+        ignore the properties we do not want to sort.
+
+2) Update the resolver to apply the custom sort input type.
+
+        descriptor.Field(x => x.Students)
+            .Description("This is the list of students in the school.")
+            .UseFiltering<StudentFilterType>()
+            // .UseSorting()
+            .UseSorting<StudentSortType>()
+            // omitted
+
+3) Run the application and check the schema. we will see that the StudentSortInput now has 3
+    properties only. 
+
+        input StudentSortInput {
+            firstName: SortEnumType
+            lastName: SortEnumType
+            dateOfBirth: SortEnumType
+        }
+
+    *  the query is similar to the example above.

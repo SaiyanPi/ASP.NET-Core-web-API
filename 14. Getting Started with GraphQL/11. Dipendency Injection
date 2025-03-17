@@ -1,0 +1,124 @@
+Dependency Injection:
+
+- In the previous examples, we use the IDbContextFactory<AppDbContext> and AppDbContext directly
+    in the resolvers.
+- In order to encapsulate our data access logic, we can add a service layer to implement our buisness
+    logic.
+- HotChocolate supports dependency injection for resolvers. In this section, we will learn how to
+    inject other services into the resolvers.
+1) To demonstrate how to use dependency injection in HotChocolate, we have added an interface named
+    ITeacherService and a class named TeacherService.
+    Now,
+
+2) we need to register ITeacherService in the Program.cs file, as follows:
+
+    builder.Services.AddScoped<ITeacherService, TeacherService>();
+
+- HotChocolate uses the same approach to register the services as ASP.NET Core, but injecting the
+    services is a little difference. 
+    In ASP.NET Core, we can inject the services into the controller constructor, While HotChocolate
+    does not recommend constructor injection. Instead, HotChocolate recommends using the
+    method-level injection.
+    First, the GraphQL type definitions are singleton objects. If we use constructor injection,
+        the services will be injected as singleton objects as well. This is not what we want.
+    Second, sometimes HotChocolate needs to synchronize the resolvers to avoid concurrency
+        issues. If we use constructor injection, HotChocolate cannot control the lifetime of the
+        services.
+    Note that this applies to the HotChocolate GraphQL types and resolvers only. For other services,
+    we can till use constructor injection.
+    Let's see how to use the method-level injection.
+
+    A) Using the Servcie attribute:
+3) we can use HotChocolate.SevicesAttribute class to inject services into the resolvers.
+    for eg, we can add GetTeachersWithDI method in the Query class as follows:
+
+        public async Task<List<Teacher>> GetTeachersWithDI([Service] ITeacherService
+        teacherService) => await teacherService.GetTeachersAsync();
+
+    * Note that the Service attribute is from the HotChocolate namespace, not the
+        Microsoft.AspNetCore.Mvc namespace. 
+    * with this attribute, ITeacherService will be injected into the teacherService parameter
+        automatically.
+
+4) If we have many services in the project, using the attribute for each service is tedious.
+    HotChocolate provides a RegisterServices() method to simplify the injection. We can update
+    the Program.cs file as follows:
+
+        builder.Services
+            .AddGraphQLServer()
+            .RegisterDbContext<AppDbContext>(DbContextKind.Pooled)
+            .RegisterService<ITeacherService>()
+            .AddQueryType<QueryType>()
+            .AddMutationType<Mutation>();
+        
+3) Now, we can remove the Service attribute from the GetTeachersWithDI() method. HotChocolate
+    can still inject ITeacherService automatically.
+
+        public async Task<List<Teacher>> GetTeachersWithDI(ITeacherService teacherService) =>
+            await teacherService.GetTeachersAsync();
+        
+        This will save us a lot of time.
+
+
+# Understanding the lifetime of the injected services
+
+-> We have learned that, in ASP.NET Core, we can inject the services as singleton, scoped, or
+    transient services. HotChocolate offers more options for the lifetime of the injected services.
+-> When we use the Service attribute or the RegisterService() method to inject the services, we can
+    specify the ServiceKind property to control the lifetime of the services. The ServiceKind has the
+    following options:
+
+    • ServiceKind.Default:
+        This is the default option. The service will be injected as the same lifetime in the registered
+        service in the DI container.
+    
+    • ServiceKind.Synchronized:
+        This option is similar to the synchronized DbContext. The resolver using the service will be
+        executed sequentially. The synchronization only happens in the same request scope.
+    
+    • ServiceKind.Resolver:
+        This option is to resolve the service for each resolver scope. The service will be disposed of
+        after the resolver is completed.
+    
+    • ServiceKind.Resolver:
+        This option is to resolve the service for each resolver scope. The service will be disposed
+        of after the resolver is completed.
+
+    3) To specify the ServiceKind for the injected services, we can add a ServiceKind parameter in the
+        Service attribute or the RegisterService() method. For example, we can update the 
+        GetTeachersWithDI() method as follows:
+
+            public async Task<List<Teacher>> GetTeachersWithDI([Service(ServiceKind.Resolver)]
+            ITeacherService teacherService) => await teacherService.GetTeachersAsync();
+        
+        * The preceding code specifies the ServiceKind as ServiceKind.Resolver. So, ITeacherService
+            will be resolved for each resolver scope.
+
+    4) If we use the RegisterServices() method to register the services, we can specify the
+        ServiceKind in the RegisterServices() method, as
+
+            builder.Services
+                .AddGraphQLServer()
+                .RegisterDbContext<AppDbContext>(DbContextKind.Pooled)
+                .RegisterService<ITeacherService>(ServiceKind.Resolver)
+                .AddQueryType<QueryType>()
+                .AddMutationType<Mutation>();
+
+5) Finally, to inject the services in the Resolve() method, we can get the service from the context
+    object as follows:
+
+        descriptor.Field(x => x.Teachers)
+            .Description("This is the list of teachers in the school.")
+            .Type<ListType<TeacherType>>()
+            .Resolve(async context =>
+            {
+                var teacherService = context.Service<ITeacherService>();
+                var teachers = await teacherService.GetTeachersAsync();
+                return teachers;
+            });
+        
+        * preceding code uses the context.Service<T>() method to get ITeacherService from the
+            context object which is similar to injecting IDbContextFactory<AppDbContext> in
+            the previous examples.
+        
+    (We've changed the code for teacher resolver as well)

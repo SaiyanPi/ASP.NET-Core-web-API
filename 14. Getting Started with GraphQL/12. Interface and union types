@@ -1,0 +1,203 @@
+Interface and union types:
+
+- HotChocolate supports the use of interfaces and union types in GraphQL. In this section, we will
+    explore how to incorporate these features into your GraphQL schema.
+- Interfaces provide a way to group types that share common fields.
+- union types allow for the creation of a single type that can return different object types.
+
+-------------------------------------------------------------------------------------------------------
+
+# Interfaces:
+
+- To prepare the examples of GraphQL interfaces, we have an ISchoolRoom interface and two classes
+    that implement the interface inside the Models
+
+    public interface ISchoolRoom
+    {
+        Guid Id { get; set; }
+        string Name { get; set; }
+        string? Description { get; set; }
+        public int Capacity { get; set; }
+    }
+    public class LabRoom : ISchoolRoom
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public int Capacity { get; set; }
+        public string Subject { get; set; } = string.Empty;
+        public string Equipment { get; set; } = string.Empty;
+        public bool HasChemicals { get; set; }
+    }
+    public class Classroom : ISchoolRoom
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public int Capacity { get; set; }
+        public bool HasComputers { get; set; }
+        public bool HasProjector { get; set; }
+        public bool HasWhiteboard { get; set; }
+    }
+
+- The service layer is defined in the ISchoolRoomService interface and the SchoolRoomService class.
+
+- as we've learned from the previous section, we need to register ISchoolRoomService in the Program.cs
+    file.
+    builder.Services.AddScoped<ISchoolRoomService, SchoolRoomService>();
+
+- To define an interface in HotChocolate, we need to use the InterfaceType<T> class. The
+    InterfaceType<T> class is used to define an interface type in the schema.
+    Follow these steps to define an interface type using the code-first API:
+
+1) Create a class named SchoolRoomType in the Types folder:
+
+    public class SchoolRoomType : InterfaceType<ISchoolRoom>
+    {
+        protected override void Configure(IInterfaceTypeDescriptor<ISchoolRoom> descriptor)
+        {
+            descriptor.Name("SchoolRoom");
+        }
+    }
+
+    *  preceding code defines an interface type for the ISchoolRoom interface
+
+2) Create two new classes for LabRoom and Classroom in the same file, as follows:
+
+    public class LabRoomType : ObjectType<LabRoom>
+    {
+        protected override void Configure(IObjectTypeDescriptor<LabRoom> descriptor)
+        {
+            descriptor.Name("LabRoom");
+            descriptor.Implements<SchoolRoomType>();
+        }
+    }
+    public class ClassroomType : ObjectType<Classroom>
+    {
+        protected override void Configure(IObjectTypeDescriptor<Classroom> descriptor)
+        {
+            descriptor.Name("Classroom");
+            descriptor.Implements<SchoolRoomType>();
+        }
+    }
+
+    * In the preceding code, we use the Implements() method to specify the interface implemented
+        by the object type.
+
+3) Add a query field in the Query class:
+
+    public List<SchoolRoomType> SchoolRooms { get; set; } = new();
+
+4) Configure the SchoolRooms field in the QueryType class:
+
+    descriptor.Field(x => x.SchoolRooms)
+        .Description("This is the list of school rooms in the school.")
+        .Type<ListType<SchoolRoomType>>()
+        .Resolve(async context =>
+        {
+            var service = context.Service<ISchoolRoomService>();
+            var schoolRooms = await service.GetSchoolRoomsAsync();
+            return schoolRooms;
+        });
+    
+    * we use the Service() method to get ISchoolRoomService from the context object.
+    * Then, we use the GetSchoolRoomsAsync() method to retrieve the list of ISchoolRoom objects.
+    * The result includes both LabRoom and Classroom objects.
+
+5) Next, we need to explicitly register LabRoomType and ClassroomType in SchemaBuilder. Update the
+    Program.cs file as follows:
+
+    builder.Services
+        // omitted
+        .AddType<LabRoomType>()
+        .AddType<ClassroomType>()
+        .AddMutationType<Mutation>();
+
+6) Run the application and check the generated schema. We will find the interface definition and
+    its implementation as:
+    
+    type Query {
+        """
+        This is the list of school rooms in the school.
+        """
+        schoolRooms: [SchoolRoom]
+    }
+
+    type LabRoom implements SchoolRoom {
+        id: UUID!
+        name: String!
+        description: String
+        capacity: Int!
+        subject: String!
+        equipment: String!
+        hasChemicals: Boolean!
+    }
+
+    type Classroom implements SchoolRoom {
+        id: UUID!
+        name: String!
+        description: String
+        capacity: Int!
+        hasComputers: Boolean!
+        hasProjector: Boolean!
+        hasWhiteboard: Boolean!
+    }
+
+7) Next, we can use the SchoolRoom interface to query both the LabRoom and Classroom objects.
+
+    query {
+        schoolRooms {
+            __typename
+            id
+            name
+            description
+            capacity
+            ... on LabRoom {
+                subject
+                equipment
+                hasChemicals
+            }
+            ... on Classroom {
+                hasComputers
+                hasProjector
+                hasWhiteboard
+            }
+        }
+    }
+
+    output:
+            {
+                "data": {
+                    "schoolRooms": [
+                    {
+                        "__typename": "LabRoom",
+                        "id": "00000000-0000-0000-0000-000000000501",
+                        "name": "Chemistry Lab",
+                        "description": "Chemistry Lab",
+                        "capacity": 20,
+                        "subject": "Chemistry",
+                        "equipment": "Chemicals, Beakers, Bunsen Burners",
+                        "hasChemicals": true
+                    },
+                    {
+                        "__typename": "LabRoom",
+                        "id": "00000000-0000-0000-0000-000000000502",
+                        "name": "Physics Lab",
+                        "description": "Physics Lab",
+                        "capacity": 20,
+                        "subject": "Physics",
+                        "equipment": "Bunsen Burners, Magnets, Prisms",
+                        "hasChemicals": false
+                    },
+                    ]
+                }
+            }
+    
+    * In the response, you can see that the LabRoom object has the subject, equipment, and
+        hasChemicals properties, while the Classroom object has the hasComputers, hasProjector, 
+        and hasWhiteboard properties. 
+    * This can be helpful when we want to query complex objects with different properties.
+
+- Although interfaces provide flexibility for querying objects with different properties, we need to
+    NOTE that interfaces can be used for output types only. We cannot use interfaces for input types
+    or arguments.

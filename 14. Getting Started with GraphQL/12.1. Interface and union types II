@@ -1,0 +1,286 @@
+Union types: 
+
+- Union types are similar to interfaces. The difference is that union types do not need to define any
+    common fields. Instead, union types can combine multiple object types into a single type.
+- To prepare the examples of GraphQL union types, we have an Equipment class and a Furniture class in
+    the Models folder, as follows:
+
+    public class Equipment
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Condition { get; set; } = string.Empty;
+        public string Brand { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+    }
+    public class Furniture
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Color { get; set; } = string.Empty;
+        public string Material { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+    }
+    
+- We also need to add the services for both classes. We can find the following code in the
+    Services folder.
+
+    Here is the code for the IEquipmentService interface and the EquipmentService class:
+    public interface IEquipmentService
+    {
+        Task<List<Equipment>> GetEquipmentListAsync();
+        Task<Equipment> GetEquipmentAsync(Guid equipmentId);
+    }
+    public class EquipmentService(IDbContextFactory<AppDbContext> contextFactory) : IEquipmentService
+    {
+        public async Task<List<Equipment>> GetEquipmentListAsync()
+        {
+            await using var dbContext = await contextFactory.CreateDbContextAsync();
+            var equipment = await dbContext.Equipment.ToListAsync();
+            return equipment;
+        }
+        public async Task<Equipment> GetEquipmentAsync(Guid equipmentId)
+        {
+            await using var dbContext = await contextFactory.CreateDbContextAsync();
+            var equipment = await dbContext.Equipment.FindAsync(equipmentId);
+            return equipment ?? throw new ArgumentException("Equipment not found", nameof(equipmentId));
+        }
+    }
+
+    Here is the code for the IFurnitureService interface and the FurnitureService class:
+    public interface IFurnitureService
+    {
+        Task<List<Furniture>> GetFurnitureListAsync();
+        Task<Furniture> GetFurnitureAsync(Guid furnitureId);
+    }
+    public class FurnitureService(IDbContextFactory<AppDbContext>contextFactory) : IFurnitureService
+    {
+        public async Task<List<Furniture>> GetFurnitureListAsync()
+        {
+            await using var dbContext = await contextFactory.CreateDbContextAsync();
+            var furniture = await dbContext.Furniture.ToListAsync();
+            return furniture;
+        }
+        public async Task<Furniture> GetFurnitureAsync(Guid furnitureId)
+        {
+            await using var dbContext = await contextFactory.CreateDbContextAsync();
+            var furniture = await dbContext.Furniture.FindAsync(furnitureId);
+            return furniture ?? throw new ArgumentException("Furniture not found", nameof(furnitureId));
+        }
+    }
+
+- Do not forget to register the services in the Program.cs file, as follows:
+
+    builder.Services.AddScoped<IEquipmentService, EquipmentService>();
+    builder.Services.AddScoped<IFurnitureService, FurnitureService>();
+
+- Next, let's create the union types following these steps:
+1) Create 2 classes named EquipmentType and FurnitureType as follows:
+
+    public class EquipmentType : ObjectType<Equipment>
+    {
+        protected override void Configure(IObjectTypeDescriptor<Equipment> descriptor)
+        {
+            descriptor.Name("Equipment");
+        }
+    }
+    public class FurnitureType : ObjectType<Furniture>
+    {
+        protected override void Configure(IObjectTypeDescriptor<Furniture> descriptor)
+        {
+            descriptor.Name("Furniture");
+        }
+    }
+
+    * preceding code defines the EquipmentType and FurnitureType object types. These two object
+        types are just normal object types.
+
+2) Create a new class named SchoolItemType, as follows:
+
+    public class SchoolItemType : UnionType
+    {
+        protected override void Configure(IUnionTypeDescriptor descriptor)
+        {
+            descriptor.Name("SchoolItem");
+            descriptor.Type<EquipmentType>();
+            descriptor.Type<FurnitureType>();
+        }
+    }
+
+    * preceeding code defines a union type named SchoolItem. A union type must inherit from the
+        UnionType class.
+    * we use the Type method to specify the object types that are included in the union type.
+    * In this case, the SchoolItem union type includes the EquipmentType and FurnitureType object
+        types.
+    
+3) Add a query field in the Query class:
+
+    public List<SchoolItemType> SchoolItems { get; set; } = new();
+
+4) Configure the SchoolItems field in the QueryType class:
+
+    descriptor.Field(x => x.SchoolItems)
+        .Description("This is the list of school items in the school.")
+        .Type<ListType<SchoolItemType>>()
+        .Resolve(async context =>
+        {
+            var equipmentService = context.Service<IEquipmentService>();
+            var furnitureService = context.Service<IFurnitureService>();
+            var equipmentTask = equipmentService.GetEquipmentListAsync();
+            var furnitureTask = furnitureService.GetFurnitureListAsync();
+            await Task.WhenAll(equipmentTask, furnitureTask);
+            var schoolItems = new List<object>();
+            schoolItems.AddRange(equipmentTask.Result);
+            schoolItems.AddRange(furnitureTask.Result);
+            return schoolItems;
+        });
+    
+    * we retrieve a list of Equipment and Furniture objects from the database.
+    * we then combine these 2 lists into a single list of objects, as the object type is the base of
+        all types in C#.
+    * This allows us to use the object type to effectively combine the two lists.
+
+5) Run the application and check the generated schema. we will find the union type defined as
+    follows:
+
+    type Query {
+        """
+        This is the list of school items in the school.
+        """
+        schoolItems: [SchoolItem]
+    }
+    union SchoolItem = Equipment | Furniture
+
+    type Equipment {
+        id: UUID!
+        name: String!
+        description: String
+        condition: String!
+        brand: String!
+        quantity: Int!
+    }
+
+    type Furniture {
+        id: UUID!
+        name: String!
+        description: String
+        color: String!
+        material: String!
+        quantity: Int!
+    }
+
+    * A union type is represented as a union of a list of object types using the | symbol. In this
+        case, the SchoolItem union type includes the Equipment and Furniture object types.
+
+6) Then, we can query the SchoolItem union type, as follows:
+
+    query {
+        schoolItems {
+            __typename
+            ... on Equipment {
+                id
+                name
+                description
+                condition
+                brand
+                quantity
+            }
+            ... on Furniture {
+                id
+                name
+                description
+                color
+                material
+                quantity
+            }
+        }
+    }
+
+    o/p:    {
+                "data": {
+                    "schoolItems": [
+                    {
+                        "__typename": "Equipment",
+                        "id": "00000000-0000-0000-0000-000000000701",
+                        "name": "Bunsen Burner",
+                        "description": "Bunsen Burner",
+                        "condition": "Good",
+                        "brand": "Bunsen",
+                        "quantity": 10
+                    },
+                    {
+                        "__typename": "Equipment",
+                        "id": "00000000-0000-0000-0000-000000000702",
+                        "name": "Beaker",
+                        "description": "Beaker",
+                        "condition": "Good",
+                        "brand": "Beaker",
+                        "quantity": 10
+                    },
+                    {
+                        "__typename": "Furniture",
+                        "id": "00000000-0000-0000-0000-000000000802",
+                        "name": "Chair",
+                        "description": "Chair",
+                        "color": "Black",
+                        "material": "Wood",
+                        "quantity": 20
+                    },
+                    {
+                        "__typename": "Furniture",
+                        "id": "00000000-0000-0000-0000-000000000803",
+                        "name": "Whiteboard",
+                        "description": "Whiteboard",
+                        "color": "White",
+                        "material": "Plastic",
+                        "quantity": 10
+                    }
+                    ]
+                }
+            }
+
+    * in the response, we can see that the Equipment object has the condition and brand properties,
+        similarly the Furniture object has the color and material properties.
+        However, even though the Equipment and Furniture object have some of the same properties such
+        as Id, Name, and so on. the query must specify the properties for each object type.
+        For example we cannot use the following query like in Interface:
+
+            query {
+                schoolItems {
+                __typename
+                id
+                name
+                }
+            }
+
+            preceeding query will cause an error as:
+
+            {
+                "errors": [
+                {
+                    "message": "A union type cannot declare a field directly.
+                    Use inline fragments or fragments instead.",
+                    "locations": [
+                    {
+                        "line": 2,
+                        "column": 15
+                    }
+                    ],
+                    "path": [
+                        "schoolItems"
+                    ],
+                        "extensions": {
+                        "type": "SchoolItem",
+                        "specifiedBy": "http://spec.graphql.org/
+                        October2021/ #sec-Field-Selections-on-Objects-Interfaces-andUnions-Types"
+                    }
+                }
+                ]
+            }
+
+    * Please note that the SchoolItem union type is not a base type of the Equipment and Furniture
+        object types.
+    * if we want to query the common properties of the object types, we can use the interface types
+        instaed of the union type.

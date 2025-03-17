@@ -1,0 +1,170 @@
+Defining a GraphQL schema:
+
+-> Usually, a system has multiple types of data.
+    For example, a school management system has teachers, students, departments, and courses.
+    A department has multiple courses, and a course has multiple students. A teacher can teach
+    multiple courses, and a course can be taught by multiple teachers as well.
+-> In this section, we will discuss how to define a GraphQL schema with multiple types of data.
+
+a) Scalar Types:
+    - Scalar types are the primitive types in GraphQL.
+    - The following table lists the scalar types in GraphQL:
+
+    Scalar            |       type Description                                 | .NET type
+    ------------------------------------------------------------------------------------------------
+     Int                         Signed 32-bit integer                              int
+
+     Float                       Signed double-precision floating-point value       float or double
+                                 specified in IEEE 754
+                                        
+     String                      UTF‐8 character sequence                           string
+
+     Boolean                     true or false                                      bool
+
+     ID                          A unique identifier, serialized as a string        string
+
+    ------------------------------------------------------------------------------------------------
+
+    - Besides the preceding scalar types, HotChocolate also supports the following scalar types:
+        • Byte: Unsigned 8-bit integer
+        • ByteArray: Byte array that is encoded as a Base64 string
+        • Short: Signed 16-bit integer
+        • Long: Signed 64-bit integer
+        • Decimal: Signed decimal value
+        • Date: ISO-8601 date
+        • TimeSpan: ISO-8601 time duration
+        • DateTime: A custom GraphQL scalar defined by the community at https://www.graphql-scalars.com/. 
+            It is based on RFC3339. Note that this DateTime scalar uses an offset to UTC instead of a
+            time zone
+        • Url: URL
+        • Uuid: GUID
+        • Any: A special type that is used to represent any literal or output type
+    
+        There are more scalar types that are not listed here. You can find more information about the
+        scalar types at https://chillicream.com/docs/hotchocolate/v13/defining-aschema/scalars.
+    
+    - GraphQL supports enumerations as well. Enumeration types in GraphQL are a special kind of
+        scalar type. They are used to represent a fixed set of values.
+    - .NET supports enumeratiopn types very well so that you can use the .NET enum type directly in 
+        GraphQL. we can define enumeration type as follows:
+
+        public enum CourseType
+        {
+            Core,
+            Elective,
+            Lab
+        }
+
+    - The generated GraphQL schema is as follows:
+
+        enum CourseType {
+            CORE
+            ELECTIVE
+            LAB
+        }
+    
+    - HotChocolate automatically converts the enumeration values to uppercase according to the
+        GraphQL specification.
+
+b) Object Types:
+    - object type is the most common type in GraphQL.
+    - It can contain simple scalar types such as Int, String, and Boolean, as well as other object 
+        types.  For example, a Teacher type can contain the Department type, as shown here:
+        
+        public class Teacher
+        {
+            public Guid Id { get; set; }
+            public string FirstName { get; set; } = string.Empty;
+            public string LastName { get; set; } = string.Empty;
+            public Guid DepartmentId { get; set; }
+            public Department Department { get; set; } = default!;
+        }
+
+        public class Department
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string? Description { get; set; }
+            // other properties
+        }
+
+        * preceding code defines a Teacher type and a Department type. The Teacher type has a Department
+            property of the Department type.
+        * HotChocolate will generate the schema as follows:
+
+            type Teacher {
+                id: UUID!
+                firstName: String!
+                lastName: String!
+                departmentId: UUID!
+                department: Department!
+            }
+
+            type Department {
+                id: UUID!
+                name: String!
+                description: String
+            }
+    
+    - The object type can contain a list of other object types.
+        for eg, a Department type can contain a list of Teacher objects as follows
+
+        public class Department
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string? Description { get; set; }
+            public List<Teacher> Teachers { get; set; } = new();
+        }
+
+        * generated schema is as follows:
+            type Department {
+                id: UUID!
+                name: String!
+                description: String
+                teachers: [Teacher!]!
+            }
+
+            teacher field is non-nullable array of non-nullableTeacher objects. If we want to make
+            the teacher field nullable, we can use the ? sign as follows:
+
+            public class Department
+            {
+                public Guid Id { get; set; }
+                public string Name { get; set; } = string.Empty;
+                public string? Description { get; set; }
+                public List<Teacher>? Teachers { get; set; }
+            }
+
+            generated schema is as follows:
+
+            type Department {
+                id: UUID!
+                name: String!
+                description: String
+                teachers: [Teacher!]
+            }
+
+            Now, teachers field is a nullable array of non-nullable Teacher objects. when there is no
+            data, the teachers field will return null.
+    
+    - Let's look back at the Query type and the Mutation type we defined in the previous sections:
+
+        type Mutation {
+            addTeacher(input: AddTeacherInput!): AddTeacherPayload! 
+        }
+
+        type Query {
+            teachers: [Teacher!]! 
+            teacher(id: UUID!): Teacher 
+        }    
+
+        * The Query type and the Mutation type are two special object types in GraphQL, as they define
+            the entry points of the GraphQL API.
+        * Every GraphQL service must have a Query type, but may or may
+            not have a Mutation type. So the teachers query is actually a field of the Query type,
+            just like the department field in the teacher type. Mutations work in the same way.
+    
+    - So far, the GraphQL types are similar to C# types. Similar to C#, GraphQL supports interfaces
+        as well. But before we delve into interfaces, Let's discuss how to retrieve the Department
+        object when querying the Teacher object.
