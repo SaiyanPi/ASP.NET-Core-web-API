@@ -1,0 +1,16 @@
+Getting started with SignalR:
+
+- Various technologies can be used to implement real-time web APIs, such as gRPC streaming, long 
+    polling, Server-Sent Events (SSE), WebSockets, and so on.
+-  Microsoft provides an open-source library called SignalR to simplify the implementation of
+    real-time web APIs.
+- In this chapter, we will introduce the basics of SignalR and how to use SignalR to implement
+    real-time web APIs. We will cover the following topics in this chapter:
+    • Recap of real-time web APIs
+    • Setting up SignalR
+    • Building SignalR clients
+    • Using authentication and authorization in SignalR
+    • Managing users and groups
+    • Sending messages from other services
+    • Configuring SignalR hubs and clients
+    By the end of this chapter, you will be able to use SignalR to implement real-time web APIs.

@@ -1,0 +1,60 @@
+What is SignalR?
+
+- SignalR is an open-source library that enables real-time communication between client and servers.
+    Microsoft provides SignalR in ASP.NET Core to implement real-time communication.
+- It can automatically manage the connections and allow servers to send message to all connected
+    clients or a specific group of clients.
+    NOTE that, SignalR encapsulates multiple technologies, including WebSocket, SSE(Server-Sent Events),
+    and long polling. It hides the details and the complex implementations of these protocols. As a
+    result, we do not need to worry about which technology is used for real-time communication.
+    SignalR automatically chooses the best transport method for your application. WebSocket is the
+    default protocol. If WebSocket is unavailable, SignalR will fall back to SSE, and then long
+    polling.
+- SignalR is a good choice for these scenarios:
+    • When clients require high-frequency updates or alerts/notifications from the server.
+        for example, games, social networks, voting, auctions, maps, and so on
+    • Dashboard and monitoring applications – for example, system dashboard applications, instant
+        diagram applications, sales data monitoring applications, and so on
+    • Collaborative applications – for example, chat applications,whiteboard applications, and so on
+
+------------------------------------------------------------------------------------------------------
+
+# ASP.NET Core also provides good support to gRPC. So, the next question is, how do you choose
+    between gRPC and SignalR?
+
+=> Here are some thoughts you may want to consider:
+    • If your need to build a real-time application that supports multiple clients (browsers),
+        you may use SignalR because it is well-supported by browsers, and gPRC is not.
+    • If you need to build a distributed application or a microservices architecture application
+        where you want to communicate between multiple servers, you may use gRPC because it is more
+        suitable for server-to-server communication, and is more efficient than SignalR in this
+        scenario.
+
+---------------------------------------------------------------------------------------------------------------
+
+- SignalR was first introduced for ASP.NET in 2013. As of now, SignalR has been rewritten for
+    ASP.NET Core and is included in the ASP.NET Core framework. So, there are 2 different versions
+    of SignalR: one for ASP.NET and one for ASP.NET Core.
+    If you are using ASP.NET Core, you do not need to install ny additional packages to use SignalR.
+    There are also some differences between the ASP.NET version and the ASP.NET Core version of 
+    SignalR. For example, ASP.NET Core SignalR does not support Microsoft Internet Explorer. 
+    However, most modern applications are targeting modern browsers, so this should not be a big 
+    issue. In this chapter, we will focus on the ASP.NET Core version of SignalR.
+
+- Unlike REST APIs, SignalR client needs to install a SignalR client library to communicate with
+    SignalR servers. SignalR provides a couple of client libraries for different platforms:
+    1) JavaScript client 
+        this is the most used client library because it can be used in both browsers and Node.js
+        applications
+    2) .NET client
+        This client can be used for .NET applications, such as Xamarin, Windows Presentation Foundation
+        (WPF), and Blazor.
+    3) Java client
+        This client supports Java 8 and later
+    Other clients, such as the C++ client and Swift client are not officially supported by Microsoft.
+
+- SignalR is a good choice for building a real-time web APIs. For eg, we can use SignalR to build
+    a chat application, a real-time dashboard, voting applications, whiteboard applications, and so
+    on.
+- SignalR can push data to specific clients or groups of clients. It automatically manages
+    connections between clients and servers.

@@ -1,0 +1,7 @@
+Building SignalR clients:
+
+- This section will demonstrate how to use SignalR in different platforms by building three SignalR
+    clients that consume the same SignalR hub provided by the ChatApp.Server application.
+- The code for SignalR is largely the same across platforms, making it easy to learn and implement in
+    your own applications. As such, you can refer to any of these applications to gain an
+    understanding of how to consume a SignalR service in your client applications.

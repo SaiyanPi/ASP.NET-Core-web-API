@@ -1,0 +1,105 @@
+Setting up SignalR:
+
+- In this sectiopn, we will build a simple chat application using SignalR. The chat application
+    will allow users to send messages to a public chat room. The messgaes will be broadcast to all
+    connected clients. This application contains four projects
+
+    1. ChatApp.Server
+        This is the ASP.NET Core web API project that provides a SignalR hub.
+    
+    2. ChatApp.TypeScriptClient
+        This is a client application written in TypeScript.
+    
+    3. ChatApp.BlazorClient
+        This is a client application written in Blazor, which is a web framework for building
+        client-side applications using C#.
+    
+    NOTE:
+    The code of this sample is based on the official SignalR sample provided by Microsoft. You can
+    find the original source code at https://github.com/aspnet/SignalR-samples/tree/main/ChatSample.
+    We added the Blazor and MAUI clients to the sample.
+
+
+SignalR hub:
+
+- SignalR hub is a class to manage connections betweeb clients and servers.
+- SignalR hub is a high-level abstraction for SignalR real-time communication.
+- SignalR hub can be used to send messages to clients and receive messages from client.
+- SignalR hub can also manage users and groups of clients.
+- In ASP.NET Core SignalR, a hub is defined as a middleware component, so we can easily add it
+    to the ASP.NET Core pipeline.
+- SignalR hub has a Clients property to manage connections between the server and the client.
+    when a user connects to the SignalR hub, a new connection is created. Once user can have
+    multiple connections.
+    The Clients property has some methods to manage connections.
+    • All is used to call a method on all connected clients.
+    • Caller is used to call a method on the caller.
+    • Others is used to call a method on all connected clients except the caller.
+    • Client is used to call a method on a specific client.
+    • Clients is used to call a method on specific connected clients.
+    • Group is used to call a method on a group of clients.
+    • Groups is used to call a method on multiple groups of clients.
+    • User is used to call a method on a specific user. Note that one user may have multiple connections.
+    • Users is used to call a method on specified users, including all connections.
+    • AllExcept is used to call a method on all connected clients except specified clients.
+    • GroupExcept is used to call a method on a group of clients except specified clients.
+    • OthersInGroup is used to call a method on all clients in a group except the caller.
+
+----------------------------------------------------------------------------------------------------------
+
+Next, follow these steps to create a new solution and set up a ChatApp.Server project:
+
+1) Create a new solution called ChatApp using the dotnet new sln command:
+
+    cmd: dotnet new sln -n ChatApp
+
+2) Create a new ASP.NET Core web API project called ChatApp.Server using the dotnet new webapi
+    command and add it to the solution.
+
+    cmd: dotnet new webapi -n ChatApp.Server
+    cmd: dotnet sln add ChatApp.Server
+
+3) Add a SignalR middleware component to the ASP.NET Core web API pipeline. Open the Program.cs
+    file and add the following code:
+    
+    builder.Services.AddSignalR();
+
+4) Create a SignalR hub class. Create a new folder named Hubs in the project and add a new class
+    called ChatHub:
+
+    public class ChatHub : Hub
+    {
+        public Task SendMessage(string username, string message)
+        {
+            return Clients.All.SendAsync("ReceiveMessage", username, message);
+        }
+    }
+
+    * preceeding code creates a new SignalR hub class called ChatHub that inherits from the Hub class.
+    * ChatHub class contains a method called SendMessage(), which is used to send message to all
+        connected clients.
+    * SendMessage() method takes 2 parameters, username and message, which are used to identify the
+        username and the message.
+        This method uses the Client.All.SendAsync() method to broadcast the message to all connected
+        clients when the SendMessage() method is invoked by clients.
+
+        NOTE: the first parameter of the SendAsync() method (ReceiveMessage()) is the name of the
+                method for clients to receive the message.
+
+
+5) Next, we need to map the SignalR hub to a URL. add the following code to the Program.cs file.
+
+    app.MapHub<ChatHub>("/chatHub");
+
+    * we need to add a using ChatApp.Server.Hubs;
+
+6) The default launchSettings.json file contains http and https URLs. By default, the dotnet run
+    command will ude the first hrrp profile. We can specify for the launch profile to use the
+    https URL.
+
+    cmd: dotnet run --launch-profile https
+
+
+- The SignalR hub is now ready to use. To test it, however, a client must install a SignalR client
+    library in order to communicate with the hub. In the following section, we will construct client
+    applications.

@@ -1,0 +1,128 @@
+Building a TypeScript clients:
+
+- This application is just a normal HTML page that uses the SignalR JavaScript client library to
+    communicate with the SignalR hub.
+- TypeScript code is compiled into JavaScript code, so it can run in any JavaScript runtime, such as
+    browsers and Node.js.
+
+    (installing TypeScript)
+    cmd: npm install -g TypeScript
+
+    (checking the installed typescript version)
+    cmd: tsc -v
+
+
+Next. follows these steps to create a TypeScript client:
+
+1) Create a new folder named ChatApp.TypeScriptClient in the solution folder. Then, create a src 
+    folder in the ChatApp.TypeScriptClient folder. The src folder is used to store the source code
+    of the TypeScript client.
+
+2) Create a new file named index.html in the src folder and add the following code:
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Chat App</title>
+    </head>
+    <body>
+        <div id="divChat">
+            <label for="txtUsername">User Name</label>
+            <input type="text" id="txtUsername" />
+            <label for="txtMessage">Message</label>
+            <input type="text" id="txtMessage" />
+            <button id="btnSend">Send</button>
+            <ul id="messages"></ul>
+        </div>
+    </body>
+    </html>
+
+3) Create a new file named tsconfig.json in the ChatApp.TypeScriptClient folder and add the following
+    code:
+
+    {
+        "compilerOptions": {
+            "noEmitOnError": true,
+            "noImplicitAny": true,
+            "sourceMap": true,
+            "target": "es6",
+            "moduleResolution":"node"
+        },
+        "files": ["src/app.ts"],
+        "compileOnSave": true
+    }
+
+    * the preceeding code is the configuration file for the TypeScript compiler.
+    * It specifies the target version of JavaScript, the module system, and other options. It also
+        specifies the TypeScript files to compile, such as app.ts which we will create in step 6)
+
+4) Next, we need to set up npm so that we can install the required packages. Use the following
+    command to initialize npm:
+
+    cmd: npm init -y
+
+    * this command creates a package.json file in the ChatApp.TypeScriptClient folder.
+    * package.json file is used to manage the dependencies of the project. It also contains other
+        information about the project, such as name, version, description, and so on.
+
+5) Next, we need to install the required packages. Use the following command to install the
+    required packages:
+
+    cmd: npm install @microsoft/signalr @types/node
+
+    * @microsoft/signalr package is the official SignalR JavaScript client library.
+    * the @types/node package is used to provide type definition for Node.js
+
+6) Create a new file named app.ts in the src folder and add the following code.
+
+    import * as signalR from "@microsoft/signalr";
+    const txtUsername: HTMLInputElement = document.getElementById("txtUsername") as HTMLInputElement;
+    const txtMessage: HTMLInputElement = document.getElementById("txtMessage") as HTMLInputElement;
+    const btnSend: HTMLButtonElement = document.getElementById("btnSend") as HTMLButtonElement;
+    btnSend.disabled = true;
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("https://localhost:7202/chatHub")
+        .build();
+    connection.on("ReceiveMessage", (username: string, message: string) => {
+        const li = document.createElement("li");
+        li.textContent = `${username}: ${message}`;
+        const messageList = document.getElementById("messages");
+        messageList.appendChild(li);
+        messageList.scrollTop = messageList.scrollHeight;
+    });
+    connection
+        .start()
+        .then(() => (btnSend.disabled = false))
+        .catch((err) => console.error(err.toString()));
+    txtMessage.addEventListener("keyup", (event) => {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    });
+    btnSend.addEventListener("click", sendMessage);
+    function sendMessage() {
+        connection
+            .invoke("SendMessage", txtUsername.value, txtMessage.value)
+            .catch((err) => console.error(err.toString()))
+            .then(() => (txtMessage.value = ""));
+    }
+
+    * preceeding code creates a SignalR connection to the SignalR hub.
+    * connection object is used to send messages to the SignalR hub and receive messages from the
+        SignalR hub.
+    * WithURL() method is used to specify the URL of the SignalR hub. Our SignalR hub is hosted on a
+        https://localhost:7202 (from section 3)
+    * when the page is loaded, the Send button is disabled, then it will be enabled when the connection
+        is established. The connection object has a couple of methods used in this sample.
+        i. The start method: This is used to start the connection.
+        ii. The on method: This method is used to receive messages from the SignalR hub. The on()
+            method takes two parameters: the first parameter is the name of the method, which is
+            RecieveMessage(), as we defined in the ChatHub class, and the second parameter is
+            a callback function that is called when the message is received.
+        iii. The invoke method: The invoke() method is called when the user clicks the Send button
+            or presses the Enter key. The invoke() method takes three parameters: the first parameter
+            is the name of the method we want to invoke on the SignalR hub, which is SendMessage(),
+            as we defined in the ChatHub class, the second parameter is the username, and the third
+            parameter is the message.
