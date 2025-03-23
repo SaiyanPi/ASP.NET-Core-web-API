@@ -116,13 +116,109 @@ Next. follows these steps to create a TypeScript client:
         https://localhost:7202 (from section 3)
     * when the page is loaded, the Send button is disabled, then it will be enabled when the connection
         is established. The connection object has a couple of methods used in this sample.
+        
         i. The start method: This is used to start the connection.
+
         ii. The on method: This method is used to receive messages from the SignalR hub. The on()
             method takes two parameters: the first parameter is the name of the method, which is
             RecieveMessage(), as we defined in the ChatHub class, and the second parameter is
             a callback function that is called when the message is received.
+            
         iii. The invoke method: The invoke() method is called when the user clicks the Send button
             or presses the Enter key. The invoke() method takes three parameters: the first parameter
             is the name of the method we want to invoke on the SignalR hub, which is SendMessage(),
             as we defined in the ChatHub class, the second parameter is the username, and the third
             parameter is the message.
+
+7) Next, we need to compile the TypeScript code to JavaScript code. We will use Gulp to automate
+    the compilation process. If you prefer to use other tools, such as Webpack, you can use them
+    as well. Use the following command to install Gulp globally:
+
+    cmd: npm install -g gulp
+
+8) Install gulp and gulp-typescript in the project.
+
+    cmd: npm install --save-dev gulp gulp-typescript browserify vinyl-source-stream vinyl-buffer gulp-sourcemaps tsify
+
+    * These packages are used to compile the TypeScript code to JavaScript code, generate a bundle
+        file, and generate source map files.
+    * the bundle file is used to load the SignalR JavaScript client library so that the client can
+        use it to communicate with SignalR hub.
+    * Source map files are used to map the JavaScriptcode to the original TypeScript code. This is
+        useful when debugging the application.
+
+9) Create a new file named gulpfile.js in the ChatApp.TypeScriptClient folder and add the following
+    code:
+
+    const gulp = require('gulp');
+    const browserify = require('browserify');
+    const source = require('vinyl-source-stream');
+    const buffer = require('vinyl-buffer');
+    const sourcemaps = require('gulp-sourcemaps');
+    const tsify = require('tsify');
+    // Bundle TypeScript with SignalR
+    gulp.task('bundle', () => {
+        return browserify({
+            basedir: '.',
+            debug: true,
+            entries: ['src/app.ts'], // Replace with your TypeScript entry file
+            cache: {},
+            packageCache: {},
+        })
+        .plugin(tsify)
+        .bundle()
+        .pipe(source('bundle.js'))
+        .pipe(buffer())
+        .pipe(sourcemaps.init({ loadMaps: true }))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('dist'));
+    });
+    // Copy HTML
+    gulp.task('copy-html', () => {
+        return gulp.src('src/**/*.html')
+            .pipe(gulp.dest('dist'));
+    });
+    // Main build task
+    gulp.task('default', gulp.series('bundle', 'copy-html'));
+
+    * The gulp configuration file defines some tasks that are used to compile TypeScript code to
+        JavaScript and generate a bundle file.
+    * Additionally, it copies HTML files to the dist folder, which is used to store the compiled
+        JavaScript code and HTML files. If desired, the folder name can be changed.
+    * The bundle file loads the SignalR JavaScript client library and the compiled JavaScript code.
+
+10) Add a script to the package.json file to run gulp tasks:
+
+    "scripts": {
+        "gulp": "gulp"
+    }
+
+    * The complete package.json file should look like this
+
+    {
+        "name": "chatapp.typescriptclient",
+        "version": "1.0.0",
+        "main": "index.js",
+        "scripts": {
+            "gulp": "gulp"
+        },
+        "keywords": [],
+        "author": "",
+        "license": "ISC",
+        "description": "",
+        "dependencies": {
+            "@microsoft/signalr": "^8.0.7",
+            "@types/node": "^22.13.10"
+        },
+        "devDependencies": {
+            "browserify": "^17.0.1",
+            "gulp": "^5.0.0",
+            "gulp-sourcemaps": "^3.0.0",
+            "gulp-typescript": "^6.0.0-alpha.1",
+            "tsify": "^5.0.4",
+            "vinyl-buffer": "^1.0.1",
+            "vinyl-source-stream": "^2.0.0"
+        }
+    }
+
+11) Next, update the index.html file in the src folder to load the bundle file:
