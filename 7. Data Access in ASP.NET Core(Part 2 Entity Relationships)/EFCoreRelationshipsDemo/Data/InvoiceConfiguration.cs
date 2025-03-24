@@ -21,6 +21,7 @@ namespace EFCoreRelationshipsDemo.Data
             builder.Property(p => p.Status).HasColumnName("Status").HasMaxLength(16).HasConversion(
                 v => v.ToString(),
                 v => (InvoiceStatus)Enum.Parse(typeof(InvoiceStatus), v));
+
         }
     }
 }

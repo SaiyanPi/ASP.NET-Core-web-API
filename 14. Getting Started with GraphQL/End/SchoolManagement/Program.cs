@@ -28,7 +28,7 @@ builder.Services
     // .RegisterDbContext<AppDbContext>()
     .RegisterDbContext<AppDbContext>(DbContextKind.Pooled)
     .RegisterService<ITeacherService>(ServiceKind.Resolver)   
-    // .AddQueryType<Query>()
+    // .AddQueryType<Queryi>()
     .AddQueryType<QueryType>()
     .AddType<LabRoomType>()
     .AddType<ClassroomType>()
