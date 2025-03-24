@@ -101,4 +101,124 @@ Adding Mutations:
     * Note that the AddTeacherInput type is an input type, so it uses the input keyword instead of
         type.
         
-6) 
+6) Click the Create Document button to create a new query. You can use the following mutation  to create
+    a new teacher:
+
+        mutation addTeacher {
+            addTeacher(
+                input: {
+                firstName: "John"
+                lastName: "Smith"
+                email: "john.smith@sampleschool.com"
+                phone: "1234567890"
+                bio: "John Smith is a math teacher."
+                }
+            ) {
+                teacher {
+                id
+                }
+            }
+        }
+
+        error:  {
+                "errors": [
+                    {
+                    "message": "Unexpected Execution Error",
+                    "locations": [
+                        {
+                        "line": 2,
+                        "column": 3
+                        }
+                    ],
+                    "path": [
+                        "addTeacher"
+                    ]
+                    }
+                ],
+                "data": null
+                }
+        
+        console: ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The INSERT statement 
+                        conflicted with the FOREIGN KEY constraint  "FK_Teachers_Departments_DepartmentId". 
+                        The conflict occurred in database "Chapter14GraphQlDemoDb", table "dbo.Departments",
+                        column 'Id'.
+        
+        * This is because we have a foreign key 'DepartmentId' in the Teacher class. Department is a Principal
+            entity and Teacher is a dependent entity. So we also need to assign a DepartmentId when creating
+            new Teacher. Let's add the DepartmentId property to our mutation as:
+
+            (AddTeacherInput class)
+
+                public record AddTeacherInput(
+                string FirstName,
+                string LastName,
+                string Email,
+                string? Phone,
+                string? Bio,
+                Guid? DepartmentId);
+            
+            (Mutation class)
+
+                public class Mutation
+                {
+                    public async Task<AddTeacherPayload> AddTeacherAsync(
+                    AddTeacherInput input, [Service] AppDbContext context)
+                    {
+                        var teacher = new Teacher
+                        {
+                            Id = Guid.NewGuid(),
+                            // omitted
+                            Bio = input.Bio,
+                            DepartmentId = (Guid)input.DepartmentId,
+                        };
+                        context.Teachers.Add(teacher);
+                        await context.SaveChangesAsync();
+                        return new AddTeacherPayload(teacher);
+                    }
+                }
+        
+    Now, dotnet run the application and check the schema definition. DepartmentId property can be seen in
+        a input AddTeacherInput as:
+
+        input AddTeacherInput {
+            firstName: String!
+            lastName: String!
+            email: String!
+            phone: String
+            bio: String
+            departmentId: UUID
+        }
+
+    Finally, we can use the following mutation to create a new teacher.
+
+        mutation addTeacher {
+            addTeacher(
+                input: {
+                firstName: "John",
+                lastName: "Smith",
+                email: "john.smith@sampleschool.com",
+                phone: "1234567890",
+                bio: "John Smith is a math teacher.",
+                departmentId: "00000000-0000-0000-0000-000000000001"
+                
+                }
+            )
+            {
+                teacher {
+                id
+                lastName
+                }
+            }
+        }
+
+    Response:   {
+                    "data": {
+                        "addTeacher": {
+                        "teacher": {
+                            "id": "268a15c2-f42a-4ec6-9ad6-dd3cb62e1706",
+                            "lastName": "Smith"
+                        }
+                        }
+                    }
+                }
+    * this shows that the new teacher with id 68a15c2-f42a-4ec6-9ad6-dd3cb62e1706 has been created.
