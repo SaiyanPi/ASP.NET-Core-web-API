@@ -2,10 +2,13 @@ import * as signalR from "@microsoft/signalr";
 const txtUsername: HTMLInputElement = document.getElementById("txtUsername") as HTMLInputElement;
 const txtMessage: HTMLInputElement = document.getElementById("txtMessage") as HTMLInputElement;
 const btnSend: HTMLButtonElement = document.getElementById("btnSend") as HTMLButtonElement;
+
 btnSend.disabled = true;
+
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:7202/chatHub")
+    .withUrl("https://localhost:7264/chatHub")
     .build();
+
 connection.on("ReceiveMessage", (username: string, message: string) => {
     const li = document.createElement("li");
     li.textContent = `${username}: ${message}`;

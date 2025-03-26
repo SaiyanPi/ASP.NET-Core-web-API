@@ -83,7 +83,7 @@ Next. follows these steps to create a TypeScript client:
     const btnSend: HTMLButtonElement = document.getElementById("btnSend") as HTMLButtonElement;
     btnSend.disabled = true;
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl("https://localhost:7202/chatHub")
+        .withUrl("https://localhost:7264/chatHub")
         .build();
     connection.on("ReceiveMessage", (username: string, message: string) => {
         const li = document.createElement("li");
@@ -113,7 +113,7 @@ Next. follows these steps to create a TypeScript client:
     * connection object is used to send messages to the SignalR hub and receive messages from the
         SignalR hub.
     * WithURL() method is used to specify the URL of the SignalR hub. Our SignalR hub is hosted on a
-        https://localhost:7202 (from section 3)
+        https://localhost:7264 (from section 3)
     * when the page is loaded, the Send button is disabled, then it will be enabled when the connection
         is established. The connection object has a couple of methods used in this sample.
         
@@ -222,3 +222,86 @@ Next. follows these steps to create a TypeScript client:
     }
 
 11) Next, update the index.html file in the src folder to load the bundle file:
+
+   // omitted
+        </div>
+        <script type="module" src="bundle.js"></script>
+    </body>
+    </html>
+
+12) Run the following command to compile the TypeScript code and to copy the HTML files to the dist folder:
+
+    cmd: npm run gulp
+
+    * this cmd will compile the TypeScript code and generate a bundle file in the dist folder.
+        It will also copy the HTML files to the dist folder.
+    * If the cmd is executed successfully, we should see 3 files in the dist folder: bundle.js, bundle.js.map
+        and index.html.
+    * if we make any changes to the TypeScript code, we need to run this command again to compile the new
+        code.
+
+- The development of the TypeScript client is now complete. To test it, we need to run a web server to
+    host the HTML page.
+- VS Code has some extensions that can be used to run a web server. For example, you can use the Live
+    Preview extension. Once you install this extension, you can right-click the index.html file in the
+    dist folder and select the Show Preview menu to run the web server. You will see VS Code opens a new
+    tab and displays the HTML page.
+
+13) Now, start the SignalR server by running the following command:
+
+    cmd: dotnet run --launch-profile https
+
+    Let's copy the URL of the HTML page and open it in a browser. However, you may find that the Send
+    button is disabled. Press the F12 key to open the developer tools and check the console. You should
+    see an error message, as: (SEE TypeScript_Client_HTML.png)
+
+        Access to fetch at 'https://localhost:7264/chatHub/negotiate?negotiateVersion=1'
+        from origin 'http://127.0.0.1:3000' has been blocked by CORS policy: Response to 
+        preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' 
+        header is present on the requested resource. If an opaque response serves your needs, 
+        set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
+    
+    This error message indicates that the client cannot connect to the SignalR hub because of the 
+    cross-origin resource sharing(CORS) policy.  If a web page makes requests to a different
+    domain, this request is a cross-origin request. The browser will block cross-origin requests by
+    default. This is a security feature called the same-origin policy. This can help prevent cross-site
+    scripting (XSS) attacks. In this case, the URL of the client is different from the URL of the
+    SignalR hub, so the browser will block the request by default.
+
+14) To allow cross-origin request, we need to add CORS middleware component to the web API application.
+    Add the following code to the Program.cs file.
+
+        var corsPolicy = new CorsPolicyBuilder()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .WithOrigins("http://127.0.0.1:3000") // URL of the web server(TypeScript client not SignalR server)
+            .Build();
+        builder.Services.AddCors(options =>{
+            options.AddPolicy("CorsPolicy", corsPolicy);
+        });
+
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+        // omitted
+        app.UseHttpsRedirection();
+        app.UseCors("CorsPolicy");
+
+        * The preceding code allows cross-origin requests from http://127.0.0.1:3000, which is the URL of
+            the Live Preview web server. You can change it to the URL of your web server if you are using
+            a different web server. Note that this example is a very basic configuration that does not
+            restrict any HTTP headers or HTTP methods. In a real-world application, you may need to
+            restrict HTTP requests to improve the security of the application.
+            For more details about CORS, you can refer to the official documentation at 
+            https://learn.microsoft.com/en-us/aspnet/core/security/cors.
+
+15) Restart the SignalR server and refresh the web page. Send button now should be enabled. Enter a
+    username and a message and click the Send button. You should see the message displayed in a list.
+    Open another browser tab and enter the same URL. Enter a different username and a message and click
+    the Send button. You should see the message displayed in both browser tabs. 
+    (see message.png)
+
+- The TypeScript client is now complete. This is a very simple client that does not use any JavaScript
+    frameworks. The world of frontend development is changing rapidly. If you encounter any issues when
+    testing the sample code, you can use any other JavaScript frameworks you like, such as React, Angular,
+    or Vue.js. The code for SignalR is largely the same for different JavaScript frameworks.

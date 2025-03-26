@@ -3775,7 +3775,7 @@ const txtMessage = document.getElementById("txtMessage");
 const btnSend = document.getElementById("btnSend");
 btnSend.disabled = true;
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:7202/chatHub")
+    .withUrl("https://localhost:7264/chatHub")
     .build();
 connection.on("ReceiveMessage", (username, message) => {
     const li = document.createElement("li");
