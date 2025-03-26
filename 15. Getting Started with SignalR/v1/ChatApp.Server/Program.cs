@@ -1,4 +1,5 @@
 using ChatApp.Server.Hubs;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,7 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add SignalR
 builder.Services.AddSignalR();
-
+// Enable CORS
+var corsPolicy = new CorsPolicyBuilder()
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials()
+    .WithOrigins("http://127.0.0.1:3000")
+    .Build();
+builder.Services.AddCors(options =>{
+    options.AddPolicy("CorsPolicy", corsPolicy);
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -21,6 +31,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("CorsPolicy");
 
 var summaries = new[]
 {
@@ -43,6 +54,7 @@ app.MapGet("/weatherforecast", () =>
 .WithOpenApi();
 
 app.MapHub<ChatHub>("/chatHub");
+
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
