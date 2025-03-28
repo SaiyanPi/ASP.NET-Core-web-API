@@ -12,11 +12,13 @@ var corsPolicy = new CorsPolicyBuilder()
     .AllowAnyHeader()
     .AllowAnyMethod()
     .AllowCredentials()
-    .WithOrigins("http://127.0.0.1:3000")
+    // first URL is for TypeScript client and second is for Blazor client
+    .WithOrigins("http://127.0.0.1:3000", "https://localhost:7048")
     .Build();
 builder.Services.AddCors(options =>{
     options.AddPolicy("CorsPolicy", corsPolicy);
 });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
