@@ -1,0 +1,158 @@
+Building a Blazor Client:
+
+- Blazor is a web framework for building client-side application using C3. Blazor was first introduced
+    as a part of ASP.NET Core 3.0 in 2018.
+- Blazor supports different hosting models:
+    i) Blazor Server:
+        In this hosting model, the Blazor application is hosted on an ASP.NET Core server. Remote clients
+        connect to the server using SignalR. The server is responsible for handling user interactions and
+        updating the UI over a SignalR connection. The application can use the full power of the .NET
+        ecosystem and all ASP.NET Core features.
+        This hosting model also  allows the client to download a small amount of code, meaning the
+        application loads fast, but it  requires a persistent connection to the server. If the SignalR
+        connection is lost, the application  will not work.
+
+    ii) Blazor WebAssembly:
+        This hosting model runs the Blazor application on a WebAssembly .NET runtime in the browser.
+        The Blazor application is downloaded to the client, which means  that this model requires a larger
+        download size than the Blazor Server model.
+        When a Blazor WebAssembly application is hosted within an ASP.NET Core application, it is called
+        HOSTED BLAZOR WEBASSEMBLY. The hosted Blazor WebAssembly application can share code with the ASP.
+        NET Core application.
+        When a Blazor WebAssembly application is hosted in a static website without server-side code,
+        it is called STANDALONE BLAZOR WEBASSEMBLY. A standalone Blazor WebAssembly application acts
+        like a pure client-side application, such as a React application, so it can be hosted on any web
+        server or a content delivery network (CDN).
+        Blazor WebAssembly  applications can work offline, but the performance depends on the client’s
+        hardware.
+
+    iii) Blazor Hybrid:
+        This model allows a Blazor application to run in a .NET native app framework, such as WPF, 
+        Windows Forms, and MAUI. This model combines the power of the web and native applications, 
+        and it can use the full power of the .NET platform. It is suitable for building cross-platform 
+        applications because the Blazor code can be shared across different platforms. 
+        However, it is still required to package the application for different platforms.
+
+-  In this sample application, we will use standalone Blazor WebAssembly to build the client application 
+    because a web-based application is one of the most seen scenarios. But it is also possible to use
+    similar code for other hosting models. ASP.NET Core 8 brings some improvements to Blazor. To learn
+    more about Blazor, you can visit the official website at
+    https://learn.microsoft.com/en-us/aspnet/core/blazor/
+
+1) Navigate to the root folder of the ChatApp.sln solution. Create a new Blazor WebAssembly application
+    called ChatApp.BlazorClient and add the project to the solution using the following command:
+
+    cmd: dotnet new blazorwasm -n ChatApp.BlazorClient
+    cmd: dotnet sln add ChatApp.BlazorClient
+
+2) Navigate to the ChatApp.BlazorClient folder and run the following command to install the SignalR
+    client library:
+
+    cmd:  dotnet add package Microsoft.AspNetCore.SignalR.Client
+
+3) Add the following code after the page directive in the /Pages/Home.razor file:
+
+    @using Microsoft.AspNetCore.SignalR.Client
+    @implements IAsyncDisposable
+
+    * using statement imports the SignalR client library to the Home component.
+    * implements IAsyncDiposable statement indicates that the Home component implements the IAsyncDisposable
+        interface. IAsyncDisposable interface is used to dispose of resources asynchronously. We will use
+        it to dispose of the SignalR connection when the component is no longer in use.
+
+4) Add the following code to the end of the Home.razor file:
+
+    @code {
+        private HubConnection? _hubConnection;
+        private readonly List<string> _messages = new ();
+        private string? _username;
+        private string? _message;
+        private bool IsConnected => _hubConnection?.State == HubConnectionState.Connected;
+        protected override async Task OnInitializedAsync()
+        {
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl("https://localhost:7159/chatHub")
+                .Build();
+            _hubConnection.On<string, string>("ReceiveMessage", (username, message) =>
+            {
+                var encodedMessage = $"{username}: {message}";
+                _messages.Add(encodedMessage);
+                StateHasChanged();
+            });
+            await _hubConnection.StartAsync();
+        }
+        private async Task SendMessage()
+        {
+            if (_hubConnection != null && IsConnected)
+            {
+                await _hubConnection!.InvokeAsync("SendMessage", _username, _message);
+                _message = string.Empty;
+            }
+        }
+        public async ValueTask DisposeAsync()
+        {
+            if (_hubConnection is not null)
+            {
+                await _hubConnection.DisposeAsync();
+            }
+        }
+    }
+
+    * Blazor utilizes the @code directive to incorporate C# code into components.
+    * we have defined a few fields and methods for the Home component.
+    * The OnInitializedAsync()  method is used to set up a SignalR connection, while the SendMessage()
+        method is used to invoke the SendMessage() method of the SignalR hub to send a message. The 
+        DisposeAsync() method is used to dispose of the SignalR connection when the component is no longer
+        in use.
+    * Additionally, the Send button is enabled when a SignalR connection is established. Lastly, the
+        StateHasChanged() method is used to notify the component to re-render the UI.
+    * If you compare this code to its TypeScript counterpart, you will find that the logic is very similar.
+
+5) Next, we need to bind these fields to the UI. Add the following code before the @code directive:
+
+    <div id="username-group">
+        <label>User Name</label>
+        <input type="text" @bind="_username" />
+    </div>
+    <div id="message-group">
+        <label>Message</label>
+        <input type="text" @bind="_message" />
+    </div>
+    <input type="button" value="Send" @onclick="SendMessage" disabled="@(!IsConnected)" />
+    <ul>
+        @foreach (var message in _messages)
+        {
+            <li>@message</li>
+        }
+    </ul>
+
+    * Blazor uses the @ synbol to indicate a C# expression.
+    * The @bind directive is used to bind the value of the input element to the specified field.
+    *  The @onclick directive is used to bind the click event to the specified method.
+    * The @foreach directive is used to iterate over the messages and display them in a list.
+        If you are familiar with any modern JavaScript frameworks, such as React, Angular, or Vue.js,
+        you will find some similarities between Blazor and these frameworks.
+
+6)  Next, we need to configure the CORS policy for the SignalR server so that the Blazor client can 
+    connect to the SignalR hub.  Check the launchSettings.json file in the Properties folder. Similar to
+    the SignalR server application, we can use the http or https profile to run the Blazor client
+    application. We will use the https file in this case.(https://localhost:7048)
+    We need to update the CORS policy in the SignalR server. Update the Program.cs file of the
+    ChatApp.Server project, as:
+
+        var corsPolicy = new CorsPolicyBuilder()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .WithOrigins("http://127.0.0.1:3000", "https://localhost:7048")
+            .Build();
+        // omitted
+
+7) Run the SignalR server application and the Blazor client application in separate terminals using 
+    the dotnet run --launch-profile https command. You can test the Blazor client application by opening
+    the https://localhost:7048 URL in the browser. The Blazor client can chat with the TypeScript client
+    see Blazor_client.png
+
+- SignalR provides the convenience of real-time communication. Developers do not need to operate the 
+    underlying transport details; instead, they can use the SignalR Hub class to send and receive messages 
+    easily. In the next section, we will explore more features of a SignalR hub.

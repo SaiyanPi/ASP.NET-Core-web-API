@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatApp.Server", "ChatApp.Server\ChatApp.Server.csproj", "{0FE688E8-E1ED-4ED1-8ED3-9E7955CB9E29}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatApp.BlazorClient", "ChatApp.BlazorClient\ChatApp.BlazorClient.csproj", "{7A52F6AF-D21E-4AD8-8D1C-FA89A63B514E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{0FE688E8-E1ED-4ED1-8ED3-9E7955CB9E29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FE688E8-E1ED-4ED1-8ED3-9E7955CB9E29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FE688E8-E1ED-4ED1-8ED3-9E7955CB9E29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A52F6AF-D21E-4AD8-8D1C-FA89A63B514E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A52F6AF-D21E-4AD8-8D1C-FA89A63B514E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A52F6AF-D21E-4AD8-8D1C-FA89A63B514E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A52F6AF-D21E-4AD8-8D1C-FA89A63B514E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
