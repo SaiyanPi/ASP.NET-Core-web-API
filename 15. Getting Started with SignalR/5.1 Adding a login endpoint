@@ -1,0 +1,170 @@
+Adding a login endpoint:
+
+-  To authenticate the clients, we need to provide a login endpoint. We implemented a login endpoint in 
+    Chapter 8, So this is similar to the steps from chapter 8/Section 2. The only difference is the
+    GenerateToken method.
+
+- we need to create an AccountController class that contains register and login endpoints. we also need to
+    add some models, such as the LoginModel and AddOrUpdateUserModel classes. With these classes, we can
+    use the account/register and account/login endpoints to register and log in users.
+
+    A) Create a folder Models and inside it create a classes AddOrUpdateModel.cs and LoginModel.cs
+
+        public class AddOrUpdateAppUserModel
+        {
+            [Required(ErrorMessage = "User name is required")]
+            public string UserName { get; set; } = string.Empty;
+
+            [EmailAddress]
+            [Required(ErrorMessage = "Email is required")]
+            public string Email { get; set; } = string.Empty;
+            
+            [Required(ErrorMessage = "Password is required")]
+            public string Password { get; set; } = string.Empty;
+        }
+
+        public class LoginModel
+        {
+            [Required(ErrorMessage = "User name is required")]
+            public string UserName { get; set; } = string.Empty;
+            
+            [Required(ErrorMessage = "Password is required")]
+            public string Password { get; set; } = string.Empty;
+        }
+    B) Create a Controllers folder and inside it create a AccountController class as:
+
+        [ApiController]
+        [Route("[controller]")]
+        public class AccountController(UserManager<IdentityUser> userManager, IConfiguration configuration) 
+        : ControllerBase
+        {
+            // Create an action to register a new user
+            [HttpPost("register")]
+            public async Task<IActionResult> Register([FromBody] AddOrUpdateAppUserModel model)
+            {
+                // Check if the model is valid
+                if (ModelState.IsValid)
+                {
+                    var existedUser = await userManager.FindByNameAsync(model.UserName);
+                    if(existedUser != null)
+                    {
+                        ModelState.AddModelError("", "User name is already taken.");
+                        return BadRequest(ModelState);
+                    }
+                    // Create a new user object
+                    var user = new IdentityUser()
+                    {
+                        UserName = model.UserName,
+                        Email = model.Email,
+                        SecurityStamp = Guid.NewGuid().ToString()
+                    };
+                    // Try to save the user
+                    var result = await userManager.CreateAsync(user, model.Password);
+                    // If the user is successfully created, return Ok
+                    if (result.Succeeded)
+                    {
+                        var token = GenerateToken(model.UserName);
+                        return Ok(new { token });
+                    }
+                    // If there are any errors, add them to the ModelState object
+                    // and return the error to the client
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
+                // If we got this far, something failed, redisplay form
+                return BadRequest(ModelState);
+            }
+            
+            // Create a Login action to validate the user credentials and generate the JWT token
+            [HttpPost("login")]
+            public async Task<IActionResult> Login([FromBody] LoginModel model)
+            {
+            // Get the secret in the configuration
+            // Check if the model is valid
+                if (ModelState.IsValid)
+                {
+                    var user = await userManager.FindByNameAsync(model.UserName);
+                    if (user != null)
+                    {
+                        if (await userManager.CheckPasswordAsync(user, model.Password))
+                        {
+                            var token = GenerateToken(model.UserName);
+                            return Ok(new { token });
+                        }
+                    }
+                // If the user is not found, display an error message
+                ModelState.AddModelError("", "Invalid username or password");
+                }
+                return BadRequest(ModelState);
+            }
+
+            private string? GenerateToken(string userName)
+            {
+                var secret = configuration["JwtConfig:Secret"];
+                var issuer = configuration["JwtConfig:ValidIssuer"];
+                var audience = configuration["JwtConfig:ValidAudiences"];
+                if (secret is null || issuer is null || audience is null)
+                {
+                    throw new ApplicationException("Jwt is not set in the configuration");
+                }
+                var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+                var tokenHandler = new JwtSecurityTokenHandler();
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new[]
+                    {
+                        // SignalR requires the NameIdentifier claim to map the user to the connection
+                        new Claim(ClaimTypes.NameIdentifier, userName),
+                        new Claim(ClaimTypes.Name, userName),
+                        // If you use the email-based user ID provider, you need to add the email claim from the database
+                    }),
+                    Expires = DateTime.UtcNow.AddDays(1),
+                    Issuer = issuer,
+                    Audience = audience,
+                    SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
+                };
+
+                var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+                var token = tokenHandler.WriteToken(securityToken);
+                return token;
+            }
+        }
+
+        * One thing to note here is that when generating a JWT token, we need to add a
+            ClaimTypes.NameIdentifier claim to the token. SignalR uses this claim to identify the user.
+
+    C) update the Program file as:
+
+        builder.Services.AddControllers();
+
+        // Add services to the container.
+        builder.Services.AddDbContext<AppDbContext>();
+        // omitted
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.MapHub<ChatHub>("/chatHub");
+
+        app.MapControllers();
+
+        app.Run();
+
+    D) run the ChatApp.Server application and send a POST request to account/register endpoint to create
+        a user.
+
+        {
+            "userName": "user1",
+            "email": "user1@example.com",
+            "password": "Passw0rd!"
+        }
+
+        * create more users such as user1, user2, user3 and so on. we will use these users to test the
+            Groups feature later.
+        
+
+
+    
