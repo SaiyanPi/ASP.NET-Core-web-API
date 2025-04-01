@@ -1,0 +1,150 @@
+Using authentication and authorization in SignalR:
+
+-  In the previous section, we used the Hub class to implement a simple chat app. The Clients.All.SendAsync
+    method is used to send a message to all connected clients.
+- Sometimes, we may want to send a message to a specific client or a group of clients. To manage users and
+    groups, we need to know the identity of the user. In this section, we will explore how to use
+    authentication and authorization in SignalR.
+- By default, SignalR uses a ClaimTypes.NameIdentifier claim to differentiate users. The
+    ClaimTypes.NameIdentifier claim is used to uniquely identify a user.
+- We introduced claim based authorization in Chapter 8, so we will follow the steps from that chapter to
+    add authentication and authorization to the SignalR server application.
+
+- To add authentication and authorization to the SignalR server, follow these steps:
+    (Code related to this section is inside the v2 folder)
+
+1) Install the required packages using the following command:
+
+    cmd: dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+    cmd: dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+    cmd: dotnet add package Microsoft.EntityFrameworkCore.Tools
+    cmd: dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+
+2) Create a new folder named Data in the ChatApp.Server project. Then, create a new class called
+    AppbContext in the Data folder. As we introduced DbContext in previous chapters, we will not show the
+    code here. (see inside folder v2)
+
+3) Add a connection string in the appsettings.json file:
+
+    "ConnectionStrings": {
+     "DefaultConnection": "Server=.;Database=SignalRChatAppServer;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+    }
+
+4) Add configurations for JWT tokens in the appsettings.json file:
+
+    "JwtConfig": {
+     "ValidAudiences": "http://localhost:5042",
+     "ValidIssuer": "http://localhost:5042",
+     "Secret": "c1708c6d-7c94-466e-aca3-e09dcd1c2042"
+    }
+
+    * we will use the same SignalR as the authenticatiopn server. So, we will use the URL of the SignalR
+        server as the audience and issuer.
+    * if you use different authentication server, you need to change the audience and issuer accordingly.
+
+5) SignalR need an IUserIdProvider interface to get the user ID. Create a new folder named Service in the
+    ChatApp.Server project. Then create a new class called NameUserIdProvider in the Services folder.
+
+    public class NameUserIdProvider : IUserIdProvider
+    {
+        public string GetUserId(HubConnectionContext connection)
+        {
+            return connection.User?.Identity?.Name ?? string.Empty;
+        }
+    }
+
+    * the preceeding code implements the IUserIdProvider interface.
+    * GetUserId method returns the user ID of the current user. In this case we use the username as the
+        user ID. we can use any other unique value as the user ID. for eg, if we want to use email as a
+        user ID, we can create an EnaimBasedUserIdProvider class as follows:
+
+        public class EmailBasedUserIdProvider : IUserIdProvider
+        {
+            public string GetUserId(HubConnectionContext connection)
+            {
+                return connection.User?.Claims.FirstOrDefault(c => 
+                c.Type == ClaimTypes.Email)?.Value ?? string.Empty;
+            }
+        }
+
+6) Update the Program.cs file to add authentication and authorization as follows:
+
+    // Add services to the container.
+    builder.Services.AddDbContext<AppDbContext>();
+    builder.Services.AddIdentityCore<IdentityUser>()
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddDefaultTokenProviders();
+
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(options =>
+    {
+        var secret = builder.Configuration["JwtConfig:Secret"];
+        var issuer = builder.Configuration["JwtConfig:ValidIssuer"];
+        var audience = builder.Configuration["JwtConfig:ValidAudiences"];
+        if (secret is null || issuer is null || audience is null)
+        {
+            throw new ApplicationException("Jwt is not set in the configuration");
+        }
+        options.SaveToken = true;
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidAudience = audience,
+            ValidIssuer = issuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
+        };
+        
+        // Hook the SignalR event to check for the token in the query string
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+    // Use the name-based user ID provider
+    builder.Services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
+
+    * preceeding code is similar to the code from chapter 9. A difference is that we configured the
+        options.Events property to the JwtBearerOptions object.
+    * OnMessageReceived event is used to check the token in the query string. The reason is that WebSocket
+        APIs and SSE do not support the standard Authorization header, so it is required to attach the
+        token to the query string. If the token is found in the query string, it will be used to authenticate
+        the user.
+    * we also added the IUserIdProvider service to the DI container. In this case, we use the NameUserIdProvider
+        class we created earlier, if we want to use the EmailBasedUserIdProvider class, we need to change
+        the code accordingly. NOTE that we must not use both at the same time.
+
+7) Create a database and run migrations using the following commands:
+
+    cmd: dotnet ef migrations add InitialDb
+    cmd: dotnet ef database Update
+    
+8) Next, we need to add an Authorize attribute to the ChatHub class, as shown next:
+
+    [Authorize]
+    public class ChatHub : Hub
+    {
+        // omitted
+    }
+
+    * The Authorize attribute can be applied to the Hub class or methods of the Hub class.
+    * It also supports policy-based authorization. For example, you can use the Authorize(Policy = "Admin")
+        attribute to restrict access to the ChatHub class to administrators.
+
+9) Run the ChatApp.Server application, as well as any other client applications. Unfortunately, the
+    TypeScript and Blazor clients will not be able to connect to the SignalR hub due to the need for user
+    authentication. To access the SignalR hub, we need to authenticate the clients.

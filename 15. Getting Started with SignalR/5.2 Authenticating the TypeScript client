@@ -1,0 +1,8 @@
+Authenticating the TypeScript client.
+
+- Now, we can authenticate the TypeScript client. To do so, we need to update the UI to allow the user to 
+    enter the username and password.
+- We also need to update the TypeScript code to send the username and password to the login endpoint.
+    Follow these steps to update the TypeScript client:
+
+1) 
