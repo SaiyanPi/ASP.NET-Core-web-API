@@ -5,4 +5,160 @@ Authenticating the TypeScript client.
 - We also need to update the TypeScript code to send the username and password to the login endpoint.
     Follow these steps to update the TypeScript client:
 
-1) 
+1) Update the HTML content in the <body> element as:
+
+    <body>
+        <div id="divLogin">
+            <label for="txtUsername">User Name</label>
+            <input type="text" id="txtUsername" />
+            <label for="txtPassword">Password</label>
+            <input type="password" id="txtPassword" />
+            <input type="button" id="btnLogin" value="Login" />
+        </div>
+        <div id="divChat">
+            <label>User Name</label>
+            <label id="lblUsername" ></label>
+            <label for="txtToUser">To</label>
+            <input type="text" id="txtToUser" />
+            <label for="txtMessage">Message</label>
+            <input type="text" id="txtMessage" />
+            <input type="button" id="btnSend" value="Send" />
+            <ul id="messages"></ul>
+        </div>
+        <script type="module" src="bundle.js"></script>
+    </body>
+
+    *  preceding code adds a login form to the HTML page. The login form contains a username textbox, a
+        password textbox, and a login button. 
+    * divChat element now has a lblUsername element to display the username. The divChat element is
+        hidden by default. We will show it after the user is authenticated.
+
+
+2) Update the app.ts file as follows:
+
+    import * as signalR from "@microsoft/signalr";
+    const txtUsername: HTMLInputElement = document.getElementById("txtUsername") as HTMLInputElement;
+    const txtPassword: HTMLInputElement = document.getElementById("txtPassword") as HTMLInputElement;
+    const btnLogin: HTMLButtonElement = document.getElementById("btnLogin") as HTMLButtonElement;
+    const divLogin: HTMLDivElement = document.getElementById("divLogin") as HTMLDivElement;
+    const lblUsername: HTMLLabelElement = document.getElementById("lblUsername") as HTMLLabelElement;
+    const txtMessage: HTMLInputElement = document.getElementById("txtMessage") as HTMLInputElement;
+    const txtToUser: HTMLInputElement = document.getElementById("txtToUser") as HTMLInputElement;
+    const btnSend: HTMLButtonElement = document.getElementById("btnSend") as HTMLButtonElement;
+    const divChat: HTMLDivElement = document.getElementById("divChat") as HTMLDivElement;
+    
+    divChat.style.display = "none";
+    btnSend.disabled = true;
+
+    btnLogin.addEventListener("click", login);
+    let connection: signalR.HubConnection = null;
+    async function login() {
+        const username = txtUsername.value;
+        const password = txtPassword.value;
+
+        if (username && password) {
+            try {
+            // Use the Fetch API to login
+            const response = await fetch("https://localhost:7264/account/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const json = await response.json();
+
+            localStorage.setItem("token", json.token);
+            localStorage.setItem("username", username);
+            txtUsername.value = "";
+            txtPassword.value = "";
+            lblUsername.textContent = username;
+            divLogin.style.display = "none";
+            divChat.style.display = "block";
+            txtMessage.focus();
+
+            // Start the SignalR connection
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("https://localhost:7264/chatHub", {
+                accessTokenFactory: () => {
+                    var localToken = localStorage.getItem("token");
+                    // You can add logic to check if the token is valid or expired
+                    return localToken;
+                },
+                })
+                .build();
+            connection.on("ReceiveMessage", (username: string, message: string) => {
+                const li = document.createElement("li");
+                li.textContent = `${username}: ${message}`;
+                const messageList = document.getElementById("messages");
+                messageList.appendChild(li);
+                messageList.scrollTop = messageList.scrollHeight;
+            });
+
+            connection.on("UserConnected", (username: string) => {
+                const li = document.createElement("li");
+                li.textContent = `${username} connected`;
+                const messageList = document.getElementById("messages");
+                messageList.appendChild(li);
+                messageList.scrollTop = messageList.scrollHeight;
+            });
+            connection.on("UserDisconnected", (username: string) => {
+                const li = document.createElement("li");
+                li.textContent = `${username} disconnected`;
+                const messageList = document.getElementById("messages");
+                messageList.appendChild(li);
+                messageList.scrollTop = messageList.scrollHeight;
+            });
+            await connection.start();
+            btnSend.disabled = false;
+            } catch (err) {
+            console.error(err.toString());
+            }
+        }
+    }
+
+    // const connection = new signalR.HubConnectionBuilder()
+    //   .withUrl("https://localhost:7264/chatHub")
+    //   .build();
+
+    txtMessage.addEventListener("keyup", (event) => {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    });
+
+    btnSend.addEventListener("click", sendMessage);
+
+    function sendMessage() {
+        // If the txtToUser field is not empty, send the message to the user
+        if (txtToUser.value) {
+            connection
+            .invoke("SendMessageToUser", lblUsername.textContent, txtToUser.value, txtMessage.value)
+            .catch((err) => console.error(err.toString()))
+            .then(() => (txtMessage.value = ""));
+        } else {
+            connection
+            .invoke("SendMessage", lblUsername.textContent, txtMessage.value)
+            .catch((err) => console.error(err.toString()))
+            .then(() => (txtMessage.value = ""));
+        }
+    }
+
+    * in the preceeding code, we use the fetch API to send a POST request to the login endpoint. The login
+        endpoint returns a JWT token if the user is authenticated.
+    * Then we store the token in the local storage and show the username in the divChat element.
+    * we also adjusted the creation of the SignalR connection. The accessTokenFactory  property is used to
+        get the token from the local storage. we can add some logic to check whether the token is valid or
+        expired.  If the token is expired, we can redirect the user to the login page or use the Refresh 
+        token to get a new token.
+
+3) Run the following command to compile the TypeScript code. this will copy a HTML files to the dist
+    folder.
+
+    cmd: npm run gulp
+
+4) Live Preview the html file inside dist folder and run the SignalR server application as well, we will see
+    a login form. (see login.png)
+    Login with the username and password we created earlier in the previous section. and send a message without
+    leaving the 'To' field (textToUser) empty. (see authentication_message.png)
+
+- Now the TypeScript client is authenticated. In next section, we will authinticate the Blazor client.
