@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "EphrvAG2Dxw=",
+  "dgSpecHash": "LQlVPrAZkCc=",
   "success": true,
-  "projectFilePath": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v1\\ChatApp.BlazorClient\\ChatApp.BlazorClient.csproj",
+  "projectFilePath": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v2\\ChatApp.BlazorClient\\ChatApp.BlazorClient.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\zlams\\.nuget\\packages\\microsoft.aspnetcore.authorization\\8.0.7\\microsoft.aspnetcore.authorization.8.0.7.nupkg.sha512",
     "C:\\Users\\zlams\\.nuget\\packages\\microsoft.aspnetcore.components\\8.0.7\\microsoft.aspnetcore.components.8.0.7.nupkg.sha512",
