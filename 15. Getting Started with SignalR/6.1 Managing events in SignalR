@@ -1,0 +1,69 @@
+Managing events in SignalR:
+
+- SignalR provides events to notify clients when a user connects or disconnects.
+- we can override the OnConnectedAsync() and OnDisconnectedAsync() methods to handle these events.
+
+    1. The following code shows how to override the OnConnectedAsync() method:
+
+        public override async Task OnConnectedAsync()
+        {
+            await Clients.All.SendAsync("UserConnected", Context.User.Identity.Name);
+            await base.OnConnectedAsync();
+        }
+
+        * when a client connects to the SignalR hub, the OnConnectedAsync() method will be called.
+        * in this case we use Clients.All.SendAsync() method to send message to all connected clients.
+        * the Context.User.Identity.Name property is used to get the username of the current user.
+
+    2. The following code shows how to override the OnDisconnectedAsync() method:
+
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            await Clients.All.SendAsync("UserDisconnected", Context.User.Identity.Name);
+            await base.OnDisconnectedAsync(exception);
+        }
+    
+    * add the preceeding code to the ChatHub.cs file in the Server application.
+
+- then we can update the TypeScript client to handle the UserConnected and UserDisconnected events.
+    
+    1. The following code shows how to handle the UserConnected event in the TypeScript client:
+
+        connection.on("UserConnected", (username: string) => {
+            const li = document.createElement("li");
+            li.textContent = `${username} connected`;
+            const messageList = document.getElementById("messages");
+            messageList.appendChild(li);
+            messageList.scrollTop = messageList.scrollHeight;
+        });
+        connection.on("UserDisconnected", (username: string) => {
+            const li = document.createElement("li");
+            li.textContent = `${username} disconnected`;
+            const messageList = document.getElementById("messages");
+            messageList.appendChild(li);
+            messageList.scrollTop = messageList.scrollHeight;
+        });
+
+    * add the preceeding code to the app.ts file in the TypeScript client application.
+
+    2. handling UserConnected even in the Blazor client is very similar:
+
+        _hubConnection.On<string>("UserConnected", (username) =>
+        {
+            var encodedMessage = $"{username} connected.";
+            _messages.Add(encodedMessage);
+            StateHasChanged();
+        });
+
+        _hubConnection.On<string>("UserDisconnected", (username) =>
+        {
+            var encodedMessage = $"{username} disconnected.";
+            _messages.Add(encodedMessage);
+            StateHasChanged();
+        });
+
+    * add the preceeding code to the Home.razor file in Blazor client application
+
+-  Now, we can run the SignalR server and the two clients. You should see the user’s connected and
+    disconnected messages in the chat window. If you refresh the page or close the browser tab, you
+    should see a user-disconnected message. (see client_event.png)

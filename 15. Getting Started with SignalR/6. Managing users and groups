@@ -1,0 +1,12 @@
+Managing users and groups:
+
+- in the previous section, we implemented basic authentication and authorization for the SignalR server. we
+    also updated clients to authenticate users.
+- in this section, we will explore how to manage users and groups in SignalR.
+    we want to add features to the Chat App to enable the following:
+    • Allow users to know who is connected to the chat app
+    • Allow users to send a message to a specific user
+    • Allow users to join groups
+    • Allow users to send a message to a specific group
+
+    (project inside v3 folder)

@@ -1,0 +1,61 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v3\\ChatApp.BlazorClient\\bin\\Debug\\net8.0\\wwwroot\\_framework\\blazor.webassembly.js",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js"
+    },
+    {
+      "Id": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v3\\ChatApp.BlazorClient\\obj\\Debug\\net8.0\\compressed\\l90zua0f45.gz",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js.gz"
+    },
+    {
+      "Id": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v3\\ChatApp.BlazorClient\\obj\\Debug\\net8.0\\scopedcss\\bundle\\ChatApp.BlazorClient.styles.css",
+      "PackagePath": "staticwebassets\\ChatApp.BlazorClient.styles.css"
+    },
+    {
+      "Id": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v3\\ChatApp.BlazorClient\\wwwroot\\css\\app.css",
+      "PackagePath": "staticwebassets\\css\\app.css"
+    },
+    {
+      "Id": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v3\\ChatApp.BlazorClient\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v3\\ChatApp.BlazorClient\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v3\\ChatApp.BlazorClient\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v3\\ChatApp.BlazorClient\\wwwroot\\icon-192.png",
+      "PackagePath": "staticwebassets\\icon-192.png"
+    },
+    {
+      "Id": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v3\\ChatApp.BlazorClient\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "C:\\Users\\zlams\\source\\REST API\\15. Getting Started with SignalR\\v3\\ChatApp.BlazorClient\\wwwroot\\sample-data\\weather.json",
+      "PackagePath": "staticwebassets\\sample-data\\weather.json"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.ChatApp.BlazorClient.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.ChatApp.BlazorClient.props",
+      "PackagePath": "build\\ChatApp.BlazorClient.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.ChatApp.BlazorClient.props",
+      "PackagePath": "buildMultiTargeting\\ChatApp.BlazorClient.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.ChatApp.BlazorClient.props",
+      "PackagePath": "buildTransitive\\ChatApp.BlazorClient.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
