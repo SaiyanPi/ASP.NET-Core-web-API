@@ -1,0 +1,68 @@
+Sending a message to a specific user:
+
+- The next feature we want to add is to allow users to send a message to a specific user. To do so, we need 
+    to know to whom the message is sent.
+- SignalR uses a ClaimTypes.NameIdentifier claim to differentiate users. To simplyfy the code, we will pass
+    the username as the target user.
+
+1) Add the folowing code to the ChatHub file in the server as:
+
+    public Task SendMessageToUser(string user, string toUser, string message)
+    {
+        return Clients.User(toUser).SendAsync("ReceiveMessage", user, message);
+    }
+
+    * preceeding code uses the Clients.User(user) method to find the connection of the specified user.
+
+2) Next, update the TypeScript client to add the textbox to enter the target username.
+
+    <label for="txtToUser">To</label>
+    <input type="text" id="txtToUser" />
+
+    Then we can invoke this method from the the TypeScript client as follows:
+
+        function sendMessage() {
+            // If the txtToUser field is not empty, send the message to the user
+            if (txtToUser.value) {
+                connection
+                .invoke("SendMessageToUser", lblUsername.textContent, txtToUser.value, txtMessage.value)
+                .catch((err) => console.error(err.toString()))
+                .then(() => (txtMessage.value = ""));
+            } else {
+                connection
+                .invoke("SendMessage", lblUsername.textContent, txtMessage.value)
+                .catch((err) => console.error(err.toString()))
+                .then(() => (txtMessage.value = ""));
+            }
+        }
+    
+    The code in the Blazor client is very similar:
+
+        <div>
+            <label>To User</label>
+            <input type="text" @bind="_toUser" />
+        </div>
+
+        private async Task SendMessage()
+        {
+            if (_hubConnection != null && IsConnected)
+            {
+                if (!string.IsNullOrWhiteSpace(_toUser))
+                {
+                    await _hubConnection.InvokeAsync("SendMessageToUser", _username, _toUser, _message);
+                }
+                else
+                {
+                    await _hubConnection.InvokeAsync("SendMessage", _username, _message);
+                }
+                _message = string.Empty;
+            }
+        }
+
+3) Run three applications. This time, we need to open multiple tabs with different usernames and send the
+    message from one user to another. ( see images specific_user1.png and specific_user2.png ).
+    
+    we can try log in to the same username in different browser tabs and send message to the same username.
+    we will find that both tabs will receive the message. This is because SignalR uses the
+    ClaimTypes.NameIdentifier claim to differenciate users. Each tab has a different SignalR connection, but
+    they use the same username. Therefore, SignalR will treat them as the same user.

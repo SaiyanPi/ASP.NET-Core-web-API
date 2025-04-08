@@ -138,4 +138,4 @@ function sendMessage() {
         .then(() => (txtMessage.value = ""));
     }
 }
-  
+
