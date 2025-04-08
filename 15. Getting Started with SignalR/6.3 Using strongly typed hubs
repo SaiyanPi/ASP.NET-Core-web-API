@@ -1,0 +1,77 @@
+Using strongly typed hubs:
+
+- so far, we have added a couple of methods to the ChatHub class:
+
+    public Task SendMessage(string username, string message)
+    {
+        return Clients.All.SendAsync("ReceiveMessage", username, message);
+    }
+
+    // user connected event
+    public override async Task OnConnectedAsync()
+    {
+        await Clients.All.SendAsync("UserConnected", Context.User.Identity.Name);
+        await base.OnConnectedAsync();
+    }
+
+    // user discoinnected event
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        await Clients.All.SendAsync("UserDisconnected", Context.User.Identity.Name);
+        await base.OnDisconnectedAsync(exception);
+    } 
+
+    // send message to a specified user
+    public Task SendMessageToUser(string user, string toUser, string message)
+    {
+        return Clients.User(toUser).SendAsync("ReceiveMessage", user, message);
+    }
+
+- each method calls the SendAsync() method with a string parameter. The string parameter is the name of the
+    method to be invoked on the client.
+- The SendAsync() method is a dynamic method, but it is not type-safe. If we misspell the method name, the
+    compiler will not report any error. To improve type safety, we can use strongly typed hubs.
+    To use strongly typed hubs, we need to define a hub interface that contains client methods. The following
+    code shows hoe to define a hub interface.
+
+    1) Create an interface IChatClient as:
+
+        public interface IChatClient
+        {
+            Task ReceiveMessage(string user, string message);
+            Task UserConnected(string user);
+            Task UserDisconnected(string user);
+        }
+
+    2) Now, we can update the ChatHub class to implement the IChatClient interface:
+
+        public class ChatHub : Hub<IChatClient>
+        {
+            public Task SendMessage(string user, string message)
+            {
+                return Clients.All.ReceiveMessage(user, message);
+            }
+
+            public Task SendMessageToUser(string user, string toUser, string message)
+            {
+                return Clients.User(toUser).ReceiveMessage(user, message);
+            }
+
+            public override async Task OnConnectedAsync()
+            {
+                await Clients.All.UserConnected(Context.User.Identity.Name);
+                await base.OnConnectedAsync();
+            }
+ 
+            public override async Task OnDisconnectedAsync(Exception? exception)
+            {
+                await Clients.All.UserDisconnected(Context.User.Identity.Name);
+                await base.OnDisconnectedAsync(exception);
+            }
+        }
+
+- Now, SendAsync() method is no longer used. Instead, we use the ReceiveMessage(), UserConnected(), and
+    UserDisconnected() methods defined in the IChatClient interface. Now, the ChatHub class is strongly
+    typed. Note that if we, use strongly typed hub, the SendAsync() method is no longer available.
+
+
