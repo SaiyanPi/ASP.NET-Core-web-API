@@ -131,22 +131,12 @@ function sendMessage() {
     // If the txtToUser field is not empty, send the message to the user
     if (txtToGroup.value && txtToGroup.readOnly === true) {
         connection
-          .invoke(
-            "SendMessageToGroup",
-            lblUsername.textContent,
-            txtToGroup.value,
-            txtMessage.value
-          )
+          .invoke("SendMessageToGroup", lblUsername.textContent, txtToGroup.value, txtMessage.value)
           .catch((err) => console.error(err.toString()))
           .then(() => (txtMessage.value = ""));
         } else if (txtToUser.value) {
         connection
-          .invoke(
-            "SendMessageToUser",
-            lblUsername.textContent,
-            txtToUser.value,
-            txtMessage.value
-          )
+          .invoke("SendMessageToUser", lblUsername.textContent, txtToUser.value, txtMessage.value)
           .catch((err) => console.error(err.toString()))
           .then(() => (txtMessage.value = ""));
          } else {
