@@ -1,0 +1,77 @@
+Joining groups:
+
+- SignalR allows users to join groups. The Hub class has a Groups property to manage groups. The type of
+    the Groups property is the IGroupManager interface, which provides methods such as AddToGroupAsync(),
+    RemoveFromGroupAsync(), and so on. The following code shows how to add users to a group and remove
+    users from a group.
+
+    1) Add the following code to the ChatHub class:
+
+        public async Task AddToGroup(string user, string group)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, group);
+            await Clients.Group(group).ReceiveMessage(Context.User.Identity.Name,
+            $"{user} has joined the group {group}. Connection Id: {Context.ConnectionId}");
+        }
+        public async Task RemoveFromGroup(string user, string group)
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, group);
+            await Clients.Group(group).ReceiveMessage(Context.User.Identity.Name,
+            $"{user} has left the group {group}. Connection Id: {Context.ConnectionId}");
+        }
+
+        * in the preceeding code, we use the 'Groups' property to manage groups.
+        * The 'Context.ConnectionId' property is used to get the connection ID of the current user.
+        * The 'Clients.Group()' method is used to send message to all users in the specified groups so that they
+            can know who has joined or left the group.
+
+    2) Next, we need to update the UI to allow users to enter the group name.
+        Add the following code to the HTML content for the divChat element
+                
+            <label id="lblToGroup">Group</label>
+            <input type="text" id="txtToGroup" />
+            <br>
+            <button id="btnJoinGroup">Join Group</button>
+            <button id="btnLeaveGroup">Leave Group</button>
+        
+        Update the TypeScript code to handle JoinGroup and LeaveGroup events:
+
+            const btnJoinGroup: HTMLButtonElement = document.getElementById("btnJoinGroup") as HTMLButtonElement;
+            const btnLeaveGroup: HTMLButtonElement = document.getElementById("btnLeaveGroup") as HTMLButtonElement;
+            const txtToGroup: HTMLInputElement = document.getElementById("txtToGroup") as HTMLInputElement;
+            
+            btnJoinGroup.addEventListener("click", joinGroup);
+            btnLeaveGroup.addEventListener("click", leaveGroup);
+            function joinGroup() {
+                if (txtToGroup.value) {
+                    connection
+                        .invoke("AddToGroup", lblUsername.textContent, txtToGroup.value)
+                        .catch((err) => console.error(err.toString()))
+                        .then(() => {
+                            btnJoinGroup.disabled = true;
+                            btnJoinGroup.style.display = "none";
+                            btnLeaveGroup.disabled = false;
+                            btnLeaveGroup.style.display = "inline";
+                            txtToGroup.readOnly = true;
+                        });
+                }
+            }
+            function leaveGroup() {
+                if (txtToGroup.value) {
+                    connection
+                        .invoke("RemoveFromGroup", lblUsername.textContent, txtToGroup.value)
+                        .catch((err) => console.error(err.toString()))
+                        .then(() => {
+                            btnJoinGroup.disabled = false;
+                            btnJoinGroup.style.display = "inline";
+                            btnLeaveGroup.disabled = true;
+                            btnLeaveGroup.style.display = "none";
+                            txtToGroup.readOnly = false;
+                        });
+                }
+            }
+
+        Similarly Update the code for Blazor client. (see the blazor application in v3 folder.)
+
+- Run the 3 applications. Now, the clients should be able to join and leave groups. When a user joins or
+    leaves a group, the other users in the group will receive a message as shown in the Join_group.png image.

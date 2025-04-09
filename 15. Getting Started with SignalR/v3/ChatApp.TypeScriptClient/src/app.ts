@@ -42,7 +42,10 @@ const txtMessage: HTMLInputElement = document.getElementById("txtMessage") as HT
 const txtToUser: HTMLInputElement = document.getElementById("txtToUser") as HTMLInputElement;
 const btnSend: HTMLButtonElement = document.getElementById("btnSend") as HTMLButtonElement;
 const divChat: HTMLDivElement = document.getElementById("divChat") as HTMLDivElement;
-  
+const btnJoinGroup: HTMLButtonElement = document.getElementById("btnJoinGroup") as HTMLButtonElement;
+const btnLeaveGroup: HTMLButtonElement = document.getElementById("btnLeaveGroup") as HTMLButtonElement;
+const txtToGroup: HTMLInputElement = document.getElementById("txtToGroup") as HTMLInputElement;
+
 divChat.style.display = "none";
 btnSend.disabled = true;
 
@@ -126,16 +129,63 @@ btnSend.addEventListener("click", sendMessage);
 
 function sendMessage() {
     // If the txtToUser field is not empty, send the message to the user
-    if (txtToUser.value) {
+    if (txtToGroup.value && txtToGroup.readOnly === true) {
         connection
-        .invoke("SendMessageToUser", lblUsername.textContent, txtToUser.value, txtMessage.value)
-        .catch((err) => console.error(err.toString()))
-        .then(() => (txtMessage.value = ""));
-    } else {
+          .invoke(
+            "SendMessageToGroup",
+            lblUsername.textContent,
+            txtToGroup.value,
+            txtMessage.value
+          )
+          .catch((err) => console.error(err.toString()))
+          .then(() => (txtMessage.value = ""));
+        } else if (txtToUser.value) {
         connection
-        .invoke("SendMessage", lblUsername.textContent, txtMessage.value)
-        .catch((err) => console.error(err.toString()))
-        .then(() => (txtMessage.value = ""));
+          .invoke(
+            "SendMessageToUser",
+            lblUsername.textContent,
+            txtToUser.value,
+            txtMessage.value
+          )
+          .catch((err) => console.error(err.toString()))
+          .then(() => (txtMessage.value = ""));
+         } else {
+        connection
+          .invoke("SendMessage", lblUsername.textContent, txtMessage.value)
+          .catch((err) => console.error(err.toString()))
+          .then(() => (txtMessage.value = ""));
     }
 }
+// joining/leaving groups
+btnJoinGroup.addEventListener("click", joinGroup);
+btnLeaveGroup.addEventListener("click", leaveGroup);
+function joinGroup() {
+    if (txtToGroup.value) {
+        connection
+            .invoke("AddToGroup", lblUsername.textContent, txtToGroup.value)
+            .catch((err) => console.error(err.toString()))
+            .then(() => {
+                btnJoinGroup.disabled = true;
+                btnJoinGroup.style.display = "none";
+                btnLeaveGroup.disabled = false;
+                btnLeaveGroup.style.display = "inline";
+                txtToGroup.readOnly = true;
+            });
+    }
+}
+function leaveGroup() {
+    if (txtToGroup.value) {
+        connection
+            .invoke("RemoveFromGroup", lblUsername.textContent, txtToGroup.value)
+            .catch((err) => console.error(err.toString()))
+            .then(() => {
+                btnJoinGroup.disabled = false;
+                btnJoinGroup.style.display = "inline";
+                btnLeaveGroup.disabled = true;
+                btnLeaveGroup.style.display = "none";
+                txtToGroup.readOnly = false;
+            });
+    }
+}
+
 
