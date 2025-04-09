@@ -26,6 +26,11 @@ public class ChatHub : Hub<IChatClient>
         return Clients.User(toUser).ReceiveMessage(user, message);
     }
 
+    public Task SendMessageToGroup(string user, string group, string message)
+    {
+        return Clients.Group(group).ReceiveMessage(user, message);
+    }
+
     // user connected event
     // public override async Task OnConnectedAsync()
     // {

@@ -1,0 +1,59 @@
+Sending a message to a group:
+
+- the code to send a message to a group is very similar to the code to send a message to a specific user.
+
+1) Update the ChatHub class as:
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        await Clients.All.UserDisconnected(Context.User.Identity.Name);
+        await base.OnDisconnectedAsync(exception);
+    }
+
+2) Update the clients
+    TypeScript: update thesendMessage() function as:
+
+        function sendMessage() {
+            // If the txtToUser field is not empty, send the message to the user
+            if (txtToGroup.value && txtToGroup.readOnly === true) {
+                connection
+                .invoke("SendMessageToGroup", lblUsername.textContent, txtToGroup.value, txtMessage.value)
+                .catch((err) => console.error(err.toString()))
+                .then(() => (txtMessage.value = ""));
+                } else if (txtToUser.value) {
+                connection
+                .invoke("SendMessageToUser", lblUsername.textContent, txtToUser.value, txtMessage.value)
+                .catch((err) => console.error(err.toString()))
+                .then(() => (txtMessage.value = ""));
+                } else {
+                connection
+                .invoke("SendMessage", lblUsername.textContent, txtMessage.value)
+                .catch((err) => console.error(err.toString()))
+                .then(() => (txtMessage.value = ""));
+            }
+        }
+
+    Blazor: update the SendMessage method as:
+
+        private async Task SendMessage()
+        {
+            if (_hubConnection != null && IsConnected)
+            {
+                if (!string.IsNullOrWhiteSpace(_group) && _isJoinedGroup)
+                {
+                    await _hubConnection.InvokeAsync("SendMessageToGroup", _username, _group, _message);
+                }
+                else if (!string.IsNullOrWhiteSpace(_toUser))
+                {
+                    await _hubConnection.InvokeAsync("SendMessageToUser", _username, _toUser, _message);
+                }
+                else
+                {
+                    await _hubConnection.InvokeAsync("SendMessage", _username, _message);
+                }
+                _message = string.Empty;
+            }
+        }
+
+- run all 3 application and send a message after joining the group. The message will be only visible to
+    other group users. See Group_message.png
