@@ -3818,6 +3818,9 @@ const txtMessage = document.getElementById("txtMessage");
 const txtToUser = document.getElementById("txtToUser");
 const btnSend = document.getElementById("btnSend");
 const divChat = document.getElementById("divChat");
+const btnJoinGroup = document.getElementById("btnJoinGroup");
+const btnLeaveGroup = document.getElementById("btnLeaveGroup");
+const txtToGroup = document.getElementById("txtToGroup");
 divChat.style.display = "none";
 btnSend.disabled = true;
 btnLogin.addEventListener("click", login);
@@ -3894,7 +3897,13 @@ txtMessage.addEventListener("keyup", (event) => {
 btnSend.addEventListener("click", sendMessage);
 function sendMessage() {
     // If the txtToUser field is not empty, send the message to the user
-    if (txtToUser.value) {
+    if (txtToGroup.value && txtToGroup.readOnly === true) {
+        connection
+            .invoke("SendMessageToGroup", lblUsername.textContent, txtToGroup.value, txtMessage.value)
+            .catch((err) => console.error(err.toString()))
+            .then(() => (txtMessage.value = ""));
+    }
+    else if (txtToUser.value) {
         connection
             .invoke("SendMessageToUser", lblUsername.textContent, txtToUser.value, txtMessage.value)
             .catch((err) => console.error(err.toString()))
@@ -3905,6 +3914,37 @@ function sendMessage() {
             .invoke("SendMessage", lblUsername.textContent, txtMessage.value)
             .catch((err) => console.error(err.toString()))
             .then(() => (txtMessage.value = ""));
+    }
+}
+// joining/leaving groups
+btnJoinGroup.addEventListener("click", joinGroup);
+btnLeaveGroup.addEventListener("click", leaveGroup);
+function joinGroup() {
+    if (txtToGroup.value) {
+        connection
+            .invoke("AddToGroup", lblUsername.textContent, txtToGroup.value)
+            .catch((err) => console.error(err.toString()))
+            .then(() => {
+            btnJoinGroup.disabled = true;
+            btnJoinGroup.style.display = "none";
+            btnLeaveGroup.disabled = false;
+            btnLeaveGroup.style.display = "inline";
+            txtToGroup.readOnly = true;
+        });
+    }
+}
+function leaveGroup() {
+    if (txtToGroup.value) {
+        connection
+            .invoke("RemoveFromGroup", lblUsername.textContent, txtToGroup.value)
+            .catch((err) => console.error(err.toString()))
+            .then(() => {
+            btnJoinGroup.disabled = false;
+            btnJoinGroup.style.display = "inline";
+            btnLeaveGroup.disabled = true;
+            btnLeaveGroup.style.display = "none";
+            txtToGroup.readOnly = false;
+        });
     }
 }
 
