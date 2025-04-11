@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScriptClient ChatApp</title>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="col-md-6 offset-md-3">
+            
+            <div id="divLogin">
+                <label for="txtUsername">User Name</label>
+                <input type="text" id="txtUsername" />
+                <br>
+                <label for="txtPassword">Password</label>
+                <input type="password" id="txtPassword" />
+                <br>
+                <input type="button" id="btnLogin" value="Login" />
+            </div>
+            <div id="divChat">
+                <label>User Name: </label>
+                <label id="lblUsername" ></label>
+                <br>
+                <hr>
+                <br>
+                <label id="lblToGroup">Group</label>
+                <input type="text" id="txtToGroup" />
+                <br>
+                <button id="btnJoinGroup">Join Group</button>
+                <button id="btnLeaveGroup">Leave Group</button>
+                <br>
+                <br>
+                <!-- if the textToUser is not empty, send the message to the user -->
+                <label for="txtToUser">To</label>
+                <input type="text" id="txtToUser" />
+                <br>
+                <label for="txtMessage">Message</label>
+                <input type="text" id="txtMessage" />
+                <br>
+                <input type="button" id="btnSend" value="Send" />
+                <ul id="messages"></ul>
+            </div>
+            <!-- <div id="divChat">
+                <label>User Name</label>
+                <label id="lblUsername" ></label>
+                <label for="txtMessage">Message</label>
+                <input type="text" id="txtMessage" />
+                <button id="btnSend">Send</button>
+                <ul id="messages"></ul>
+            </div> -->
+        </div>
+        
+    <script type="module" src="bundle.js"></script>
+</body>
+
+</body>
+</html>
