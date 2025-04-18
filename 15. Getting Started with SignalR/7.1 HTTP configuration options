@@ -1,0 +1,50 @@
+HTTP CONFIGURATION OPTIONS:
+
+- SignalR can automatically negotiate the transport protocol with the client.
+- the default transport protocol is WebSockets. if the client does not support WebSockets, SignalR will
+    use SSE or long polling.
+
+A) we can configure HTTP options for SignalR. Following code shows how to configure HTTP options for the
+    ChatHub class:
+
+    app.MapHub<ChatHub>("/chatHub", options =>
+    {
+        options.Transports = HttpTransportType.WebSockets | HttpTransportType.LongPolling;
+        options.WebSockets.CloseTimeout = TimeSpan.FromSeconds(10);
+        options.LongPolling.PollTimeout = TimeSpan.FromSeconds(120);
+    });
+
+    * the preceeding code configures HTTP options for the ChatHub class using a
+        HttpConnectionDispatcherOptions onject.
+    * in this sample, we configured the Transports property to use WebSockets and LongPolling, but not SSE.
+    * in addition, we configured the CloseTimeout property of the WebSockets property to 10 seconds, and
+        the PollTimeout property of the LongPolling property to 120 seconds.
+    * The default value of the CloseTimeout property is 5 seconds, meaning that after the server closes,
+        the connection will be terminated if clients cannot close the connection within 5 seconds.
+    * The default value of the PollTimeout property is 90 seconds, meaning that the server will terminate a
+        poll request after waiting for 90 seconds and then create a new poll request.
+
+B) The allowed transports can be configured in the client as well.
+    1. TypeScript client =>
+
+        connection = new signalR.HubConnectionBuilder()
+        .withUrl("https://localhost:7264/chatHub", {
+            transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling,
+            accessTokenFactory: () => {
+               // omitted
+            },
+        })
+        .build();
+    
+    2. Blazor client =>
+
+        _hubConnection = new HubConnectionBuilder()
+        .WithUrl("https://localhost:7264/chatHub", options =>
+        {
+            options.Transports = HttpTransportType.WebSockets | HttpTransportType.LongPolling;
+            // omitted
+        })
+        .Build();
+    
+    * the HttpTransportType enum has a FlagsAttribute attribute, so we can use the bitwise OR operator to
+        combine multiple transport protocols.

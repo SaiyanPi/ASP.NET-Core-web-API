@@ -1,0 +1,118 @@
+Configuring SignalR hubs and clients:
+
+- SignalR provides a HubOptions class to configure SignalR hubs. Also, SignalR clients have some configuration
+    options. In this ssection, we will explore how to configure SignalR hubs and clients.
+    application code related to this section is inside v5 folder.
+---------------------------------------------------------------------------------------------------------------
+
+# CONFIGURING SignalR HUBS:
+
+- here are some of the configuration options for SignalR hubs:
+    i) KeepAliveInterval
+        -> this property determines the interval at which a keep-alive message is sent to clients.
+        -> if a client does not receive a message from the server within this period of time, it will
+            send a ping message to the servert in order to maintain the connection.
+        -> when changing this value, it is important to also adjust the ServerTimeOutInMilliseconds or
+            ServerTimeout option in the client.
+            for best results, it is recommended to set the ServerTimeOutInMilliseconds or ServerTimeout
+            option to a value that is double the value of the KeepAliveInterval property.
+
+                i.e, ServerTimeOutInMilliseconds||ServerTimeout = 2(KeepAliveInterval)
+
+        -> default value of the KeepAliveInterval is 15 seconds.
+
+    ii) ClientTimeoutInterval
+        -> this property determines the interval at which the server will consider the client disconnected
+            if it has not received a message from client.
+        -> it is recommended to set ClientTimeoutInterval to a value that is double the value of the
+            KeepAliveInterval property.
+
+                i.e, ClientTimeoutInterval = 2*KeepAliveInterval
+
+        -> default value of the ClientTimeoutInterval is 30 seconds
+
+    iii) EnableDetailedErrors
+        -> this property determines whether detailed error message are sent to the client.
+        -> default value of EnableDetailedErrors id false as error mesage may contain sensitive information.
+
+    iv) MaximumReceiveMessageSize
+        -> this property determines the maximum size of a message that the server will accept.
+        -> default value of MaximumReceiveMessageSize is 32KB.
+        -> do not set this value to a very large value as it may cause denial-of-service(DoS) attacks and
+            consume a lot of memory.
+    
+    v) MaximumParallelInvocationsPerClient
+        -> this property determines the maximum number of hub method invocations that can be executed in
+            parallel per client.
+        -> default value of MaximumParallelInvocationsPerClient is 1.
+    
+    vi) StreamBufferCapacity
+        -> this property determines the maximum number of items that can be buffered in a client upload
+            stream.
+        -> default value of StreamBufferCapacity is 10. we will introduce streaming in the next section.
+
+A) There are 2 ways to configure SignalR hubs.
+    1) First way is to provide a HubOptions object to all hubs. following code shows how to configure the
+        ChatHub class:
+
+        builder.Services.AddSignalR(options =>
+        {
+            options.KeepAliveInterval = TimeSpan.FromSeconds(10);
+            options.ClientTimeoutInterval = TimeSpan.FromSeconds(20);
+            options.EnableDetailedErrors = true;
+        });
+
+    2) Second way is to configure the SignalR hubs for each hub. Following code shows how to configure the
+        ChatHub class:
+
+        builder.Services.AddSignalR().AddHubOptions<ChatHub>(options =>
+        {
+            options.KeepAliveInterval = TimeSpan.FromSeconds(10);
+            options.ClientTimeoutInterval = TimeSpan.FromSeconds(20);
+            options.EnableDetailedErrors = true;
+        });
+
+        * this is useful if we have multiple hubs and we want to configure them differently.
+        * NOTE: 
+            if we change the KeepAliveInterval or ClientTimeoutInterval property of the SignalR hub,
+            we need to update the ServerTimeOutInMilliseconds or ServerTimeout option in the client as well.
+
+B) Similarly we can configure the clients as follows:
+    1. TypeScript Client =>
+
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl("https://localhost:7264/chatHub", {
+            accessTokenFactory: () => {
+                var localToken = localStorage.getItem("token");
+                // You can add logic to check if the token is valid or expired
+                return localToken;
+            },
+            })
+            .build();
+        // The following configuration must match the configuration in the server project
+        connection.keepAliveIntervalInMilliseconds = 10000;
+        connection.serverTimeoutInMilliseconds = 20000;
+
+    2. Blazor Client =>
+
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7264/chatHub", options =>
+            {
+                options.AccessTokenProvider = () => Task.FromResult<string?>(_token);
+            })
+            .Build();
+            _hubConnection.KeepAliveInterval = TimeSpan.FromSeconds(10);
+            _hubConnection.ServerTimeout = TimeSpan.FromSeconds(20);
+
+        @* // You can also configure these properties on the HubConnectionBuilder object as shown below:
+        _hubConnection = new HubConnectionBuilder()
+        .WithUrl("https://localhost:7159/chatHub", options =>
+        {
+        // Omitted for brevity
+        })
+        .WithKeepAliveInterval(TimeSpan.FromSeconds(10))
+        .WithServerTimeout(TimeSpan.FromSeconds(20))
+        .Build(); *@
+    
+    * Make sure that the values of the KeepAliveInterval and ClientTimeout/ServerTimeout properties are the
+        same in the server and the client.
