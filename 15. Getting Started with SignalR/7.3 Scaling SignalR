@@ -1,0 +1,40 @@
+Scaling SignalR:
+
+- So far, we have implemented a chat app that allows users to send messages to other users or groups.
+    We have also explored how to manage SignalR connections. we can also use a similar approach to
+    build a real-time notification system, a real-time dashboard, and so on.
+- However, the application can only run on a single server. If we want to scale the application,
+    for example, using a load balancer to distribute requests to multiple servers, server A does not know
+    the connections on server B.
+- SignalR requires a persistent connection between the client and the server. That means requests from
+    the same client must be routed to the same server. This is called sticky sessions or session affinity.
+    This is required if you have multiple SignalR servers. Besides this requirement, there are some other
+    considerations when you scale SignalR:
+
+    • If you host the application in Azure, you can use Azure SignalR Service. Azure SignalR
+        Service is a fully managed service that helps you scale the SignalR application without
+        worrying about the infrastructure. With Azure SignalR Service, you do not need to use
+        sticky sessions as all clients connect to Azure SignalR Service. This service takes on the
+        responsibility of managing connections and freeing up resources on the SignalR servers.
+        For more information, please refer to https://learn.microsoft.com/en-us/
+        azure/azure-signalr/signalr-overview.
+    
+    • If you host the application on your own infrastructure or other cloud providers, you can use
+        Redis backplane to synchronize the connections. The Redis backplane is a Redis server that
+        uses the pub/sub feature to forward messages to other SignalR servers. However, this approach
+        requires sticky sessions for most cases, and the SignalR application instances require additional
+        resources to manage connections. There are some other SignalR backplane providers, such as
+        SQL Server, NCache, and so on.
+
+_______________________________________________________________________________________________________________
+
+SUMMARY:
+
+SignalR is a powerful library that simplifies the process of building real-time web applications. In
+this chapter, we explored how to use SignalR to build a chat app. We introduced basic concepts of
+SignalR, such as hubs, clients, and connections. We created clients using TypeScript and Blazor,
+which demonstrated how to use both TypeScript and .NET to build SignalR clients.
+
+Although we have covered a lot of features, there is still more to explore, such as streaming. For more
+information, please refer to the official documentation: https://learn.microsoft.com/en-us/aspnet/core/signalr/introduction.
+In the next chapter, we will explore how to deploy ASP.NET Core applications.
