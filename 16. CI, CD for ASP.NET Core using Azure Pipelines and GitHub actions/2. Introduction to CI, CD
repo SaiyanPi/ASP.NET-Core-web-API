@@ -1,0 +1,30 @@
+Introduction to CI/CD:
+
+- Developers work on code every day – they may create new features, fix bugs, or refactor existing code.
+    In a team environment, multiple developers may be working on the same code base. A developer
+    may create a new feature, while another developer may be fixing a bug. The code base is constantly
+    changing, and it is important to ensure that the code changes made by different developers do not
+    conflict with each other and do not break any existing functionalities. To avoid such issues, developers
+    should integrate their code changes frequently.
+- Additionally, when the application is ready to be deployed, it is important to consider the different
+    environments it may be deployed to, such as development, staging, or production. Different environments
+    may have different configurations, and the deployment process may be different for each environment.
+    To ensure that the application is deployed correctly and consistently, it is ideal to automate the
+    deployment process. This is where CI/CD comes in.
+- The acronym CI/CD can have different interpretations depending on the context.
+
+    CI =>
+    -> A development practice that allows developers to integrate code changes regularly.
+    -> stands for continious integration.
+
+    CD =>
+    -> CD can refer to either continious devlivery or continious deployment, which are often used
+        interchangeably.
+    -> in most cases, CD means building, testing, and deploying the applications to the production environment
+        (and potentially other environments) frequently and automatically.
+
+- CI/CD pipelines are key component of DevOps, a combination of the words development and operations.
+    DevOps has evolved over the years and is generally defined as a set of practices, tools, and processes
+    that enable continious delivery of the value to end users. While DevOps is the vast topic, we will
+    only focus on CI/CD pipelines specifically.
+- see image typical-CI-CD-process.png

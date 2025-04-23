@@ -1,0 +1,53 @@
+CI/CD concepts and terminologies:
+
+- it is essential to understand key concepts and terminologies commonly used in CI/CD. Following are some
+    of the most common terms used in CI/CD.
+
+1) pipelines
+-> pipeline is an automated process used to build, test, and deploy application.
+-> They can be triggered manually or automatically and can even be set up tp be triggered by other
+    pipelines.
+-> This helps streamline the development process, ensuring that application are built, tested, and deployed
+    quickly and efficiently.
+
+2) Build
+-> A build is a process that involves compiling the source code and creating the necessary binaries or
+    Docker images.
+-> This ensures that the code is ready for deployment.
+
+3) test
+-> A pipeline may include automated tests, such as unit tests, integration tests, performance tests, or
+    end-to-end(E2E) TESTS. These tests can be incorporated into the pipeline to ensure that the code changes
+    do not break any existing functionalities.
+-> This helps to ensure that the software remains stable and reliable.
+
+4) Artifact
+-> An artifact is a file or collection of files - normally, the output of a build process.
+-> examples of artifact include binary files, a docker image, or a zip file containing the binary files.
+-> these artifacts can then be used as inputs for the deployment process.
+
+5) Containerization
+-> Containerization is a method of packaging an application and its dependencies into a container image,
+    which can be deployed and run in a consistent environment, regardless of the host operating system.
+-> one of the most popular containerization tool is Docker.
+-> Containerization offers numerous benefits, such as improved scalability, portability, and resource
+    utilization.
+
+6) VCS
+-> VCSs are an essential tool for software development, allowing developers to track and manage changes
+    to source code.
+-> Git is one of the most widely used VCSs, providing developers with an effective way to manage their
+    code base.
+
+7) Deployment
+-> Deployment is the process of deploying the application to the target environment .
+-> It envolves configuring the application to meet the requirements of the environment, as well as ensuring
+    that it is secure and ready for use.
+
+8) triggered
+-> A trigger is an event that tells the pipeline when to run. A trigger can be manual or automatic.
+    for eg, a pull request can trigger the CI pipeline to validate code changes by running tests.
+            a merge to the main branch can trigger the CI pipeline to build and publish artifacts.
+-> a successful CI pipelines can trigger the CD pipelines to deploy the application to non-production
+    environments. However, the CD pipeline may need to be triggered manually to deploy the application
+    to the production environments AS A SAFETY MEASURE.

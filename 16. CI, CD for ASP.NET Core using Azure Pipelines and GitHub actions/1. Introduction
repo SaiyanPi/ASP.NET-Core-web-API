@@ -1,0 +1,17 @@
+In the previous chapters, we have explored the fundamentals of building, testing, and running ASP.
+NET Core applications. We have also discussed how to access data from a database using Entity
+Framework Core (EF Core) and secure our applications using ASP.NET Core Identity. Additionally,
+we have discussed how to test our applications using unit tests and integration tests, as well as how
+to use RESTful APIs, gRPC, and GraphQL. Furthermore, we have learned how to use the dotnet
+run command to run our applications locally. Now, it is time to take the next step in our ASP.NET
+Core journey and learn how to deploy our applications to the cloud.
+
+In this chapter, we will explore the concept of continious integration and continious delivery/deployment
+(CI/CD). This chapter will focus on two popular CI/CD tools and platforms; Azure Pipelines and GitHub
+Actions.
+
+We will discuss the following topics in this chapter:
+• Introduction to CI/CD
+• Containerizing ASP.NET Core applications using Docker
+• CI/CD using Azure Pipelines
+• GitHub Actions
