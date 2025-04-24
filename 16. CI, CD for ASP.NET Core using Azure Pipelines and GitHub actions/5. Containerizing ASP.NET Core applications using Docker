@@ -1,0 +1,128 @@
+Containerizing ASP.NET Core applications using Docker:
+
+- Many years ago, when we deployed applications to the production environment, we needed to ensure
+    that the target environment had the correct version of the .NET Framework installed. Developers
+    were struggling with the it works on my machine problem, as development environments may have
+    had different configurations than the production environment, including software versions, operating
+    systems, and hardware. This often led to deployment failures due to configuration issues.
+
+- The introduction of .NET Core, a cross-platform and open-source framework, has enabled us to deploy
+    our applications on any platform, including Windows, Linux, and macOS. However, for successful
+    deployment, we still need to ensure that the target environment has the correct runtime installed.
+    This is where containerization comes in.
+
+WHAT IS CONTAINERIZATION?
+-> Containers are lightweight, isolated, and portable environments that contain all the necessary
+    dependencies for running an application.
+-> Unlike virtual machines (VMs), they do not require a separate guest operating system as they share the
+    host operating system kernel. This makes them more lightweight and portable than VMs, as they can run
+    on any platform that supports the container runtime. Containers also provide isolation, ensuring that
+    applications are not affected by changes in the environment.
+-> Containerization is a powerful tool that enables us to package our application and their dependencies
+    into a single container image. Docker is one of the most popular containerization solutions, offering
+    support for Windows, Linux, and macOS for development purposes, as well as many variants of Linux, such
+    as Ubuntu, Debian, and CentOS, for production environments.
+    Additionally, Docker is compatible with cloud platforms, including Azure, Amazon Web Services (AWS),
+    and Google Cloud Platform (GCP). If we use Docker as the container runtime, then the container images
+    are called Docker images.
+-> Docker images are a convenient way to package an application and its dependencies. They contain
+    all the components necessary to run an application, such as the application code (binaries), runtime
+    or SDK, system tools, and configurations.
+-> Docker images are immutable, meaning they cannot be changed once they are created. To store these images,
+    they are placed in a registry, such as Docker Hub, Azure Container Registry (ACR), or AWS Elastic
+    Container Registry (ECR). Docker Hub is a public registry that offers many pre-built images.
+    Alternatively, a private registry can be created to store custom Docker images.
+-> Once a Docker image has been created, it can be used to create a Docker container. A Docker container
+    is an isolated, in-memory instance of a Docker image, with its own filesystem, network, and memory. 
+-> Multiple containers can be created from the same image, which is useful for scaling out applications.
+    If any container fails, it can be destroyed and rebuilt from the same image in a matter of seconds,
+    making containerization a powerful tool.
+-> The files in a Docker image are stackable. see image Decker-container-file-system.packaging
+    Image illustrates the layers of a Docker container.
+    -> On top of the kernel layer is the base image layer, which is an empty container image created from
+        Ubuntu.
+    -> On the top of the base layer is the ASP.NET Core runtime layer, then the ASP.NET Core app layer.
+    -> When a container is created, Docker adds a final writable layer on a top of other layers. This 
+        writable layer can be used to store temporary files, such as logs.
+        However, as we mentioned earlier, Docker images are immutable, so any changes made to the writable
+        layer will be lost when the container is destroyed. This is why we should not store any persistent
+        data in a container. Instead, we should store the data in a volume, which is the directory on the
+        host machine that is mounted into the container.
+
+This is a very simplified explanation of Docker images and containers. Next, let us install Docker and
+create a Docker image for our ASP.NET Core application.
+
+INSTALLING DOCKER:
+1) download and install Docker Desktop from the following links:
+    • Windows: https://docs.docker.com/desktop/install/windows-install/
+    • Mac: https://docs.docker.com/desktop/install/mac-install/
+    • Linux: https://docs.docker.com/desktop/install/linux-install/
+    Please follow the official documentation to install Docker on your machine.
+
+2) for window, install WSL 2(Windows SubSystem for Linux 2) backend instead of Hyper-V.
+    to install WSL 2, follow the instruction from https://learn.microsoft.com/en-us/windows/wsl/install 
+
+    -> WSL 2 is a compatibility layer that allows Linux binary executables to be run natively on Windows.
+    -> Using WSL 2 as the backend for Docker Desktop on Windows provides better performance than the
+        Hyper-V backend.
+    -> By default, WSL 2 uses the Ubuntu distribution. we can also install other linux distributions, such
+        as, Debian, CentOS, or Fedora.
+    
+3) Open docker and follow Setting/Resources/WSL integration and choose the distribution you want to use with
+    Docker Desktop as shown in docker-setting.png image file.
+    If we have multiple Linux distributions installed, we can choose the default distribution to use with
+    Docker Desktop.
+
+    -> after installing, to check the client and server docker versions 
+        cmd: docker version
+        o/p: 
+                Client:
+                    Version:           28.0.4                               //docker client version
+                    API version:       1.48
+                    Go version:        go1.23.7
+                    Git commit:        b8034c0
+                    Built:             Tue Mar 25 15:07:48 2025
+                    OS/Arch:           windows/amd64
+                    Context:           desktop-linux
+
+                Server: Docker Desktop 4.40.0 (187762)                      //docker desktop version
+                    Engine:
+                    Version:          28.0.4                                //docker client version
+                    API version:      1.48 (minimum version 1.24)
+                    Go version:       go1.23.7
+                    Git commit:       6430e49
+                    Built:            Tue Mar 25 15:07:22 2025
+                    OS/Arch:          linux/amd64
+                    Experimental:     false
+                    containerd:
+                    Version:          1.7.26
+                    GitCommit:        753481ec61c7c8955a23d6ff7bc8e4daed455734
+                    runc:
+                    Version:          1.2.5
+                    GitCommit:        v1.2.5-0-g59923ef
+                    docker-init:
+                    Version:          0.19.0
+                    GitCommit:        de40ad0
+
+    -> to check the version of WSL
+        cmd: wsl -l -v
+        o/p:  
+                NAME              STATE           VERSION
+                * Ubuntu            Running         2
+                  docker-desktop    Running         2
+        
+        * the VERSION field shows 2, that means WSL 2 is installed correctly. 
+        * Docker desktop installs two internal Linux distros
+            i) docker-desktop: This is used to run the Docker engine
+            ii) docker-desktop-data: This is used to store containers and images
+        * BUT WE ARE MISSING docker-desktop-data DISTRO, WHY?
+        => for newer Docker Desktop version on Windows with WSL2 (4.30 and later), simplified provisioning 
+            mode is added that avoids the need for the ancillary docker-desktop-data.
+            see here, https://docs.docker.com/desktop/release-notes/#4300
+
+-> Note that Docker may consume a lot of resources on your machine. If you feel that Docker slows down
+    your machine or consumes too many resources, you can configure the resources allocated to WSL 2
+    following the instructions in this link: https://learn.microsoft.com/en-us/windows/wsl/wsl-config#configure-global-options-with-wslconfig.
+
+-> After installing Docker Desktop, we can now create a Docker image for our ASP.NET Core application.
+    In the next section, we will discuss some commands that are commonly used in Docker.

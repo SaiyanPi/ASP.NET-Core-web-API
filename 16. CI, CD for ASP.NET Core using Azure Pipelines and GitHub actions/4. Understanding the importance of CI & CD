@@ -1,0 +1,46 @@
+Understanding the importance of CI & CD:
+
+- CI/CD plays an important role in DevOps. It helps the team respond to change and deliver value to end
+    users frequently, safely, and reliably.
+
+- As CI/CD pipelines are automated, they can streamline the process of delivering software and reduce the
+    time and effort needed to deploy applications to the production environment. Additionally, CI/CD helps
+    maintain a stable and reliable code base.
+
+- In order to successfully implement a CI/CD pipeline, the team must adhere to certain practices. 
+    | Automated tests should be conducted to ensure that code changes do not break any existing
+        functionalities. 
+    | Additionally, a well-defined deployment strategy should be established, such as staging the
+        application in a development environment before deploying it to the production environment.
+
+- By following these practices, the team can reduce time to market (TTM) and deliver the application to
+    end users faster and more frequently.
+
+- CI/CD practices help development teams in the following ways:
+
+    i) Faster feedback
+        -> CI/CD pipelines can be triggered automatically when code changes are committed to the shared
+            repository.
+        -> This provides developers with faste feedback on code changes, allowing them to address any issues
+            early in the development process.
+    ii) Reduced manual effort and risk
+        -> CI/CD pipelines automate the deployment process, reducing manual effort and risk.
+        -> This decreases the time and effort needed for production deployment, eliminating manual and
+            error-prone processes.
+    iii) Consistency
+        -> Automated builds and deployments ensure consistency across different environments
+        -> This reduces the risk of deployment failures due to configuration issues or 'it works on my
+            machine' problems.
+    iv) Enhanced quality
+        ->  Automated tests can be integrated into CI/CD pipelines, which helps to ensure that the code
+            base remains stable and reliable.
+        -> CI/CD pipelines can also run other quality checks, such as static code analysis and code test
+            coverage, which leads to higher-quality code.
+    v) Rapid delivery and agility
+        -> CI/CD pipelines enable the team to release new features and bug fixes to end users faster and
+            more frequently.
+        -> This allows businesses to respond quickly to customer needs and market changes.
+
+- With these benefits in mind, it is clear that CI/CD is a must-have for any development team. No one
+    would want to go back to the days of manual builds and deployments anymore, as it is time-consuming
+    and error-prone.
