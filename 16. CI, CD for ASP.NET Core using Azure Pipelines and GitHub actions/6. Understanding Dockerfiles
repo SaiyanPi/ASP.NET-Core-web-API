@@ -1,0 +1,150 @@
+Understanding Dockerfiles:
+
+- To demonstrate how to build and run Docker images, we will need a sample ASP.NET Core application. 
+    dotnet new webapi -0 BasicWebApiDemo -controllers
+
+- Docker images can be built using a Dockerfile. Dockerfile is a text file containing a list of instructions
+    used to build the image.
+    We can create a Dockerfile in the root directory of the ASP.NET Core project manually or we can use
+    VS 2022 to create for us.
+    Creating Dockerfile using VS 2022
+    -> right click on the project in the Solution Explorer, then select Add/Docker Support.
+    -> There are two options here: Linux and Windows.
+        It is recommended to use Linux for development purposes, as the linux image is smaller than the
+        windows image. Many cloud platforms, such as Azure, AWS, and GCP, support Linux containers.
+        However, not all Windows servers support Windows containers. Unless you have strong reasons to host
+        your application on a Windows server, you should choose Linux here.
+    -> Once Linux option is selected , VS 2022 will then generate a Dockerfile for us. The default Dockerfile
+        created by VS 2022 is as follows:
+
+        #See https://aka.ms/customizecontainer to learn how to customize your debug container and
+        how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+        FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+        USER app
+        WORKDIR /app
+        EXPOSE 8080
+        EXPOSE 8081
+
+        FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+        ARG BUILD_CONFIGURATION=Release
+        WORKDIR /src
+        COPY ["BasicWebApiDemo.csproj", "."]
+        RUN dotnet restore "./BasicWebApiDemo.csproj"
+        COPY . .
+        WORKDIR "/src/."
+        RUN dotnet build "./BasicWebApiDemo.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+        FROM build AS publish
+        ARG BUILD_CONFIGURATION=Release
+        RUN dotnet publish "./BasicWebApiDemo.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+        FROM base AS final
+        WORKDIR /app
+        COPY --from=publish /app/publish .
+        ENTRYPOINT ["dotnet", "BasicWebApiDemo.dll"]
+
+    ---------------------------------------------------------------------------------------------------------
+
+    Let's go through the Dockerfile line by line:
+
+    1) FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+
+        explanation: 
+        * The FROM instruction specifies the base image to use.
+        * The FROM instruction must be the first instruction in a Dockerfile. In this case, we are using
+            the mcr.microsoft.com/dotnet/aspnet:8.0 image, which is the ASP.NET Core runtime image. This
+            image is provided by Microsoft. mcr.microsoft.com is the domain name of the Microsoft Artifact
+            Registry (also known as Microsoft Container Registry or MCR), which is a public registry that
+            contains many pre-built images, similar to Docker Hub
+        * AS base means we are giving this image a name, which is base. This name can be used later in the
+            Dockerfile to refer to this image.
+    
+    2) USER app
+
+        explanation:
+        * the USER instruction specifies the username or unique identifier (UID) to use when running
+            the image. The app user is created by the base image. This user is not a superuser, so it is
+            more secure than the root user.
+    
+    3) WORKDIR /app
+    
+        explanation:
+        * The WORKDIR instruction sets the working directory inside of the container for these instructions:
+            RUN, CMD, COPY, ADD, ENTRYPOINT, and so on.
+        * This instruction is similar to the cd command in the terminal. It supports both absolute and
+            relative paths. If the directory does not exist, it will be created.
+        * In this example, the working directory is set to /app.
+
+    4) EXPOSE 8080
+       EXPOSE 8081
+
+        explanation:
+        * The EXPOSE instruction exposes the specified port(s) to the container when it is running.
+        * NOTE that this instruction does not actually publish the port to the host machine. It just means
+            the container will listen on the specified port(s).
+        * By default, the EXPOSE instruction exposes the port(s) on the TCP protocol. In this case, the
+            container will listen on ports 8080 and 8081.
+
+    5) FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+       ARG BUILD_CONFIGURATION=Release
+       WORKDIR /src
+
+        explanation:
+        * In the preceding lines, we are using a different image, which is the mcr.microsoft.com/dotnet/sdk:8.0
+            image, and naming it build. This image contains the .NET SDK, which is used to build the 
+            application.
+        * The ARG instruction defines a variable that can be used later in the Dockerfile. In this case,
+            we are defining a variable called BUILD_CONFIGURATION and setting its default value to Release.
+        * The WORKDIR instruction sets the working directory to /src.
+
+    6) COPY ["BasicWebApiDemo.csproj", "."]
+       RUN dotnet restore "./BasicWebApiDemo.csproj"
+
+        explanation:
+        * The COPY instruction copies files or directories from the source (on the local machine) to the
+            destination (the filesystem of the container). In this case, we are copying the .csproj file to
+            the current directory.
+        * The RUN instruction executes the specified command on top of the current image and creates a new
+            layer, then commits the results. The new layer will be used for the next step in the Dockerfile.
+            In this case, we are running the dotnet restore command to restore the NuGet packages.
+
+    7) COPY . .
+       WORKDIR "/src/."
+       RUN dotnet build "./BasicWebApiDemo.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+        explanation:
+        * we are copying all the files from the local machine to the current directory in the container
+        * Then, we are setting the working directory to /src. 
+        * Finally, we are running the dotnet build command to build the application.
+            Note that we are using the BUILD_CONFIGURATION variable defined earlier in the Dockerfile.
+
+    8) FROM build AS publish
+       ARG BUILD_CONFIGURATION=Release
+       RUN dotnet publish "./BasicWebApiDemo.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+        
+        explanation:
+        * Again, the FROM instruction uses the build image we defined earlier and names it publish.
+        * Again, we set the value of variable BUILD_CONFIGURATION to Release.
+        * Then, the RUN instruction runs the dotnet publish command to publish the application. The
+            $BUILD_CONFIGURATION variable is used again. The published application will be placed in the
+            /app/publish directory.
+
+    9) FROM base AS final
+       WORKDIR /app
+       COPY --from=publish /app/publish .
+       ENTRYPOINT ["dotnet", "BasicWebApiDemo.dll"]
+
+        explanation:
+        * we rename the base image as final
+        * and we set the working directory to /app.
+        * To run the application, we only need the runtime, so we do not need the SDK image.
+        * Then, the COPY instruction copies the published application from the app/publish directory of the
+            publish image to the current directory.
+        * Finally, the ENTRYPOINT instruction specifies the command to run when the container starts. In
+            this case, we are running the dotnet BasicWebApiDemo.dll command to start the ASP.NET Core
+            application.
+
+- You can find more information about Dockerfile instructions in the official documentation provided
+    by Docker: https://docs.docker.com/engine/reference/builder/. Next, let us move on to building a Docker
+    image.
