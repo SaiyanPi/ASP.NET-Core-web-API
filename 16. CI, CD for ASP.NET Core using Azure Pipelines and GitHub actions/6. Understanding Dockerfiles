@@ -1,7 +1,7 @@
 Understanding Dockerfiles:
 
 - To demonstrate how to build and run Docker images, we will need a sample ASP.NET Core application. 
-    dotnet new webapi -0 BasicWebApiDemo -controllers
+    dotnet new webapi -o BasicWebApiDemo -controllers
 
 - Docker images can be built using a Dockerfile. Dockerfile is a text file containing a list of instructions
     used to build the image.

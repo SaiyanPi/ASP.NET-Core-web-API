@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "/0cDsoQ2BUzjoqkousN2hveinKPYxVfKmK3rxmOr/cvTkpLgT/8jxTgAu0lgMMYmMRASUaKKswD76d2Gb3nM+Q==",
+  "dgSpecHash": "KSkQuNROgJs=",
   "success": true,
   "projectFilePath": "C:\\Users\\zlams\\source\\REST API\\16. CI, CD for ASP.NET Core using Azure Pipelines and GitHub actions\\BasicWebApiDemo\\BasicWebApiDemo.csproj",
   "expectedPackageFiles": [
