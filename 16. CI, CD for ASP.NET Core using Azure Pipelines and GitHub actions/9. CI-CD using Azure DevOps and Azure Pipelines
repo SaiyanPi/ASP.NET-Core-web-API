@@ -1,0 +1,30 @@
+CI/CD using Azure DevOps and Azure Pipelines:
+
+- Azure DevOps is a cloud based service that provides a set of ttols for managing the software development
+    process. It includes the following servcies:
+    
+    i) Azure Boards:
+        A service for managing work items, such as user stories, tasks, and bugs.
+    
+    ii) Azure Repos:
+        A service for hosting code repositories. It supports Giqat and Team Foundation Version Control(TFVC).
+        The repository can be public or private
+    
+    iii)Azure Pipelines:
+        A service for building, testing, and deploying applications with any language, platform, and cloud.
+
+    iv) Azure Test Plans:
+        A service for manual or exploratory testing tools
+
+    v) Azure Artifacts:
+        A service for creating, hosting, and sharting packages, such as Maven, npm, NuGet, and Python packages.
+
+- Azure DevOps is free for open-source projects and small teams. We will not cover all the features. Let us
+    focus on Azure Pipelines. In this section, we will discuss how to use Azure Pipelines to build and
+    deploy our ASP.NET Core application to Azure App Service.
+    We will need these resources before we can deploy the application to Azure:
+    • Azure DevOps account: https://azure.microsoft.com/en-us/products/devops.
+    • Azure subscription: https://azure.microsoft.com/en-us/free/. You can sign up for a free account here.
+                            You will get some free credits to use Azure services.
+    • GitHub repository: You need a GitHub repository to host the source code. The pipeline will be
+                            triggered when code changes are committed to the repository
