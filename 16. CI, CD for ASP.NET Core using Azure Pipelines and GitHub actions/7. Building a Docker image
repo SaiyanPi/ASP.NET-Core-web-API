@@ -5,7 +5,6 @@ Building a Docker image:
     run the following command:
 
     syntax: docker build -t <image_name>:<tag> -f<path_to_dockerfile></path_to_dockerfile> .
-    cmd: docker build -t basicwebapidemo .
 
         -> the -t option is used to tag the image with a name.
         -> . at the end means the current directory.
@@ -17,11 +16,15 @@ Building a Docker image:
         -> if we have renamed Dockerfile named "MyDockerfile" inside the Docker folder inside the current
             directory, we would run:
 
-            cmd: docker build -t whatevername:whatevertagname -f docker/MyDockerfile MyBasicWebApiDem .
+            cmd: docker build -t whatevername:whatevertagname -f Docker/MyDockerfile .
 
         -> In our case we haven't changed Dockerfile name and is in the current directory so we need to run
 
-            cmd: docker build -t basicwebapidemo .
+            cmd: docker build -t basicwebapiimage:demo .
+
+            we have given our image a tag named demo. if we don't give any tag, automatically 'latest' will
+            be added as default.
+
 
     * The output shows that Docker is building the image layer by layer. Each instruction in the Dockerfile
         will create a layer in the image and add more content on top of the previous layer.
@@ -104,7 +107,7 @@ Building a Docker image:
     cmd: docker images
     o/p: 
         REPOSITORY                        TAG       IMAGE ID       CREATED         SIZE
-        apiimage                          test      b7e8592999e9   12 hours ago    325MB
+        saiyanimage                       demo      975b567d128a   4 minutes ago   325MB
 
     -> Each image has a TAG value and an IMAGE ID value. The TAG value is a human-readable name for the
         image. By default, the tag is latest. We can specify a different tag when building the image.
@@ -112,7 +115,7 @@ Building a Docker image:
 - to remove an image:
 
     syntax: docker rmi <container name or ID>
-    eg: docker rmi apiimage:test or docker rmi b7e8592999e9
+    eg: docker rmi saiyanimage:test or docker rmi 975b567d128a
 
     -> Note that if the image is used by a container, you will need to stop the container first before
         removing the image.

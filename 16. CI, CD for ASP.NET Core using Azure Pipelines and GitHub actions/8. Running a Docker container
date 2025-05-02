@@ -3,35 +3,38 @@ Running a Docker container:
 - to run a Docker image in the container, we can use the docker run command. The following command will run
     the 'basicwebapidemo' image we built in the previous section.
 
-    cmd: docker run -d -p 81:8081 --name basicwebapidemo basicwebapidemo
+    cmd: docker run -d -p 8080:8080 --name basicwebapicontainer basicwebapiimage:demo
 
     -> -d option isused to run the container in detached mode. meaning the container will run in the
         background. You can omit this option and then the container will run in the foreground, which means
         if you exit the terminal, the container will stop.
     -> -p option is used to publish a container's port(s) to the host. In this case we are publishing port
-        8080 of the container to port 80 of the host.
+        8080 of the container to port 8080 of the host.
+        if -p 5000:8080, then we are publishing port 8080 of the container to port 5000 of the host
+        (see saiyanapi and it's aimage and containers)
     -> --name option is used to specify a name for the container. the last argument is the name of the
         image to run.
     -> we can also use the -it option to run the container in the interactive mode. this option allows you to
         run a command in the conatiner.
-    -> in section 6, we learned that EXPOISE instruction exposes the ports 8080 and 8181 to the container
+    -> in section 6, we learned that EXPOISE instruction exposes the ports 8080 and 8081 to the container
         only. to publish the internal container port to the host, we need to use the -p option.
         The first port number is the port of the host machine, and the second port number is the internal
         container port.
-        In this example, we are exposing the container port 8080 to the host port 80.
+        In this example, we are exposing the container port 8081 to the host port 5000.
         Also, sometimes the port number of the host machine may be occupied by another process. In this
         case, you will need to use a different port number.
     -> The output should return the container ID, which is a UID for the container, such as this:
-            86a49c1bad624af57bb9804d05bb651811f273346cddc13aa69a5fac59b7ce92
+            99f84a6d5a76debc08cafc589203a79e9af94d9ed4614874edba396419e9ff37
 
 - to list all running containers:
 
     cmd: docker ps
     o/p: 
-    CONTAINER ID   IMAGE                COMMAND                CREATED           STATUS         PORTS                          NAMES
-    86a49c1bad62   basicwebapidemo   "dotnet BasicWebApiD…"   2 minutes ago   Up 2 minutes   8080/tcp, 0.0.0.0:81->8081/tcp   basicwebapidemo
-
-    -> in the o/p we can see that the port 8081 of the container has been mapped to port 81 of the host.
+    
+     CONTAINER ID   IMAGE                   COMMAND                  CREATED          STATUS          PORTS                              NAMES
+    dd7c8b0ab3a7   basicwebapiimage:demo   "dotnet BasicWebApi.…"   47 seconds ago   Up 45 seconds   0.0.0.0:8080->8080/tcp, 8081/tcp   basicwebapicontainer
+    
+    -> in the o/p we can see that the port 8080 of the container has been mapped to port 8080 of the host.
 
 - to list all containers in all states just add a -a option
 
@@ -40,7 +43,43 @@ Running a Docker container:
     -> if the container is running, the STATUS should be 'Up'.
 
 - we can use the following commands to manage containers:
-    i) to pause the container:      docker pause <container name or ID>
-    ii) to restart a container:     docker restart <container name or ID>
-    iii) to stop a container:       docker stop <container name or ID>
-    iv) to remove a container:      docker rm <container name or ID>
+    i) to pause the container:          docker pause <container name or ID>
+    ii) to restart a container:         docker restart <container name or ID>
+    iii) to stop a container:           docker stop <container name or ID>
+    iv) to remove a container:          docker rm <container name or ID>
+    v) to show stats of a container:    docker stats <container name or ID>
+    vi) to Display detailed information on one or more containers or images: docker inspect <container name or ID>
+    (see Docker-commands.png) for more https://docs.docker.com/reference/cli/docker/
+
+- we've run the docker image in the container, now we can test the endpoint by sending a request to URL
+    http://localhost:8080/weatherforecast. For saiyanapi with image and container saiyanimage and saiyancontainer
+    respectively http://localhost:5000/weatherforecast because we use -p 5000:8080 while running image in a
+    container.
+
+- We can use the docker logs <container name or ID> command to show logs from a container:
+
+    cmd: docker logs dd7c8b0ab3a7 or docker logs basicwebapicontainer
+
+- we cannot access the swagger UI because in the Program.cs file, we enabled the Swagger UI only in the
+    development environment. To enable the Swagger UI, we can stop and delete the current container,
+    then create a new one in development environment. Alternatively, you can create a new container
+    with a different name using the existing image i.e, basicwebapiimage:demo.
+    To create and run a new container in a development environment:
+
+    cmd: docker run -p 8082:8080 --name basicwebapicontainerdevelopmentmode 
+            -e ASPNETCORE_ENVIRONMENT=Development basicwebapiimage:demo
+
+    Now, to access the swagger UI URL: http://localhost:8082/swagger/index.html
+
+----------------------------------------------------------------------------------------------------------------
+
+We have now learned how to build a Docker image for our ASP.NET Core application and run it in a
+container. Even though the container is running on our local machine, there is not much difference
+from running it in a production environment. The container is isolated from the host machine. The
+portable nature of containers makes it easy to deploy the application to any environment.
+
+We can also use Docker commands to push the image to a registry, such as Docker Hub, ACR, and
+so on. However, manual deployment is error-prone and time-consuming. That is why we need a CI/
+CD pipeline to automate the deployment process.
+In the next section, we will discuss how to deploy the containerized application to the cloud using
+Azure DevOps and Azure Pipelines.

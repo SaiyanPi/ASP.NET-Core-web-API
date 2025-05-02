@@ -1,7 +1,7 @@
 Understanding Dockerfiles:
 
 - To demonstrate how to build and run Docker images, we will need a sample ASP.NET Core application. 
-    dotnet new webapi -o BasicWebApiDemo -controllers
+    dotnet new webapi -o BasicWebApi -controllers
 
 - Docker images can be built using a Dockerfile. Dockerfile is a text file containing a list of instructions
     used to build the image.
@@ -17,9 +17,7 @@ Understanding Dockerfiles:
     -> Once Linux option is selected , VS 2022 will then generate a Dockerfile for us. The default Dockerfile
         created by VS 2022 is as follows:
 
-        #See https://aka.ms/customizecontainer to learn how to customize your debug container and
-        how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
+        #stage 1: Build stage
         FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
         USER app
         WORKDIR /app
@@ -29,21 +27,22 @@ Understanding Dockerfiles:
         FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
         ARG BUILD_CONFIGURATION=Release
         WORKDIR /src
-        COPY ["BasicWebApiDemo.csproj", "."]
-        RUN dotnet restore "./BasicWebApiDemo.csproj"
+        COPY ["BasicWebApi.csproj", "."]
+        RUN dotnet restore "./BasicWebApi.csproj"
         COPY . .
         WORKDIR "/src/."
-        RUN dotnet build "./BasicWebApiDemo.csproj" -c $BUILD_CONFIGURATION -o /app/build
+        RUN dotnet build "./BasicWebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
+        #stage 1: Publish stage
         FROM build AS publish
         ARG BUILD_CONFIGURATION=Release
-        RUN dotnet publish "./BasicWebApiDemo.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+        RUN dotnet publish "./BasicWebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+        #stage 1: Run stage
         FROM base AS final
         WORKDIR /app
         COPY --from=publish /app/publish .
-        ENTRYPOINT ["dotnet", "BasicWebApiDemo.dll"]
-
+        ENTRYPOINT ["dotnet", "BasicWebApi.dll"]
     ---------------------------------------------------------------------------------------------------------
 
     Let's go through the Dockerfile line by line:

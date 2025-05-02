@@ -1,0 +1,6 @@
+@saiyanapi_HostAddress = http://localhost:5244
+
+GET {{saiyanapi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

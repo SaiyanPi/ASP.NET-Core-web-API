@@ -1,0 +1,79 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\zlams\\source\\REST API\\16. CI, CD for ASP.NET Core using Azure Pipelines and GitHub actions\\BasicWebApi\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{26BD561D-2ACE-43AC-A306-F461B836F118}|BasicWebApi.csproj|c:\\users\\zlams\\source\\rest api\\16. ci, cd for asp.net core using azure pipelines and github actions\\basicwebapi\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{26BD561D-2ACE-43AC-A306-F461B836F118}|BasicWebApi.csproj|solutionrelative:dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{26BD561D-2ACE-43AC-A306-F461B836F118}|BasicWebApi.csproj|c:\\users\\zlams\\source\\rest api\\16. ci, cd for asp.net core using azure pipelines and github actions\\basicwebapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{26BD561D-2ACE-43AC-A306-F461B836F118}|BasicWebApi.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{26BD561D-2ACE-43AC-A306-F461B836F118}|BasicWebApi.csproj|c:\\users\\zlams\\source\\rest api\\16. ci, cd for asp.net core using azure pipelines and github actions\\basicwebapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{26BD561D-2ACE-43AC-A306-F461B836F118}|BasicWebApi.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\16. CI, CD for ASP.NET Core using Azure Pipelines and GitHub actions\\BasicWebApi\\Dockerfile",
+              "RelativeDocumentMoniker": "Dockerfile",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\16. CI, CD for ASP.NET Core using Azure Pipelines and GitHub actions\\BasicWebApi\\Dockerfile",
+              "RelativeToolTip": "Dockerfile",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABgAAAAoAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-05-01T14:57:23.27Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\16. CI, CD for ASP.NET Core using Azure Pipelines and GitHub actions\\BasicWebApi\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\16. CI, CD for ASP.NET Core using Azure Pipelines and GitHub actions\\BasicWebApi\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-05-01T14:52:06.075Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\16. CI, CD for ASP.NET Core using Azure Pipelines and GitHub actions\\BasicWebApi\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\16. CI, CD for ASP.NET Core using Azure Pipelines and GitHub actions\\BasicWebApi\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Properties\\launchSettings.json",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABkAAAAdAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-05-01T14:51:55.112Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
