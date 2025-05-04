@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\zlams\\source\\REST API\\16. CI, CD for ASP.NET Core using Azure Pipelines and GitHub actions\\GitHubActionDemo\\tests\\BasicWebApi.UnitTest\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{86206725-6648-42CB-A399-4A7AA604DE27}|BasicWebApi.UnitTest.csproj|c:\\users\\zlams\\source\\rest api\\16. ci, cd for asp.net core using azure pipelines and github actions\\githubactiondemo\\tests\\basicwebapi.unittest\\weatherforecastcontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{86206725-6648-42CB-A399-4A7AA604DE27}|BasicWebApi.UnitTest.csproj|solutionrelative:weatherforecastcontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "WeatherForecastControllerTests.cs",
+              "DocumentMoniker": "C:\\Users\\zlams\\source\\REST API\\16. CI, CD for ASP.NET Core using Azure Pipelines and GitHub actions\\GitHubActionDemo\\tests\\BasicWebApi.UnitTest\\WeatherForecastControllerTests.cs",
+              "RelativeDocumentMoniker": "WeatherForecastControllerTests.cs",
+              "ToolTip": "C:\\Users\\zlams\\source\\REST API\\16. CI, CD for ASP.NET Core using Azure Pipelines and GitHub actions\\GitHubActionDemo\\tests\\BasicWebApi.UnitTest\\WeatherForecastControllerTests.cs",
+              "RelativeToolTip": "WeatherForecastControllerTests.cs",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAIwBwAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-04T08:53:27.377Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
