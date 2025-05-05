@@ -1,3 +1,14 @@
 GitHub Actions:
 
-- To demonstrate how to use GitHub Actions, we will use BasicWebApi project.
+- To demonstrate how to use GitHub Actions, we will use BasicWebApi and it's test project(GitHubActionDemo).
+    Directory structure of the source code is as follows:
+
+            GitHubActionDemo
+            |
+            |--- src
+            |     |---BasicWebApi
+            |
+            |--- tests
+            |      |---BasicWebApi.UnitTest
+            |      |---BasicWebApi.IntegrationTest
+                
