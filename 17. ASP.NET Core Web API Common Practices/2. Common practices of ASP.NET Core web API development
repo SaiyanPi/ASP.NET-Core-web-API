@@ -1,0 +1,10 @@
+Common practices of ASP.NET web API development:
+
+- In this section, we will introduce some common practices of ASP.NET web API development. Of course, we
+    can’t cover all the common practices in this book. However, we will try to cover the most important ones.
+
+--------------------------------------------------------------------------------------------------------------
+
+I) Using HTTPS instead of HTTP (section 2.1)
+II) Using asynchronous programming (section 2.2)
+

@@ -1,0 +1,89 @@
+I) Using HTTPS instead of HTTP:
+
+- In the previous chapters, we have used HTTP endpoints for simplicity; however, in the real world, HTTPS
+    should always be used instead of HTTP. HTTPS is a secured version of HTTP, which uses TLS/SSL to
+    encrypt the HTTP traffic, thus preventing data from being intercepted or tampred with by a third party.
+    This ensures the safety and integrety of the data being transmitted.
+- Many web browsers, such as Google Chrome, Microsoft Edge, Firefox, and so on, now mark HTTP websites as
+    Not Secure to encourage users to switch to HTTPS. This is a clear indication of the growing trend toward
+    using HTTPS for secure data transmission.
+- The default ASP.NET Core web API template uses HTTPS by default. You can find the following code
+    in the Program.cs file:
+
+        app.UseHttpsRedirection();
+
+    -> this code redirects all the HTTP requests to HTTPS. In the development environment, the ASP.NET
+        Core web API application uses a self-signed certificate. When you deploy your ASP.NET Core web
+        API application to the production environment, you need to use a valid certificate issued by a
+        trusted certificate authority (CA), such as Let’s Encrypt, DigiCert, Comodo, and so on.
+
+- Using HTTP status codes correctly =>
+    There are 5 categories of HTTP status codes
+        • 1xx: Informational
+        • 2xx: Success
+        • 3xx: Redirection
+        • 4xx: Client errors
+        • 5xx: Server errors
+
+    Following table provides a summary of some of the most commonly used HTTP status code in RESTful web APIs:
+
+        Status code         Description
+            200                 OK
+            201                 Created
+            202                 Accepted
+            204                 No Content
+            301                 Moved Permanently
+            302                 Found
+            304                 Not Modified
+            400                 Bad Request
+            401                 Unauthorized
+            403                 Forbidden
+            404                 Not Founstill any recommendations?
+            405                 Method Not Allowed
+            409                 Conflict
+            410                 Gone
+            415                 Unsupported Media Type
+            422                 Unprocessable Entity
+            429                 Too Many Requests
+            500                 Internal Server Error
+            501                 Not Implemented
+            503                 Service Unavailable
+            504                 Gateway Timeout
+
+- The following list shows the HTTP methods and their corresponding status codes for RESTful web APIs:
+    1) GET
+        The GET method is used to retrieve a single resource or a collection of resources. A GET
+        request should not modify the state of the server. It can return the following status codes:
+        * 200: The resource is found and returned.
+        * 404: The resource is not found. Note that if a collection exists but is empty, the GET method
+                should return the 200 status code instead of the 404 status code.
+
+    2) post
+        The POST method is used to create a new single resource or a collection of resources.
+        It can be also used to update a resource. It can return the following status codes:
+        * 200: The resource is updated successfully.
+        * 201: The resource is created successfully. The response should include the identifier of the
+                newly created resource.
+        * 202: The resource is accepted for processing, but the processing is not yet complete. This
+                status code is often used for long-running operations.
+        * 400: The request is invalid.
+        * 409: The resource already exists.
+
+    3) PUT
+        The PUT method is used to update a single resource or a collection of resources. It is rarely used
+        to create resources. It can return the following status codes:
+        * 200: The resource was updated successfully.
+        * 204: The resource was updated successfully but there is no content to return.
+        * 404: The resource was not found.
+
+    4) DELETE
+        The DELETE method is used to delete a single resource with a specific identifier. It can be used to
+        delete a collection of resources but it is not a common scenario. It can return the following status
+        codes:
+        * 200: The resource was deleted successfully and the response includes the deleted resource.
+        * 204: The resource was deleted successfully but there is no content to return.
+          404: The resource was not found.
+
+- It is important to note that this list is not exhaustive and only applies to RESTful web APIs. When
+    selecting the appropriate HTTP status codes, please consider the specific scenarios. For GraphQL
+    APIs, 200 is typically used for most responses, with the errors field indicating any errors.

@@ -1,0 +1,17 @@
+ASP.NET Core Web API Common Practices Introduction:
+
+- You may have heard the phrase “there is no silver bullet” before. It means that there are often no
+    simple, universal, or one-size-fits-all solutions to solve all problems. No matter how powerful the
+    technologies, tools, or frameworks are, they are not omnipotent. This is true for ASP.NET Core web
+    API development. However, there are some common practices that can help us build a better ASP.
+    NET Core web API application.
+
+- In this chapter, we will summarize the common practices of ASP.NET Core web API development.
+    We will cover the following topics in this chapter:
+    
+    • Common practices of ASP.NET Core web API development
+    • Optimizing the performance by implementing caching
+    • Using HttpClientFactory to manage HttpClient instances
+    
+    After reading this chapter, you should be able to expand your knowledge of ASP.NET Core web API
+    development and build a better web API application.

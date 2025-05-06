@@ -1,0 +1,19 @@
+II) Using asynchronous programming:
+
+- The ASP.NET Core web API framework is designed to process requests asynchronously, so we should
+    use asynchronous programming as much as possible. Asynchronous programming allows the application
+    to process multiple tasks concurrently, which can improve the performance of the application. For
+    many I/O-bound operations, such as accessing the database, sending HTTP requests, and operating
+    files, using asynchronous programming can release the thread to process other requests while waiting
+    for the I/O operation to complete.
+- In C#, you can use the async and await keywords to define and await asynchronous operations. Many
+    methods in .NET have synchronous and asynchronous versions.
+    For example, the StreamReader class has the following synchronous and asynchronous methods to read the
+    content of the stream:
+    
+        // Synchronous methods
+        public int Read();
+        public string ReadToEnd();
+        // Asynchronous methods
+        public Task<int> ReadAsync();
+        public Task<string> ReadToEndAsync();
