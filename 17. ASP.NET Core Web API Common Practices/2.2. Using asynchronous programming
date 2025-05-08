@@ -17,3 +17,101 @@ II) Using asynchronous programming:
         // Asynchronous methods
         public Task<int> ReadAsync();
         public Task<string> ReadToEndAsync();
+
+    -> methods without the Async suffix are synchronous, which blocks the thread until the operation is
+        completed.
+    -> methods that have the Async suffix are asynchronous, which returns a Task object immediately and
+        allows the thread to process other requests. when the operation is completed, the Task object will
+        be completed and the thread will continue to process the request.
+
+- For I/O operations, we should always use asynchronous programming. For example, when accessing HttpRequest
+    and HttpResponse objects, we should use the asynchronous methods. 
+    eg,
+        [HttpPost]
+        public async Task<ActionResult<Post>> PostAsync()
+        {
+            // Read the content of the request body
+            var jsonString = await new StreamReader(Request.Body).ReadToEndAsync();
+            // Do something with the content
+            var result = JsonSerializer.Deserialize<Post>(jsonString);
+            return Ok(result);
+        }
+
+        -> In the preceding code, the ReadToEndAsync() method is used to read the content of the request
+            body. For this case, we should not use the synchronous ReadToEnd() method because it will block
+            the thread until the operation is completed.
+
+- If we have multiple asynchronous opearations that need to be executed concurrently, we can use the
+    Task.WhenAll() method to wait for all the asynchronous operations to complete.
+    eg,
+        [HttpGet]
+        public async Task<ActionResult> GetAsync()
+        {
+            // Simulate a long-running I/O-bound operation
+            var task1 = SomeService.DoSomethingAsync();
+            var task2 = SomeService.DoSomethingElseAsync();
+            await Task.WhenAll(task1, task2);
+            return Ok();
+        }
+
+        -> In the preceding code, the Task.WhenAll() method waits for the task1 and task2 tasks to complete.
+            If you need to get the results of the tasks after they are completed, you can use the 'Result'
+            property of the Task object to get the results as:
+
+            [HttpGet]
+            public async Task<ActionResult> GetAsync()
+            {
+            // Simulate long-running I/O-bound operations
+                var task1 = SomeService.DoSomethingAsync();
+                var task2 = SomeService.DoSomethingElseAsync();
+                await Task.WhenAll(task1, task2);
+                var result1 = task1.Result;
+                var result2 = task2.Result;
+                // Do something with the results
+                return Ok();
+            }
+
+            -> in the preceeding code, the Result property of the task1 and task2 objects is used to get the
+                result of the tasks.
+            -> as we already know, we use 'await' keyword to wait for the tasks to be completed, the Result
+                property will return the results immediately. But if we don't use the await keyword to wait
+                for the tasks to be completed, the Result property will block the thread until the tasks
+                are completed. So please be careful when using the 'Result' property.
+            -> Similarly, the Wait() method of the Task object will also block the thread until the task is
+                completed. If you want to wait for a task to complete, use the await keyword instead of the
+                Wait method.
+        
+        IMPORTANT NOTE:
+        Note that the Task.WhenAll() method is not suitable for all scenarios. for eg, EF Core does not
+        support running multiple queries in parallel on the same database context. If we need to executed
+        multiple queries on the same database context, we should use the 'await' keyword to wait for the
+        previous query to complete before executing the next query.
+
+- When utilizing asynchronous programming, there are several important considerations to keep in mind.
+    These include, but are not limited to, the following:
+    • Do not use async void in ASP.NET Core. The only scenario where async void is allowed is in event
+        handlers. If an async method returns void, the exceptions thrown in the method will not be caught
+        by the caller properly.
+    • Do not mix synchronous and asynchronous methods in the same method. Try to use async for the entire
+        process if possible. This allows the entire call stack to be asynchronous.
+    • If you need to use the Result property of the Task object, make sure that the Task object is completed.
+        Otherwise, the Result property will block the thread until the Task object is completed.
+    • If you have a method that only returns the result of another async method, there’s no need to use the
+        async keyword. Just return the Task object directly.
+        For example, the following code is unnecessary:
+
+        public async Task<int> GetDataAsync()
+        {
+            return await SomeService.GetDataAsync();
+        }
+
+        The following code does not use the async/await keywords, which is better:
+
+        public Task<int> GetDataAsync()
+        {
+            return SomeService.GetDataAsync();
+        }
+
+        -> This is because the async keyword will create a state machine to manage the execution of the async
+            method. In this case, it is unnecessary. Returning the Task directly does not create additional
+            overhead.
