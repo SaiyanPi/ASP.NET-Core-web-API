@@ -1,0 +1,101 @@
+Using pagination for large collection:
+
+- It is not recommended to return a large collection of resources in a single response, as this can lead
+    to performance issues. Such issues may include the following:
+
+    • The server may require a significant amount of time to query the database and process the response.
+    • The response payload may be quite large, resulting in network congestion. This can negatively
+        impact the performance of the system, leading to increased latency and decreased throughput.
+    • The client may require additional time and resources to process the large response. Deserializing
+        a large JSON object can be computationally expensive for the client. Also, rendering a large
+        collection of items on the UI may cause the client to become unresponsive.
+
+- In order to efficiently manage large collections, it is recommended to use pagination. Chapter6/section 4.2
+    introduces pagination and filtering through the use of the Skip() and Take() methods of the IQueryable
+    interface.
+- Also, we mentioned that the AsNoTracking() method should be used to improve the performance of the
+    read-only queries in chapter8/Section2. This will result in a collection of resources being
+    returned to the client. However, the client may not be aware of whether there are more resources 
+    available.
+    A) To address this issue, we can create a custom class to represent the paginated response.
+        An example of this is provided here:
+
+            public class PaginatedList<T> where T : class
+            {
+                public int PageIndex { get; }
+                public int PageSize { get; }
+                public int TotalPages { get; }
+                public List<T> Items { get; } = new();
+                public PaginatedList(List<T> items, int count, int pageIndex = 1, int pageSize = 10)
+                {
+                    PageIndex = pageIndex;
+                    PageSize = pageSize;
+                    TotalPages = (int)Math.Ceiling(count / (double)pageSize);
+                    Items.AddRange(items);
+                }
+                public bool HasPreviousPage => PageIndex > 1;
+                public bool HasNextPage => PageIndex < TotalPages;
+            }
+        
+        -> In the preceding code, the PaginatedList<T> class contains a couple of properties to represent
+            the pagination information:
+            • PageIndex: The current page index
+            • PageSize: The page size
+            • TotalPages: The total number of pages
+            • Items: The collection of items on the current page
+            • HasPreviousPage: Indicates whether there is a previous page
+            • HasNextPage: Indicates whether there is a next page
+
+    B) Then, we can use this class in the controller for pagination. here is an example:
+
+        [HttpGet]
+        public async Task<ActionResult<PaginatedList<Post>>> GetPosts(int pageIndex = 1,
+            int pageSize = 10)
+        {
+            var posts = _context.Posts.AsQueryable().AsNoTracking();
+            var count = await posts.CountAsync();
+            var items = await posts.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            var result = new PaginatedList<Post>(items, count, pageIndex,pageSize);
+            return Ok(result);
+        }
+
+        -> In the preceding code, besides the Items property, the PaginatedList<T> class also contains
+            the pagination information, such as PageIndex, PageSize, TotalPages, HasPreviousPage,
+            HasNextPage, and so on. The response of the endpoint will be as follows:
+
+                {
+                    "pageIndex": 1,
+                    "pageSize": 10,
+                    "totalPages": 3,
+                    "items": [
+                     {
+                        "id": "3c979917-437b-406d-a784-0784170b5dd9",
+                        "title": "Post 26",
+                        "content": "Post 26 content",
+                        "categoryId": "ffdd0d80-3c3b-4e83-84c9-025d5650c6e5",
+                        "category": null
+                     },
+                    ...
+                    ],
+                    "hasPreviousPage": false,
+                    "hasNextPage": true
+                }
+
+- In this way, the clients can implement pagination easily. You can also include more information in
+    the PaginatedList<T> class, such as the links to the previous page and the next page, and so on.
+
+- When implementing pagination, it is important to consider sorting and filtering. Generally, the data
+    should be filtered first, followed by sorting and then pagination. For example, the following LINQ
+    query can be used:
+
+    var posts = _context.Posts.AsQueryable().AsNoTracking();
+    posts = posts.Where(x => x.Title.Contains("Post"))
+            .OrderBy(x => x.PublishDate)
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+    -> The Where() method should be used to filter the data first in order to reduce the amount of data
+        to be sorted. This is important, as sorting is often an expensive operation. Once the data has
+        been filtered, the OrderBy() method can be used to sort it. Finally, the Skip() and Take()
+        methods can be used to paginate the data.
