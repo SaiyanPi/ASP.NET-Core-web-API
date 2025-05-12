@@ -1,0 +1,64 @@
+Specifying the response types:
+
+- An ASP.NET Core web API endpoint can return various types of responses, such as ActionResult, 
+    ActionResult<T>, or a specific type of the object. for eg, the following code returns a Post object
+
+        [HttpGet("{id}")]
+        public async Task<Post> GetAsync(Guid id)
+        {
+            var post = await _postService.GetAsync(id);
+            return post;
+        }
+    
+    -> The preceding code works, but what if the post cannot be found? It is recommended to use
+        ActionResult<T> instead of the specific type of the object.
+    -> The ActionResult<T> class is a generic class that can be used to return various HTTP status
+        codes. Here is an example
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Post>> GetPost(Guid id)
+        {
+            var post = await _context.Posts.FindAsync(id);
+            if (post == null)
+            {
+                return NotFound();
+            }
+            return Ok(post);
+        }
+    
+    -> in the preceeding code, the ActionResult<Post> class is used to reyurn a Post object. If the
+        post cannot be found, the NotFound method is used to return the 404 Not Found status code.
+        If the post is found, the Ok method is used to return the 200 Ok status code.
+
+- We can add the [ProducesResponseType] attribute to specify the response types of the endpoint
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Post>> GetPost(Guid id)
+        {
+            var post = await _context.Posts.FindAsync(id);
+            if (post == null)
+            {
+                return NotFound();
+            }
+            return Ok(post);
+        }
+    
+    -> in the preceeding code, there are two [ProducesResponseType] attributes.
+        The first one specifies the 200 Ok status code and the second one specifies the 404 Not Found
+        status code.
+    -> The [ProducesResponseType] attribute is optional, but it is RECOMMENDED to use it to specify 
+        the response types of the endpoint.
+
+- To enforce the use of the [ProducesResponseType] attribute, we can use the OpenAPIAnalyzers. This
+    analyzer can be used to report the missing [ProducesResponseType] attribute.
+    Add the following code in the <PropertyGroup> section of the *.csproj file as:
+
+        <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+    
+    ->  Then, we can see the warning in Visual Studio if the controller action does not have the 
+        [ProducesResponseType] attribute, as shown in [ProducesResponseType]_attribute_missing_warning.png
+
+- VISUAL STUDIO WILL PROVIDE YOU WITH A QUICK FIX TO ADD THESE ATTRIBUTES. THIS ANALYZER IS VERY USEFUL 
+    AND IT IS RECOMMENDED TO USE IT.
