@@ -9,5 +9,5 @@ Common practices of ASP.NET web API development:
 2.2) Using asynchronous programming (section 2.2)
 2.3) Using pagination for large collections
 2.4) Specifying the response types
-
+2.5) Adding comments to the endpoints
 

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BasicWebApi</name>
+    </assembly>
+    <members>
+        <member name="M:BasicWebApi.Controllers.WeatherForecastController.Get">
+            <summary>
+            Get the weather forecast for the next 5 days.
+            </summary>
+            <returns> The weather</returns>
+        </member>
+    </members>
+</doc>
