@@ -1,0 +1,40 @@
+Using System.Text.Json instead of Newtonsoft.Json:
+
+-  Newtonsoft.Json is a popular JSON library for .NET and is widely used in many projects. It was 
+    created as a personal project by James Newton-King in 2006 and has since become the number one 
+    library on NuGet, with over one billion downloads. An interesting fact is that in 2022, the downloads of 
+    Newtonsoft.Json on NuGet reached an impressive 2.1 billion, surpassing the Int32.MaxValue 
+    of 2,147,483,647. This milestone necessitated a change to NuGet to support the continued downloads 
+    of Newtonsoft.Json.
+-  Microsoft has introduced a new JSON library, System.Text.Json, with the release of .NET Core 3.0.
+    This library was designed to be high performing by utilizing Span<T>, which provides a type
+    safe and memory-safe representation of contiguous regions of arbitrary memory. Using Span<T> 
+    can reduce memory allocation and improve the performance of .NET code. System.Text.Json 
+    is included in the .NET Core SDK and is actively being developed. Although it may not have all the 
+    features of Newtonsoft.Json, it is a great choice for new projects.
+- The latest ASP.NET web API template uses System.Text.Json by default. It provides a simple way to
+    serialize and deserialize JSON data. Here is an example:
+
+        var options = new JsonSerializerOptions
+        {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true
+        };
+        // Serialize
+        var json = JsonSerializer.Serialize(post, options);
+        // Deserialize
+        var post = JsonSerializer.Deserialize<Post>(json, options);
+
+-  If you still want to use Newtonsoft.Json, you can install the Microsoft.AspNetCore.Mvc.NewtonsoftJson
+    NuGet package and update the Program.cs file as follows:
+
+        builder.Services.AddControllers()
+        .AddNewtonsoftJson(options =>
+        {
+            options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            options.SerializerSettings.Formatting = Formatting.Indented;
+        });
+
+-  You can update the options object to configure the Newtonsoft.Json library. Again, it is 
+    recommended to use System.Text.Json instead of Newtonsoft.Json unless you need some 
+    specific features of Newtonsoft.Json because System.Text.Json has better performance.
