@@ -1,0 +1,78 @@
+Adding comments to the endpoints:
+
+-  Adding XML comments to the endpoints can help other developers understand them better. These 
+    comments will be displayed in the Swagger UI, providing a comprehensive description of the
+    endpoints. This can be a great resource for developers to use when working with the endpoints.
+1) Adding XML comments to the endpoints is very simple. We just need to add the /// comments to them.
+    Visual Studio will automatically generate the XML comments structure when you type ///.
+
+    -> We need to add the description of the method, the parameters, the return value, and so on.
+        for eg, 
+
+        /// <summary>
+        /// Get a post by id
+        /// </summary>
+        /// <param name="id">The id of the post</param>
+        /// <returns>The post</returns>
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Post>> GetPost(Guid id)
+        {
+            // Omitted for brevity
+        }
+
+    -> we can also add comments to the model classes for eg,
+
+        /// <summary>
+        /// The post model
+        /// </summary>
+        public class Post
+        {
+            /// <summary>
+            /// The id of the post
+            /// </summary>
+            public Guid Id { get; set; }
+
+            /// <summary>
+            /// The title of the post
+            /// </summary>
+            public string Title { get; set; }
+
+            /// <summary>
+            /// The content of the post
+            /// </summary>
+            public string Content { get; set; }
+        }
+    ( see comments_display1.png and comments_display2.png )
+
+2) Then, we need to enable the XML documentation file generation in the project file. Open the *.csproj 
+    file and add the following code in the <PropertyGroup> element:
+
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+
+        -> The GenerateDocumentationFile property specifies whether an XML documentation file 
+            should be generated.
+        -> The NoWarn property can be used to suppress specific warnings, such as the 1591 warning code,
+            which is associated with missing XML comments. Suppressing this warning is beneficial, as
+            it prevents the warning from appearing when the project is built.
+
+3) Next, we need to configure the Swagger UI to use the XML documnetation file. Open the Program.cs
+    file and update the 'builder.Services.AddSwaggerGen()' method as follows:
+
+        builder.Services.AddSwaggerGen(c =>
+        {
+            // The below line is optional. It is used to describe the API.
+            // c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyBasicWebApiDemo", Version = "v1" });
+            c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, 
+                $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+        });
+
+        -> The IncludeXmlComments method is used to specify the XML documentation file
+        -> We can use reflection {Assembly.GetExecutingAssembly().GetName().Name}.xml, to get the name
+            of the XML documentation file.
+        ->  The AppContext.BaseDirectory property is used to get the base directory of the application.
+
+- Displaying the comments in the Swagger UI is a great way to provide developer-friendly API 
+    documentation. It is highly recommended to add comments to the endpoints and model classes.
