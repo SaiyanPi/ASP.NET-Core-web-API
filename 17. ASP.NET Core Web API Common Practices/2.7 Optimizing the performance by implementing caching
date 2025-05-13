@@ -1,0 +1,62 @@
+Optimizing the performance by implementing caching:
+
+- Caching is the common techinque used to improve the performance of the application. In web API
+    development, caching can store frequently accessed data in a temporary storage, such as memory or
+    disk, to reduce the number of database queries and improve the responsiveness of the application.
+- Caching is an effective tool when handling data that is not regularly updated but is costly to
+    compute or obtain rom the database. It is also useful when the multiple client access the same
+    data frequently.
+    As an example, consider an e-commerce applicatioon that displays a list of catageories. The
+    categories of the products are not often changed, yet they are frequently viewed by users. To
+    improve the performance of the application, we can cache the categories. When the user requests
+    the catageories, the application can return the cached data directly without querying the
+    database.
+-  In ASP.NET Core, we have several options for implementing caching, each suited to a specific
+    scenario:
+    • In-memory caching:
+        This type of caching stores data in the memory of the application. It is fast  and efficient
+        and is suitable for scenarios where the data does not need to be shared across multiple
+        instances of the application. However, the data will be lost when the application is restarted.
+    
+    • Distributed caching:
+        This type of caching involves storing cached data in a shared storage, such as Redis or
+        SQL Server, which can be accessed by multiple instances of the application. It is suitable for
+        applications that are deployed with multiple instances, such as a web farm, container
+        orchestration, or serverless computing.
+    
+    • Response caching:
+        This caching technique is based on the HTTP caching mechanism.
+
+- we will introduce the in-memory caching and distributed caching in ASP.NET Core web API development,
+    as well as the output caching, which is introduced in ASP.NET Core 7.0
+
+-----------------------------------------------------------------------------------------------------------
+
+# In-memory caching:
+
+-  In-memory caching is a fast and easy way to store data in an application’s memory. ASP.NET Core 
+    provides the IMemoryCache interface to facilitate this process. This type of caching is highly
+    versatile, as it can store any type of data in the form of a key-value pair. 
+- In the example project( CachingDemo ), This is a simple ASP.NET Core web API application. It contains
+    a /categories endpoint that returns the categories of products.
+
+- To simplify the example, we use the static list to store the categories in CategoryService class to
+    simulate a database. When the application queries the categories, it will print a log to indicate
+    that the categories are queried from the database. Here is the code in the CategoryService class:
+
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
+        {
+            // Simulate a database query
+            logger.LogInformation("Getting categories from the database");
+            await Task.Delay(2000);
+            return Categories;
+        }
+
+    -> In the preceding code, we use a Task.Delay() method to simulate a database query. This query 
+        takes two seconds to complete, which is slow. As the categories are not often changed, we can
+        use in-memory caching to improve the performance of the application.
+
+1) To use in-memory caching, we need to add the Microsoft.Extensions.Caching.Memory NuGet package by
+    running the following command:
+
+        cmd: dotnet add package Microsoft.Extensions.Caching.Memory

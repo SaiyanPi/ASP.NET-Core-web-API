@@ -11,3 +11,4 @@ Common practices of ASP.NET web API development:
 2.4) Specifying the response types
 2.5) Adding comments to the endpoints
 2.6) Using System.Text.Json instead of Newtonsoft.Json
+2.7) Optimizing the performance by implementing caching
