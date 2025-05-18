@@ -60,3 +60,6 @@ Optimizing the performance by implementing caching:
     running the following command:
 
         cmd: dotnet add package Microsoft.Extensions.Caching.Memory
+
+
+        http://localhost:5042/swagger/index.html

@@ -1,11 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+namespace CategoryApi.Data;
 
-public class CategoryDbContext : DbContext
+public class CategoryDbContext(DbContextOptions<CategoryDbContext> options) : DbContext(options)
 {
-    public CategoryDbContext(DbContextOptions<CategoryDbContext> options) : base(options)
-    {
-    }
-    public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<Category> Categories => Set<Category>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

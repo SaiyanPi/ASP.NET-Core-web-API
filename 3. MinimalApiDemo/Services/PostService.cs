@@ -1,4 +1,4 @@
-namespace MinimalApiDemo.Services;
+zoomnamespace MinimalApiDemo.Services;
 
 public class PostService : IPostService
 {
