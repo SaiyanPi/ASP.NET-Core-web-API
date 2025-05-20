@@ -1,3 +1,4 @@
+using CategoryApi;
 using CategoryApi.Data;
 using CategoryApi.Services;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +9,15 @@ builder.Services.AddDbContext<CategoryDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
-builder.Services.AddScoped<ICategoryService, CategoryService>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddHostedService<CategoriesCacheBackgroundService>();
+
+ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

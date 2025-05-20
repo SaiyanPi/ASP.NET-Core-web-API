@@ -1,0 +1,327 @@
+# In-memory caching:
+
+-  In-memory caching is a fast and easy way to store data in an application’s memory. ASP.NET Core 
+    provides the IMemoryCache interface to facilitate this process. This type of caching is highly
+    versatile, as it can store any type of data in the form of a key-value pair. 
+- In the example project( CategoryApi ), This is a simple ASP.NET Core web API application. It contains
+    a /categories endpoint that returns the categories of products.
+
+- To simplify the example, we use the static list to store the categories in CategoryService class to
+    simulate a database. When the application queries the categories, it will print a log to indicate
+    that the categories are queried from the database. Here is the code in the CategoryService class:
+
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
+        {
+            // Simulate a database query
+            logger.LogInformation("Getting categories from the database");
+            await Task.Delay(2000);
+            return Categories;
+        }
+
+    -> In the preceding code, we use a Task.Delay() method to simulate a database query. This query 
+        takes two seconds to complete, which is slow. As the categories are not often changed, we can
+        use in-memory caching to improve the performance of the application.
+
+1) To use in-memory caching, we need to add the Microsoft.Extensions.Caching.Memory NuGet package by
+    running the following command:
+
+        cmd: dotnet add package Microsoft.Extensions.Caching.Memory
+
+2) Register the in-memory caching in the program class:
+
+    builder.Services.AddMemoryCache();
+
+3) Create a CacheKeys class as:
+
+        public static class CacheKeys
+        {
+            public const string Categories = "Categories";
+        }
+
+4)  Next, we can use the IMemoryCache interface in other classes. Inject the IMemoryCache interface 
+    into the CategoryService class:
+
+        public CategoryService(CategoryDbContext dbContext, ILogger<CategoryService> logger,
+            IMemoryCache cache)
+        {
+            // omitted
+            _cache = cache;
+        }
+
+    and update the GetCategoriesAsync() method as follows:
+
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
+        {
+            // Try to get the categories from the cache
+            if (_cache.TryGetValue(CacheKeys.Categories, out IEnumerable<Category>? categories))
+            {
+                _logger.LogInformation("Getting categories from cache");
+                return categories ?? new List<Category>();
+            }
+            _logger.LogInformation("Fetching all categories from the database.");
+            categories = await _dbContext.Categories.ToListAsync();
+
+            // Cache the categories for 10 minutes
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
+            _cache.Set(CacheKeys.Categories, categories, cacheEntryOptions);
+            return categories;
+        }
+    
+    -> we first try to get the categories from the cache by the cache key. If the categories are
+        found in the cache, we return them directly. Otherwise, we query the database and cache the
+        categories for 10 minutes.
+    -> the SetAnsoluteExpiration() method is used to set the absolute expiration time of the cache entry.
+        After 10 minutes, the cache entry will be removed from the cache.
+    -> Run the application and request to the endpoint api/categories
+        for the first time:
+
+            info: CategoryApi.Services.CategoryService[0]
+                Fetching all categories from the database.
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                SELECT [c].[Id], [c].[Description], [c].[Name]
+                FROM [Categories] AS [c]
+
+        second time within 10 minutes: (No Db Queries in the log meaning categories are fetched from cache )
+
+            info: CategoryApi.Services.CategoryService[0]
+                Getting categories from cache
+        
+        third time after 10 minutes:
+
+            info: CategoryApi.Services.CategoryService[0]
+                Fetching all categories from the database:
+            info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                Executed DbCommand (22ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+                SELECT [c].[Id], [c].[Description], [c].[Name]
+                FROM [Categories] AS [c]
+
+- In this way, in-memory caching can significantly improve the performance of the application.
+-  To ensure that the cache does not become bloated with outdated entries, the cache must apply a proper 
+    expiration policy. The cache has several options for expiration, two of them are as follows
+    i) Absolute expiration
+        The cache entry will be removed from the cache after the specified time.
+    ii) Sliding expiration
+        The cache entry will be removed after a predetermined period of time if it is not accessed.
+        when using the sliding expiration, the cache can be retained indefinitely if it is accessed
+        frequently. To avoid this, we can set the AbsoluteExpiration property or
+        AbsoluteExpirationRelativeToNow property to limit the maximum lifetime of the cache entry.
+        Here's the example:
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromMinutes(10),
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
+            };
+            _cache.Set(CacheKeys.Categories, categories, cacheEntryOptions);
+
+        -> This means that the cache entry will be removed from the cache after 30 minutes, even if it
+            is frequently accessed.
+
+
+- Sometimes we may need to manually update the cache entry. for eg, when a new category is created, or
+    an existing category is updated or deleted, we can remove the cache entry to force the application
+    to query the databse again and refresh the cache entry. 
+    1) Move the preceeding code to new method:
+        (we move the 'querying the database and caching the categories' part in its own method nothing
+        complex)
+
+        private async Task RefreshCacheAsync()
+        {
+            _logger.LogInformation("Fetching all categories from the database.");
+            var categories = await _dbContext.Categories.ToListAsync();
+            // Refresh the cache
+            _cache.Remove(CacheKeys.Categories);
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
+            _cache.Set(CacheKeys.Categories, categories, cacheEntryOptions);
+
+            // Uncomment the following lines to set sliding and absolute expiration
+            // var cacheEntryOptions = new MemoryCacheEntryOptions
+            // {
+            //     SlidingExpiration = TimeSpan.FromMinutes(10),
+            //     AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
+            // };
+            // _cache.Set(CacheKeys.Categories, categories, cacheEntryOptions);
+        }
+
+        -> NOTE that, we should query the database first, then remove the cache entry and reset it.
+            Otherwise, the application may query the database multiple times if the cache entry is
+            removed before the database query is completed.
+
+    2) Then, we can call this method RefreshCacheAsync() when a new category is created or an existing
+        category is updated or deleted. for eg, 
+
+            public async Task<Category> AddCategoryAsync(Category category)
+            {
+                _dbContext.Categories.Add(category);
+                await _dbContext.SaveChangesAsync();
+                await RefreshCacheAsync();
+                return category;
+            }
+
+        Alternatively, we can create a background task to update the cache entry periodically.
+        A background task is a task that runs behind the scenes without user interaction. It is
+        useful for performing tasks that are not time-sensitive, such as updating the cache entry.
+        To create a background task, we can use the BackgroundService class.
+
+        i) Create a new class named CategoriesCacheBackgroundService that inherits from the
+            BackgroundService class:
+
+            public class CategoriesCacheBackgroundService : BackgroundService
+            {
+                private readonly IServiceProvider _serviceProvider;
+                private readonly ILogger<CategoriesCacheBackgroundService> _logger;
+                private readonly IMemoryCache _cache;
+
+                public CategoriesCacheBackgroundService(IServiceProvider serviceProvider, ILogger<CategoriesCacheBackgroundService> logger
+                    , IMemoryCache cache)
+                {
+            
+                    _serviceProvider = serviceProvider;
+                    _logger = logger;
+                    _cache = cache;
+                }
+
+                protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+                {
+                    // Remove the cache every 1 hour
+                    while (!stoppingToken.IsCancellationRequested)
+                    {
+                        _logger.LogInformation("Updating the cache in background service");
+                        using var scope = _serviceProvider.CreateScope();
+                        var categoryService = scope.ServiceProvider.GetRequiredService<ICategoryService>();
+                        var categories = await categoryService.GetCategoriesAsync();
+                        _cache.Remove(CacheKeys.Categories);
+                        _cache.Set(CacheKeys.Categories, categories, TimeSpan.FromHours(1));
+                        await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+                    }
+                }
+            }
+
+            -> we use while loop to reset the cache entry every 1 hour.
+            -> NOTE that we cannot inject the ICategoryService deirectly because the BackgroundService
+                class will be registered as a singleton service, but the ICategoryService is registered
+                as a scoped service. A singleton service cannot depend on a scoped service. To solve
+                this problem, we need to use the IServiceProvider interface to create a scope and get
+                the ICategoryService from the scope.
+
+        ii)  Then, register the CacheBackgroundService class in the Program class:
+
+            builder.Services.AddHostedService<CacheBackgroundService>();
+
+            -> When the background task is executed every one hour, the cache entry will be removed
+                from the cache. The background task should first query the database and then remove
+                the cache entry and reset it. If the cache entry is deleted first, the application
+                may query the database multiple times, resulting in performance issues as stated
+                previously.
+
+
+- When implementing cacheing, it is important to consider scenarios where records cannot be found
+    in the database. for eg, when fetching a specific category with specific id but the database
+    doesn't have a category with the provided id. Let's see how it happens:
+
+    A) Update the GetCategoryByIdAsync() method as:
+
+        public async Task<Category> GetCategoryByIdAsync(int id)
+        {
+            // // Try to get the categories from the cache
+            if (_cache.TryGetValue($"{CacheKeys.Categories}:{id}", out Category? category))
+            {
+                _logger.LogInformation($"Getting categories with id {id} from cache");
+                return category;
+            }
+            _logger.LogInformation($"Fetching category with ID {id} from the database.");
+            category = await _dbContext.Categories.FindAsync(id);
+            if (category is not null)
+            {
+                _cache.Set($"{CacheKeys.Categories}:{id}", category);
+            }
+            return category;
+        }
+
+        -> now if we run the application and make a request to the endpoint api/Categories/20
+            (Note that category with id 20 is not in the database) the response is 404 Note Found.
+            and the log output is:
+
+                info: CategoryApi.Services.CategoryService[0]
+                    Fetching category with ID 20 from the database.
+                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                    Executed DbCommand (21ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+                    SELECT TOP(1) [c].[Id], [c].[Description], [c].[Name]
+                    FROM [Categories] AS [c]
+                    WHERE [c].[Id] = @__p_0
+
+            If we make request to the same endpoint again and again, each request will query the database
+            the reponse and the log will be the same. IN THIS CASE THE APPLICATION WILL NOT SET THE
+            CACHE AND THE DATABASE IS QUERIED EVERYTIME. CACHE IS NOT USED AT ALL.
+        -> To solve this problem, we can use the GetOrCreateAsync() method of the IMemoryCache
+            interface.
+    
+    B) Update the code as:
+
+        public async Task<Category> GetCategoryByIdAsync(int id)
+        {
+            var category = await _cache.GetOrCreateAsync($"{CacheKeys.Categories}:{id}", async entry =>
+            {
+                _logger.LogInformation($"Fetching category with ID {id} from the database.");
+                var result = await _dbContext.Categories.FindAsync(id);
+                return result;
+            });
+            return category;
+        }
+
+        -> run the application and make a request to the same endpoint as previous again. The
+            response and the log will be the same
+
+                info: CategoryApi.Services.CategoryService[0]
+                    Fetching category with ID 20 from the database.
+                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                    Executed DbCommand (86ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+                    SELECT TOP(1) [c].[Id], [c].[Description], [c].[Name]
+                    FROM [Categories] AS [c]
+                    WHERE [c].[Id] = @__p_0
+            
+            As earlier make a request to the same endpoint again and again, the reponse will be the
+            same(404 Not Found) but THERE WILL BE NO NEW LOG. Which means database is not querying
+            everytime we make a request. Instead the response is coming from the Cache. This shows
+            that the cache is being used .
+        -> Updated code uses the GetOrCreateAsync method to retrieve the category from the cache. If 
+            the category is not present, the method will execute the specified delegate to fetched
+            it from the database. Upon successful retrieval, the category will be cached and returned
+            If the category is not found, null will be returned. So the application will not query the
+            database every time.
+        -> It is recommended to use the GetOrCreateAsync method to obtain the data from the cache.
+
+
+- There are more important considerations when using in-memory caching.
+
+    i) Consider the expiration time of the cache entry
+    If the data is not often changed, we can set a longer expiration time. Otherwise use a shorter
+    expiration time. Also, we can use the slidingExpiration property and the Absolute expiration
+    time to achieve a balance between the performance and freshness of the data.
+
+    ii)The in-memory cache can cache any object, but be careful when caching large object
+    it is important to limit the size of the cache entry. We can use the SetSize, Size, and
+    SizeLimit to limit the size of the cache. NOTE that when using these methods, the in-memory
+    cache must be registered as a singleton service. please refer to this document for more info
+    https://learn.microsoft.com/en-us/aspnet/core/performance/caching/memory?view=aspnetcore-9.0
+
+    iii) Define proper cache CacheKeys
+    The cache keys should be unique and descriptive. Especially, when using caching for users,
+    ensure that the cache keys are unique for each user. Otherwise, the cached data of one user
+    may be used by another user.
+
+    iv) Provide a way to fall back to the data source when the cache is not available.
+
+-  In-memory caching is a simple and effective way to improve the performance of the application. 
+    However, it is not suitable for applications that are deployed with multiple instances. The
+    cached data only works for the current instance. When a client requests the data from another
+    instance, the cached data in the original instance will not be used. To solve this problem, one
+    solution is to implement session affinity, which means the request from a user will always be
+    routed to the same instance. This can be achieved by using a load balancer that supports
+    session affinity, such as Nginx, Azure Application Gateway, and so on. Please refer to the
+    documentation of the load balancer for more information.
+    Another approach to this issue is to implement a distributed cache, as outlined in the following
+    section.
