@@ -34,7 +34,7 @@ namespace CategoryApi.Controllers
         {
             var category = await _categoryService.GetCategoryByIdAsync(id);
 
-            if (category == null)
+            if (category is null)
             {
                 return NotFound();
             }
