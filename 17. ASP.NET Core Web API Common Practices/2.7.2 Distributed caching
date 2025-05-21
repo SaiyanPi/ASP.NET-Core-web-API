@@ -1,0 +1,23 @@
+Distributed caching:
+
+- Distributed caching offloads the cache from the application to a shared storage, such as Redis, or SQL
+    server. The data stored in the distributed cache can be accessed by multiple instances of the
+    application.
+- if the application restarts, the cached data will not be lost. There is no need to implement session
+    affinity when using distributed caching. There are several options to implemet distributed caching
+    in ASP.NET Core. Folowing are the most commonly used options:
+
+    • Redis:
+    Redis is an open-source, in-memory data structure store. It has many features, such as 
+    caching, pub/sub, and so on.
+
+    • SQL Server:
+    SQL Server can be also used as a distributed cache.
+
+    • Azure Cache for Redis:
+    Azure Cache for Redis is a fully managed, open-source, in-memory data structure store. It is based
+    on the popular open-source Redis cache. You can use a local Redis server for development and
+    testing and use Azure Cache for Redis in production.
+
+    • NCache:
+    NCache is an open-source distributed cache for .NET applications. See https://github.com/Alachisoft/NCache.
