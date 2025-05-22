@@ -50,11 +50,13 @@ public class AccountController(UserManager<AppUser> userManager, IConfiguration 
         return BadRequest(ModelState);
     }
 
+
+
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
-    // Get the secret in the configuration
-    // Check if the model is valid
+        // Get the secret in the configuration
+        // Check if the model is valid
         if (ModelState.IsValid)
         {
             var user = await userManager.FindByNameAsync(model.UserName);
@@ -66,12 +68,12 @@ public class AccountController(UserManager<AppUser> userManager, IConfiguration 
                     return Ok(new { token });
                 }
             }
-        // If the user is not found, display an error message
-        ModelState.AddModelError("", "Invalid username or password");
+            // If the user is not found, display an error message
+            ModelState.AddModelError("", "Invalid username or password");
         }
         return BadRequest(ModelState);
     }
-    
+
     private string? GenerateToken(string userName)
     {
         var secret = configuration["JwtConfig:Secret"];
@@ -88,8 +90,8 @@ public class AccountController(UserManager<AppUser> userManager, IConfiguration 
         {
             Subject = new ClaimsIdentity(new[]
             {
-                    new Claim(ClaimTypes.Name, userName)
-                }),
+                new Claim(ClaimTypes.Name, userName),
+            }),
             Expires = DateTime.UtcNow.AddDays(1),
             Issuer = issuer,
             Audience = audience,
@@ -110,4 +112,15 @@ public class AccountController(UserManager<AppUser> userManager, IConfiguration 
         var token = tokenHandler.WriteToken(securityToken);
         return token;
     }
+
+    // for clear understanding purpose
+    // [HttpGet("userinfo/{username}")]
+    // public async Task<IActionResult> GetUserInfo(string username)
+    // {
+    //     var user = await userManager.FindByNameAsync(username);
+    //     if (user == null) return NotFound("User not found");
+    //     var userId = user.Id;
+    //     var userName = user.UserName;
+    //     return Ok(new { userId, userName });
+    // }
 }
