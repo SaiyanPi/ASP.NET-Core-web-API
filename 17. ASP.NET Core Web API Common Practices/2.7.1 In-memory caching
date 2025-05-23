@@ -6,22 +6,6 @@
 - In the example project( CategoryApi ), This is a simple ASP.NET Core web API application. It contains
     a /categories endpoint that returns the categories of products.
 
-- To simplify the example, we use the static list to store the categories in CategoryService class to
-    simulate a database. When the application queries the categories, it will print a log to indicate
-    that the categories are queried from the database. Here is the code in the CategoryService class:
-
-        public async Task<IEnumerable<Category>> GetCategoriesAsync()
-        {
-            // Simulate a database query
-            logger.LogInformation("Getting categories from the database");
-            await Task.Delay(2000);
-            return Categories;
-        }
-
-    -> In the preceding code, we use a Task.Delay() method to simulate a database query. This query 
-        takes two seconds to complete, which is slow. As the categories are not often changed, we can
-        use in-memory caching to improve the performance of the application.
-
 1) To use in-memory caching, we need to add the Microsoft.Extensions.Caching.Memory NuGet package by
     running the following command:
 
