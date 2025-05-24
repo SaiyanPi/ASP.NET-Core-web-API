@@ -13,7 +13,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FavoriteItemV2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+<<<<<<< HEAD
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+468fbe264abc88ffd901fd515c2f14f4bce43fb8")]
+=======
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3c0cd1856c09bf222a3a3d6430b9b0cc06d08c2f")]
+>>>>>>> practices
 [assembly: System.Reflection.AssemblyProductAttribute("FavoriteItemV2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FavoriteItemV2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
