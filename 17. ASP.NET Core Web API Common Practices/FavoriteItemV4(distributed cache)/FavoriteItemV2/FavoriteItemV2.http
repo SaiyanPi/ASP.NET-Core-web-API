@@ -1,0 +1,6 @@
+@FavoriteItemV2_HostAddress = http://localhost:5239
+
+GET {{FavoriteItemV2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
