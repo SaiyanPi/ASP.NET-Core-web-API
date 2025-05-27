@@ -21,3 +21,265 @@ Distributed caching:
 
     • NCache:
     NCache is an open-source distributed cache for .NET applications. See https://github.com/Alachisoft/NCache.
+___________________________________________________________________________________________________________________
+
+In this section we will introduce the Redis cache using the sample project FavoriteItemV3. Distributed cache
+implemented project will be inside FavoriteItemV4(distributed cache) folder.
+
+1) First we need to prepare the redis server. We can use Docker to run the redis server. Start a Docker
+    desktop and run the following command on terminal/cmd to pull the Redis image
+
+    cmd: docker pull redis
+
+2) Then run the docker serve:
+    
+    cmd: docker run --name redis -p 6379:6379 -d redis
+    
+    To access the redis server in the terminal. We need to use the redis-cli command. This command is
+    included in the Redis image. Run the following command to access the redis server
+
+    cmd:  docker exec -it redis redis-cli
+
+    -> 'docker exec' command is used to execute a command in a running container.
+    -> '-it' option is used to run the command interactively. It means we want to execute the redis-cli
+        command in the container. we will see the following output:
+
+        o/p:  127.0.0.1:6379>
+    -> This means we have successfully accessed the Redis server. Now we can use the command to set the
+        value of a key:
+
+        cmd: set my-key "Hello World"
+    ->  Then, we can use the get command to get the value of the key:
+
+        cmd:  get my-key
+
+        the output will be 'Hello World'
+
+3) Now the redis server is ready to use. To use the redis cache in ASP.NET Core, we need to install the
+    Microsoft.Extensions.Caching.StackExchangeRedis NuGet package:
+
+    cmd: dotnet add package Microsoft.Extensions.Caching.StackExchangeRedis
+
+4) Register the Redis cache in the program class:
+
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = "localhost:6379";
+        options.InstanceName = "CachingDemo";
+    });
+
+    -> In the preceeding code, the AddStackExchangeRedisCache extension method is used to register the
+        Redis cache.
+    -> we specify the redis server address and an optional instance name, which is used to create a logical
+        partition for the cache. NOTE that these configurations can be defined in the appsettings.json file
+        or environment variables, allowing for different Redis instances to be used for development and
+        production purposes.
+
+5) Similar to in-memory cache create a CacheKeys class as:
+
+    public static class CacheKeys
+    {
+        public const string ItemCacheKey = "ItemCacheKey";
+        
+        //  public static string UserFavoriteItemCacheKey = "_UserFavoriteItems";
+        public static string UserFavoriteItemCacheKey(string username) => $"UserFavoriteItemCacheKey:{username}";
+    }
+
+6) Next we can use the IDistributedCache interface to operate the Redis cache. Inject the IDistributedCache
+    interface into the ItemService class as:
+
+    public class ItemService(ILogger<ItemService> logger, ApplicationDbContext context, IDistributedCache distributedCache)
+    : IItemService
+    {
+        // omitted
+    }
+
+    Update the GetItemsAsync() method as:
+
+        public async Task<IEnumerable<Item>> GetItemsAsync()
+        {
+            //Try to get the items from the distributed cache
+            var bytes = await distributedCache.GetAsync(CacheKeys.ItemCacheKey);
+            if (bytes is { Length: > 0 })
+            {
+                logger.LogInformation($"Getting items from distributed cache");
+                var cachedSerializedItems = Encoding.UTF8.GetString(bytes);
+                var cachedItems = JsonSerializer.Deserialize<IEnumerable<Item>>(cachedSerializedItems);
+                return cachedItems ?? new List<Item>();
+            }
+            // database query
+            logger.LogInformation($"Fetching items from the database");
+            var items = await context.Items.ToListAsync();
+            
+             // Store the result(items) in the distributed cache
+            var cacheEntryOptions = new DistributedCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromMinutes(5),
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+            var serializedItems = JsonSerializer.Serialize(items);
+            var serializedItemsBytes = Encoding.UTF8.GetBytes(serializedItems);
+            await distributedCache.SetAsync(CacheKeys.ItemCacheKey, serializedItemsBytes, cacheEntryOptions);
+           
+            return items;
+        }
+
+    -> As the Redis cache stores the data as byte[], to store the cached data, we need to serialize the
+        data into a JSON string and then convert the JSON string into a byte[] value using the
+        Encoding.UTF8.GetBytes() method.
+    -> Similarly, when getting the cached data, we need to convert the byte[] value to a JSON string using
+        the Encoding.UTF8.GetString() method and then deserialize the JSON string into the strongly-typed
+        object using the JsonSerializer.Deserialize() method.
+    -> the caching key must be a string value.
+    ->  To make it easier to convert the data to and from byte[], the IDistributedCache interface 
+        has a few extension methods as follows:
+
+        • SetStringAsync and SetString: These two methods can save string values directly
+
+        • GetStringAsync and GetString: These two methods can read string values directly
+
+    -> To remove a cache entry, we can use the RemoveAsync() method or Remove() method. As we mentioned
+        before, using the asynchronous versions of these methods is preferred
+    -> run the application and request to the respective endpoint. First request will query the database
+        and after, the response will be from the distributed cache from Redis server.
+        NOTE: if we stop the redis container that is running the redis image, distributed cache will not work.
+                To start the redis server simply run the redis container in the docker.
+    
+    ->  You can use the redis-cli to examine the cached data. Run the following command to get the keys:
+        
+        cmd: 127.0.0.1:6379> keys *
+
+        The output should look as follows:
+            1) "CachingDemo_FavoritesItems:1"
+
+        Then, use the HGETALL command to show the cached data:
+
+        127.0.0.1:6379> hgetall CachingDemo_FavoritesItems:1
+
+        Note that you cannot use the GET command here because it is used to retrieve the string values only. 
+        The items data is stored as hash in Redis, so we need to use the HGETALL command.
+        The output should look as follows, including all the fields of the cached entry:
+            1) "absexp"
+            2) "638322378838137428"
+            3) "sldexp"
+            4) "6000000000"
+            5) "data"
+            6) " [{\"Id\":1,\"Name\":\"Toys\",\"Description\":\"Soft toys, 
+                action figures, dolls, and puzzles\"},{\"Id\":2,\"Name\":\"Electron
+                ics\",\"Description\":\"Smartphones, tablets, laptops, and smart
+                watches\"},{\"Id\":3,\"Name\":\"Clothing\",\"Description\":\"Shirts, 
+                pants, dresses, and shoes\"}]
+
+
+- Just like in the in-memory cache, Sometimes we may need to manually update the cache entry.
+    for eg, when a new categoitemry is created, or an existing item is updated or deleted, we can remove
+    the cache entry to force the application to query the database again and refresh the cache entry. 
+    
+    a) Let's create a new method named RefreshDistributedCacheAsync() as:
+
+        private async Task RefreshDistributedCacheAsync()
+        {
+            // database query
+            logger.LogInformation($"Fetching items from the database");
+            var items = await context.Items.ToListAsync();
+
+            // Store the result in the distributed cache
+            var cacheEntryOptions = new DistributedCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromMinutes(5),
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+            var serializedItems = JsonSerializer.Serialize(items);
+            var serializedItemsBytes = Encoding.UTF8.GetBytes(serializedItems);
+            await distributedCache.SetAsync(CacheKeys.ItemCacheKey, serializedItemsBytes, cacheEntryOptions);
+        }
+
+    b) Then, we can call this method when a new item is created or an existing item is updated or deleted.
+        for eg, 
+
+        public async Task<bool> DeleteItemAsync(int id)
+        {
+            var item = await context.Items.FindAsync(id);
+            if (item == null) return false;
+
+            context.Items.Remove(item);
+            await context.SaveChangesAsync();
+            await RefreshDistributedCacheAsync();
+            return true;
+        }
+    
+        -> This will update the cache if we Delete the item. (see the ItemService.cs file)
+
+
+-  The IDistributedCache interface does not have the GetOrCreateAsync() method. If the cached data is not
+    found, the application still needs to query the database. To solve this problem, we can implement our
+    own GetOrCreateAsync() method. Create an extension method for the IDistributedCache interface:
+
+    public static class DistributedCacheExtension
+    {
+        public static async Task<T?> GetOrCreateAsync<T>(this IDistributedCache cache, string key,
+        Func<Task<T?>> createAsync, DistributedCacheEntryOptions? options = null)
+        {
+            // Get the value from the cache.
+            // If the value is found, return it.
+            var value = await cache.GetStringAsync(key);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return JsonSerializer.Deserialize<T>(value);
+            }
+            // If the value is not cached, then create it using the provided function.
+            var result = await createAsync();
+            var json = JsonSerializer.Serialize(result);
+            await cache.SetStringAsync(key, json, options ?? new DistributedCacheEntryOptions());
+            return result;
+        }
+    }
+
+    Now, Update the GetItemByIdAsync method as:
+
+        public async Task<Item?> GetItemByIdAsync(int id)
+        {
+            var cacheKey = $"{CacheKeys.ItemCacheKey}:{id}";
+            var cacheEntryOptions = new DistributedCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromMinutes(5),
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+            var item = await distributedCache.GetOrCreateAsync(cacheKey, async () =>
+            {
+                // querying database 
+                logger.LogInformation($"Fetching item from the database with id {id}");
+                var item = await context.Items.FindAsync(id);
+                return item;
+            }, cacheEntryOptions);
+            return item;
+        }
+
+    -> If the category is not found in the database, the GetOrCreateAsync() method will return null and 
+        cache the null value for future requests. In this way, the application will not query the database
+        again and again.
+
+
+-  The following table shows the differences between in-memory caching and distributed caching:
+    -----------------------------------------------------------------------------------------------------
+    In-memory caching                           |                    Distributed caching
+    -----------------------------------------------------------------------------------------------------
+    Cache data in the memory of the application             Cache data in a shared storage
+
+    Suitable for applications that are deployed             Suitable for applications that are deployed
+    with a single instance                                  with multiple instances
+ 
+    The cached data is lost when the                        The cached data is not lost when the 
+    application restarts                                    application restarts
+ 
+    The caching keys can be any object                      The caching keys must be string
+
+    The cached data value can be any                        The cached data is persisted as byte[] and 
+    strongly-typed object                                   may need serialization and deserialization.
+   ----------------------------------------------------------------------------------------------------
+
+
+- If you would like to use other distributed cache, you can install other packages such as the following:
+    • SqlServer: dotnet add package Microsoft.Extensions.Caching.SqlServer
+    • NCache: dotnet add package NCache.Microsoft.Extensions.Caching.OpenSource
+    Please refer to their official documentation for more details.
