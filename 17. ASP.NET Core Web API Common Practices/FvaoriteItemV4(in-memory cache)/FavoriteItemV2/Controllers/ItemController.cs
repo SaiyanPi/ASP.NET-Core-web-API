@@ -74,6 +74,10 @@ public class ItemController(IItemService itemService)
         var username = User.FindFirstValue(ClaimTypes.Name);
 
         var result = await itemService.GetUserFavoritesAsync(username);
+        if(result == null || !result.Any())
+        {
+            return NotFound("No favorite items found for the user.");
+        }
         return Ok(result);
     }
 

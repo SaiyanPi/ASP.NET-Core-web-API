@@ -309,3 +309,6 @@
     documentation of the load balancer for more information.
     Another approach to this issue is to implement a distributed cache, as outlined in the following
     section.
+
+
+(i haave implemented in-memory cache in FavoriteItem project. see folder FavoriteItemV4(in-memory cache))
