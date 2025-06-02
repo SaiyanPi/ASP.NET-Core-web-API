@@ -1,0 +1,64 @@
+Response caching:
+
+- Response caching is defined in the RFC9111 specification (https://www.rfc-editor.org/rfc/rfc9111).
+    It uses the HTTP header cache-control to specify the caching behaviour.
+- The clients (such as browsers) and immediate proxies (such as CDNs and gateways), can use the cache
+    control header to determine whether to cache the response and how long to cache it for.
+    
+    The cache-control header has several directives as follows:
+
+    • public: The response can be cached by the clients and the intermediate proxies.
+    • private: The response can be cached by the clients only. A shared cache, such as CDN, must not cache
+                the response.
+    • no-cache: For requests, the clients must send the request to the server for validation before 
+                using a cached copy of the response. For responses, the clients must not use a cached copy
+                of the response without successful validation on the server.
+    • no-store: For requests, the clients must not store any part of the request. For responses, the 
+                clients must not store any part of the response.
+    • max-age: This is the maximum age of the response in seconds. The clients can use the cached copy of
+                the response if it is not expired. For example, max-age=3600 means the response can be
+                cached for one hour.
+
+- We can use the ResponseCache attribute to specify the caching behavior of the endpoint. Here is an
+    example:
+
+    //GET: item
+    [HttpGet]
+    [ResponseCache(Duration = 60)]
+    public async Task<IActionResult> GetItems()
+    {
+        var items = await itemService.GetItemsAsync();
+        return Ok(items);
+    }
+
+    -> we used the ResponseCache attribute on the controller to specify the caching behaviour of the
+        endpoint.
+    -> 'Duration = 60' means the response can be cached for 60 seconds.
+
+- Run the application and make a request to the endpoint and see the cache-control header in the response:
+    
+    Content-Type: application/json; charset=utf-8
+    Date: Fri, 30 May 2025 07:18:02 GMT
+    Server: Kestrel
+    Cache-Control: public,max-age=60
+    Transfer-Encoding: chunked
+
+    -> if we send the reuest again, the browser will use the cached version of the reponse without sending
+        the request to the server. This is managed by max-age directive in the cache-control header.
+        After 60 seconds have elapsed, the browser will send the request to the server for validation if
+        the request is resumbitted.
+
+- HTTP-based response caching takes effect on the client side. If multiple clients send requests to the same
+    endpoint, each request will cause the server to handle and generate the response.
+    ASP.NET Core provides a server-side response caching middleware to cache the response on the server side.
+    However, this middleware has a few limitations.
+    • It only supports the GET and HEAD requests and it does not support requests that contain the 
+        Authorization, Set-Cookie headers, and so on.
+    • You cannot invalidate the client-side cached response on the server side when the data is changed.
+    • Additionally, most browsers, such as Chrome and Edge, automatically send requests with the 
+        cache-control: max-age=0 header, which disables response caching on the client side. 
+        As a result, the server will also respect this header and disable server-side response caching
+
+    we will ot cover the middleware mentioned. for more info https://learn.microsoft.com/en-us/aspnet/core/performance/caching/middleware
+    we will however, introduce output caching, which is available in ASP.NET Core 7.0 and later versions.
+    This middleware resolves some of the limitations of the server-side response caching middleware.

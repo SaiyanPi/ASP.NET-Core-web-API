@@ -50,6 +50,14 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddHostedService<ItemsCacheBackgroundService>();
 // register in-memory cache
 builder.Services.AddMemoryCache();
+// register output caching
+builder.Services.AddOutputCache(options =>
+{
+    options.AddBasePolicy(x => x.Cache());
+    // define caching policies for different endpoints
+    options.AddPolicy("Expire600", x => x.Expire(TimeSpan.FromSeconds(600)));
+    options.AddPolicy("Expire3600", x => x.Expire(TimeSpan.FromSeconds(3600)));
+});
 
 
 var app = builder.Build();
@@ -68,5 +76,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseOutputCache();
 
 app.Run();

@@ -1,0 +1,115 @@
+Output caching:
+
+-In ASP.NET Core 7.0 Microsoft introduced the output caching middleware. This middleware works in a 
+    similar way to the server-side response caching middleware, but it has a few advantages:
+
+    • It configures the caching behavior on the server side, so the client HTTP caching configuration 
+        does not affect the output caching configuration.
+    • It has the capability to invalidate the cached response on the server side when the data is changed.
+    • It can use external cache stores, such as Redis, to store the cached response.
+    • It can return a 304 Not Modified response to the client when the cached response is not modified.
+        This can save the network bandwidth.
+    
+    However, the output caching middleware also has similar limitations to the response caching middleware
+
+    • It only supports GET and HEAD requests with the 200 OK status code
+    • It does not support Authorization and Set-Cookie headers
+
+1) To enable the output caching, we need to register the output caching middleware in the Program class:
+
+    builder.Services.AddOutputCache(options =>
+    {
+        options.AddBasePolicy(x => x.Cache());
+    });
+
+2) Then, we need to add the middleware to the HTTP request pipeline:
+
+    app.UseOutputCache();
+
+3) Next, apply the OutputCache attribute to the endpoints that need to be cached.
+
+    [HttpGet("{id:guid}")]
+    [OutputCache]
+    public async Task<ActionResult<Tenant>> GetTenant(Guid id)
+    {
+        var tenant = await _context.Tenants.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
+        if (tenant == null)
+        {
+            return NotFound();
+        }
+        return Ok(tenant);
+    }
+
+    -> Run the application and request to the endpoint.
+        In the console, we will see that the first response was from the database. The headers of the
+        response looks as follows:
+
+            content-type: application/json; charset=utf-8
+            date: Sat,07 Oct 2023 06:43:02 GMT
+            server: Kestrel
+
+    -> send the request again. we will see the database query in the log console of the response look as
+        follows:
+
+            age: 5
+            content-length: 87
+            content-type: application/json; charset=utf-8
+            date: Sat,07 Oct 2023 06:44:39 GMT
+            server: Kestrel
+
+        this indicates that the response is cached. The 'age' header is the number of seconds since the
+        response was generated.
+
+    ->  By default, the expiration time of the cached response is 60 seconds. After 60 seconds have elapsed, 
+        the next request will query the database again.
+
+- we can define different caching policies for different endpoints. Update the AddOutPutCache() method in
+    the Program class as follows:
+
+        builder.Services.AddOutputCache(options =>
+        {
+            options.AddBasePolicy(x => x.Cache());
+            // define caching policies for different endpoints
+            options.AddPolicy("Expire600", x => x.Expire(TimeSpan.FromSeconds(600))); // cached response will expire in 10 minutes.
+            options.AddPolicy("Expire3600", x => x.Expire(TimeSpan.FromSeconds(3600)));
+        });
+    
+    Then update the OutputCache attribute to the endpoint as:
+
+    [HttpGet("{id:guid}")]
+    [OutputCache(PolicyName = "Expire3600")]
+    public async Task<ActionResult<Tenant>> GetTenant(Guid id)
+    {
+        var tenant = await _context.Tenants.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
+        if (tenant == null)
+        {
+            return NotFound();
+        }
+        return Ok(tenant);
+    }
+
+------------------------------------------------------------------------------------------------------------
+
+What caching strategy should i use?
+
+-  Response caching is relatively straightforward to implement; however, it is dependent on the client-side 
+    HTTP caching configuration. If the client-side HTTP caching is disabled, response caching will not 
+    work as intended. 
+
+-  Output caching is more flexible and can be used independently of the client-side 
+    HTTP caching configuration. It does not need much effort to implement, but it has a few limitations.
+
+- In-memory caching is a fast and easy way to cache data in a single instance of the application. However, 
+    it needs session affinity to work properly if there are multiple instances of the application. 
+
+- Distributed caching supports multiple instances, but it needs extra network I/O to access the cache.
+    So, we need to consider the trade-off between the performance and the scalability. If retrieving the
+    data from  the database is complex or needs expensive computation and the data is not often changed,
+    we can use distributed caching to reduce the load on the database or the computation.
+
+- Additionally, we can use in-memory caching and distributed caching together to leverage the advantages
+    of both caching techniques. For example, we can query the data from the in-memory cache first, and if
+    the data is not found, we can then query the distributed cache. Also, consider the expiration time of
+    the cache entry. You may need various expiration policies for different data
+
+- To learn more about caching, please refer to the documentation at https://docs.microsoft.com/en-us/aspnet/core/performance/caching/.
