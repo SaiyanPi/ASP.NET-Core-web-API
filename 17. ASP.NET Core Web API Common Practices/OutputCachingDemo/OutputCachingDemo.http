@@ -1,0 +1,6 @@
+@OutputCachingDemo_HostAddress = http://localhost:5163
+
+GET {{OutputCachingDemo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

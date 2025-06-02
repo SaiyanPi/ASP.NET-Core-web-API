@@ -16,6 +16,7 @@ using System.Reflection;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+452157f009363d2a387bb15f2506868e754b81be")]
 =======
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b659b8540f601a1d1feea474889b5cb68bbc1a33")]
@@ -25,6 +26,9 @@ using System.Reflection;
 >>>>>>> practices
 =======
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b3dba54e2d6e69d08dfcde1fc0e218346cd5e368")]
+>>>>>>> practices
+=======
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7eddc2cf84a8a4af2b64af3fa31b36360c5afa0d")]
 >>>>>>> practices
 [assembly: System.Reflection.AssemblyProductAttribute("CategoryApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CategoryApi")]

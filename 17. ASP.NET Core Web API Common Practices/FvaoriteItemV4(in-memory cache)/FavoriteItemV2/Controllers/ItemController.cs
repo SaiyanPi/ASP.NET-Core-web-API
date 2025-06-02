@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace FavoriteItemV2.Controllers;
 
@@ -18,6 +19,7 @@ public class ItemController(IItemService itemService)
 {
     //GET: item
     [HttpGet]
+    [ResponseCache(Duration = 60)] // Response caching
     public async Task<IActionResult> GetItems()
     {
         var items = await itemService.GetItemsAsync();
@@ -26,6 +28,7 @@ public class ItemController(IItemService itemService)
 
     // GET: item/{id}
     [HttpGet("{id}")]
+    // [OutputCache]
     public async Task<IActionResult> GetItem(int id)
     {
         var item = await itemService.GetItemByIdAsync(id);
