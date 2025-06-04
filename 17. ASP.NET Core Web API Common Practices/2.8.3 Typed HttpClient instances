@@ -1,0 +1,88 @@
+Typed HttpClient instances:
+
+- To better encapsulate the HttpClient instances, we can create a typed HttpClient instance for a
+    specific type.
+    For example, we can create a typed HttpClient instance for the User type:
+
+1) Create a UserService class as:
+
+    public class UserService
+    {
+        private readonly HttpClient _httpClient;
+        private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        public UserService(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+            _httpClient.BaseAddress = new Uri("https://jsonplaceholder.typicode.com/");
+            _httpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+            _httpClient.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "HttpClientDemo");
+        }
+
+        public Task<List<User>?> GetUsers()
+        {
+            return _httpClient.GetFromJsonAsync<List<User>>("users", _jsonSerializerOptions);
+        }
+
+        public async Task<User?> GetUser(int id)
+        {
+            return await _httpClient.GetFromJsonAsync<User>($"users/{id}", _jsonSerializerOptions);
+        }
+
+        public async Task<User?> CreateUser(User user)
+        {
+            var response = await _httpClient.PostAsJsonAsync("users", user, _jsonSerializerOptions);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<User>();
+        }
+
+        // omitted
+    }
+
+    -> Here, we created a UserService class to encapsulate the HttpClient instance
+
+2) Register the UserService class:
+
+    builder.Services.AddHttpClient<UserService>();
+
+3) Then we can inject the UserService class into the controller.    
+
+    [Route("[controller]")]
+    [ApiController]
+    public class UsersController(UserService userService) : ControllerBase
+    {
+        [HttpGet]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await userService.GetUsers();
+            if (users == null || !users.Any())
+            {
+                return NotFound();
+            }
+            return Ok(users);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUser(int id)
+        {
+            var user = await userService.GetUser(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+        // omitted
+    }
+
+    -> In the preceeding code, the controller does not need to know the details of the HttpClient instance
+        It only needs to call the methods of the UserService class. The code is much cleaner.
+
+- The IHttpClientFactory interface is the recommended way to manage HttpClient instances. 
+    It saves us from the tedious work of managing the lifetime of the HttpClient instances. It also 
+    allows us to configure the HttpClient instances in a centralized place. For more information, 
+    please refer to the documentation at https://learn.microsoft.com/en-us/aspnet/core/fundamentals/http-requests

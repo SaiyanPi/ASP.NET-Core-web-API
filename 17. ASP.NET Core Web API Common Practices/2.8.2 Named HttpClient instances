@@ -1,0 +1,29 @@
+Nmaed HttpClient instances:
+
+- When we use the HttpClient instance created by the IHttpClientFactory interface, we need to specify the
+    request URL. Now, instead of specifying URL in every endpoint method, we can set the base address of
+    the HttpClient instance when registering the HttpClient instance.
+
+1) Update the AddHttpClient method in the Program.cs file as:
+
+    builder.Services.AddHttpClient("JsonPlaceholder", client =>
+    {
+        client.BaseAddress = new Uri("https://jsonplaceholder.typicode.com/");
+        // You can set more options like the default request headers, timeout, and so on.
+        client.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
+        client.DefaultRequestHeaders.Add(HeaderNames.UserAgent, "HttpClientDemo");
+    });
+
+2) Then update the endpoint as:
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetPost(int id)
+    {
+        var httpClient = httpClientFactory.CreateClient("JsonPlaceholder");
+        var response = await httpClient.GetAsync($"posts/{id}");
+        // omitted
+    }
+
+- This is called named HttpClient instances, which allows us to register multiple HttpClient 
+    instances with different names. This is useful when we need multiple HttpClient instances with 
+    different configurations. By using the name, we can easily access the desired instance.

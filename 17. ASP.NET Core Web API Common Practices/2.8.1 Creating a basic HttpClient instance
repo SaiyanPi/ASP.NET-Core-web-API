@@ -1,0 +1,180 @@
+Creating a basic HttpClient instance:
+
+- The IHttpClientFactory interface provides an AddHttpClient() extension method to register the HttpClient
+    instances.
+
+1) Register the HttpClient instances in the Program.cs file:
+
+    builder.Services.AddHttpClient();
+
+2) Then we can inject the IHttpClientFactory interface into the controller and use it to create a HttpClient
+    instance:
+
+    public class PostsController(IHttpClientFactory httpClientFactory) : ControllerBase
+    {
+
+        [HttpGet]
+        public async Task<IActionResult> GetPosts()
+        {
+            var httpClient = httpClientFactory.CreateClient();
+            var httpRequestMessage = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri("https://jsonplaceholder.typicode.com/posts")
+            };
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var posts = JsonSerializerHelper.DeserializeWithCamelCase<List<Post>>(content);
+
+            return Ok(posts);
+        }
+        // omitted
+    }
+
+    -> In the preceeding code, we use the CreateClient() method to create a HttpClient instance.
+    -> Then we create HttpRequestMessage instance and use the SendAsync() method to send the HTTP request.
+    -> The EnsureSuccessStatusCode() method is used to ensure the response is successful. If the response
+        fails, an exception will be thrown.
+    -> The ReadAsStringAsync() method is used to read the response content as a string.
+    -> Finally, we use the JsonSerializerHelper class to deserialize the JSON string into a list of Post
+        objects.
+    -> The HttpRequestMessage class is a low-level class that represents an HTTP request message.
+        In most cases, we can use the GetStringAsync() method to send a GET request and get the 
+        response content as a string, as follows:
+
+            var content = await httpClient.GetStringAsync("https://jsonplaceholder.typicode.com/posts");
+            var posts = JsonSerializerHelper.DeserializeWithCamelCase<List<Post>>(content);
+            return Ok(posts);
+
+    -> The JsonSerializerHelper class is defined as:
+
+            public static class JsonSerializerHelper
+            {
+                public static string SerializeWithCamelCase<T>(T value)
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                    };
+
+                    return JsonSerializer.Serialize(value, options);
+                }
+
+                public static T? DeserializeWithCamelCase<T>(string json)
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                    };
+
+                    return JsonSerializer.Deserialize<T>(json, options);
+                }
+            }
+        
+        * because the JSON data returned by the API uses the camelcase naming convention, We need to 
+            use the JsonNamingPolicy.CamelCase property to deserialize the JSON string into the strongly
+            typed object.
+        * We can pass a JsonSerializerOptions instance to the JsonSerializer.Serialize() and
+            JsonSerializer.Deserialize() methods to specify the serialization and deserialization options.
+        * Using a helper method can simplify the code.
+
+3) Run the application and request to the endpoint http://localhost:5127/posts, we will see a response
+    from the site.
+
+    [
+    {
+        "userId": 1,
+        "id": 1,
+        "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+        "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+    },
+    {
+        "userId": 1,
+        "id": 2,
+        "title": "qui est esse",
+        "body": "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla"
+    },
+    // omitted
+    ]
+    -> note that all the keys start with lowercase letters and each letter inside a key starts with a
+        capital letter, this means that the JSON data returned by the API uses the camelcase naming
+        convention.
+
+------------------------------------------------------------------------------------------------------------------
+
+POST request:
+
+-  To send a POST request, we need to serialize the Post object to a JSON string and then convert the 
+    JSON string into a StringContent instance. Then, we can use the PostAsync() method to send the request.
+    (see the HttpClientDemo project)
+
+-  The StringContent class is a concrete implementation of the HttpContent class.
+    The HttpContent class is an abstract class that represents the content of an HTTP message. It has the 
+    following concrete implementations:
+
+    • ByteArrayContent: Represents an HttpContent instance based on a byte array
+
+    • FormUrlEncodedContent: Represents a collection of name/value pairs encoded using 
+                            application/x-www-form-urlencoded MIME type
+
+    • MultipartContent: Represents a collection of HttpContent instances serialized using 
+                        multipart/* MIME type
+
+    • StreamContent: Represents an HttpContent instance based on a stream
+    
+    • StringContent: Represents an HttpContent instance based on a string
+
+--------------------------------------------------------------------------------------------------------------
+
+-  The HttpClient class has a few methods and extension methods to send HTTP requests. The following table
+    shows the commonly used methods:
+
+____________________________________________________________________________________________________________
+    Method name                     |                        Description
+---------------------------------------------------------------------------------------------------------------
+    SendAsync()                         Sends an HTTP request to the specified URI.
+                                        This method can send any HTTP request.
+                                    
+    GetAsync()                          Sends a GET request to the specified URI.
+
+    GetStringAsync()                    Sends a GET request to the specified URI. This ethod returns the 
+                                        response body as a string.
+    
+    GetByteArrayAsync()                 Sends a GET request to the specified URI. This method returns the
+                                        response body as a byte array.
+
+    GetStreamAsync()                    Sends a GET request to the specified URI. This method returns the
+                                        response body as a stream.
+    
+    GetFromJsonAsync<T>()               Sends a GET request to the specified URI. This method returns the
+                                        response body as a strongly-typed object.
+
+    GetFromJsonAsAsyncEnumerable<T>()   Sends a GET request to the specified URI. This method returns the
+                                        response body as an IAsyncEnumerable<T> instance.
+                                    
+    PostAsync()                         Sends a POST request to the specified URI.
+
+    PostAsJsonAsync()                   Sends a POST request to the specified URI. The request body is
+                                        serialized as JSON.
+    
+    PutAsync()                          Sends a PUT request to the specified URI.
+
+    PutAsJsonAsync()                    Sends a PUT request to the specified URI. The request body is
+                                        serialized as JSON.
+
+    DeleteAsync()                       Sends a DELETE request to the specified URI.
+
+    DeleteFromJsonAsync<T>()            Sends a DELETE request to the specified URI. This method returns
+                                        the response body as a strongly-typed object.
+
+    PatchAsync()                        Sends a PATCH request to the specified URI.
+
+--------------------------------------------------------------------------------------------------------------
+
+- what if we need to send requests to multiple endpoints with different base addresses? Let us see how to
+    solve this problem in the next section.
