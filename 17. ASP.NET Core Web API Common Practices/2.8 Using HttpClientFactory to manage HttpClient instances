@@ -1,0 +1,58 @@
+Using HttpClientFactory to manage HttpClient instances:
+
+- .NET provides the HttpClient class for sending HTTP requests. However there is some confusion when using
+    it. In the past, many developers would misuse the using statement to create a HttpClient 
+    instance, as it implements the IDisposal interface. This is not recommended, as the HttpClient 
+    class is designed to be reused for multiple requests. Creating a new instance for each request can 
+    exhaust the local socket ports.
+- To solve this problem, Microsoft introduced the IHttpClientFactory interface in ASP.NET Core 2.1.
+    This interface simplifies the management of HttpClient instances. It allows us to use dependency
+    injection to inject HttpClient instances into the application without worring about the life cycle
+    of the HttpClient instances.
+    In this section, we will introduce how to use the  IHttpClientFactory interface to manage HttpClient
+    instances.
+
+- To demonstrate how to use  IHttpClientFactory interface, we need to have a web API application as the
+    backend service. we will use a fake API service: https://jsonplaceholder.typicode.com/. 
+    This is a free online REST API service that can be used for testing and prototyping. It provides 
+    a set of endpoints, such as /posts, /comments, /albums, /photos, /todos, and /users.
+
+- Project Setup:
+    1) Let's create a few Models which represents the Models from the site (see HttpClientDemo project)
+    2) Create a Posts Controller as:
+
+        [ApiController]
+        [Route("[controller]")]
+        public class PostsController : ControllerBase
+        {
+
+            [HttpGet]
+            public async Task<IActionResult> GetPosts()
+            {
+
+            }
+
+            [HttpGet("{id}")]
+            public async Task<IActionResult> GetPost(int id)
+            {
+
+            }
+
+            [HttpPost]
+            public async Task<IActionResult> CreatePost(Post post)
+            {
+
+            }
+
+            [HttpPut("{id}")]
+            public async Task<IActionResult> UpdatePost(int id, Post post)
+            {
+
+            }
+            
+            [HttpDelete("{id}")]
+            public async Task<IActionResult> DeletePost(int id)
+            {
+
+            }
+        }
