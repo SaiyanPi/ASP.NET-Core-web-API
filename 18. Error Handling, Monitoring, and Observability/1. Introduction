@@ -1,0 +1,16 @@
+Error Handling, Monitoring, and Observability:
+
+- In chapter 5, we introduced how to use logging in ASP.NET Core web API applications. Logging is a critical
+    part of application development that helps the developers understand what's happening in their
+    applications. However, logging is not enough - we need more tools to monitor and observe how our
+    application is running. In this chapter we will explore the following topics:
+
+    • Error handling
+
+    • Health checks
+
+    • Monitoring and observability
+
+-  After reading this chapter, you will be able to understand how to monitor ASP.NET Core web API 
+    applications. You will have gained knowledge of observability and OpenTelemetry, as well as how to 
+    use some tools, such as Prometheus and Grafana, to monitor applications.

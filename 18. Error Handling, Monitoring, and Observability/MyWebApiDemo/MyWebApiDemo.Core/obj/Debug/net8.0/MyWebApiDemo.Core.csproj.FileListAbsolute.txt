@@ -1,0 +1,12 @@
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\bin\Debug\net8.0\MyWebApiDemo.Core.deps.json
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\bin\Debug\net8.0\MyWebApiDemo.Core.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\bin\Debug\net8.0\MyWebApiDemo.Core.pdb
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\obj\Debug\net8.0\MyWebApiDemo.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\obj\Debug\net8.0\MyWebApiDemo.Core.AssemblyInfoInputs.cache
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\obj\Debug\net8.0\MyWebApiDemo.Core.AssemblyInfo.cs
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\obj\Debug\net8.0\MyWebApiDemo.Core.csproj.CoreCompileInputs.cache
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\obj\Debug\net8.0\MyWebApiDemo.Core.sourcelink.json
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\obj\Debug\net8.0\MyWebApiDemo.Core.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\obj\Debug\net8.0\refint\MyWebApiDemo.Core.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\obj\Debug\net8.0\MyWebApiDemo.Core.pdb
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo.Core\obj\Debug\net8.0\ref\MyWebApiDemo.Core.dll

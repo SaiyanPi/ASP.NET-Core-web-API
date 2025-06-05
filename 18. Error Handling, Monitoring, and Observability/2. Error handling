@@ -1,0 +1,8 @@
+Error Handling:
+
+- When an exception occurs in an ASP.NET Core web API application, the application will throw an exception.
+    If this exception is not handled, the application will crash and cause a 500 error.
+- The response body will contain the stack trace of the exception. Displaying the stack trace to the client 
+    is acceptable during development. However, we should never expose the stack trace to the client in 
+    production. The stack trace contains sensitive information about the application that can be used by 
+    attackers to attack the application.
