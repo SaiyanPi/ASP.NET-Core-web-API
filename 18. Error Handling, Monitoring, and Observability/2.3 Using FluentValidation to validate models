@@ -1,0 +1,134 @@
+Using FluentValidation to validate models:
+
+- In the previous section, we discussed the use of built-in validataion attributes. However, these have
+    certain limitations:
+
+    • The validation attributes are tightly coupled with the model. The models are polluted with 
+        validation attributes.
+
+    • The validation attributes cannot validate complex validation rules. If one property has dependencies
+        on other properties, or the validation needs external services, the validation attributes cannot
+        handle this.
+
+- To solve these problems, we can use FluentValidation to validate the models. FluentValidation 
+    is a popular open-source library for building strongly typed validation rules, allowing us to separate 
+    the validation logic from the models. It also supports complex validation rules.
+
+1) To use FluentValidation, we need to install the FluentValidation.AspNetCore NuGet package. 
+    
+    cmd: dotnet add package FluentValidation
+
+    IMPORTANT NOTE:
+    Previously, FluentValidation provided a separate package for ASP.NET Core named 
+    FluentValidation.AspNetCore. However, this package is deprecated. It is recommended 
+    to use the FluentValidation package directly and use manual validation instead of using 
+    the ASP.NET Core validation pipeline. This is because the ASP.NET Core validation pipeline 
+    does not support asynchronous validation.
+
+2) Next, we need to create a validator for the User model. Create a new class named UserValidator 
+    and add the following code:
+
+    public class UserValidator : AbstractValidator<User>
+    {
+        public UserValidator()
+        {
+            RuleFor(u => u.FirstName)
+                .NotEmpty()
+                .WithMessage("The FirstName field is required.")
+                .Length(3, 50)
+                .WithMessage("The length of FirstName must be between 3 
+                and 50.");
+
+            // Omitted other rules for brevity
+
+            // Create a custom rule to validate the Country and 
+            // PhoneNumber. If the country is New Zealand, the phone number must 
+            // start with 64.
+            RuleFor(u => u)
+                .Custom((user, context) =>
+                {
+                    if (user.Country.ToLower() == "new zealand" && !user.PhoneNumber.StartsWith("64"))
+                    {
+                        context.AddFailure("The phone number must start with 64 for New Zealand users.");
+                    }
+                });
+        }
+    }
+    
+    ->  In the preceding code, we use fluent syntax to specify validation rules for each property.
+    -> We can also create a custom rule for dependent properties. In this example, we’re creating a
+        custom rule to validate the Country and PhoneNumber properties. If the country is New Zealand,
+        we can create a custom rule that requires the phone number to start with 64.
+
+3) Next, we need to register the validator in the application. Add the following code to the Program.cs
+    file:
+
+        builder.Services.AddScoped<IValidator<User>, UserValidator>();
+
+-------------------------------------------------------------------------------------------------------------------
+
+- The preceding code looks straightforward. But what if we have many validators? We can register all
+    validators in a specific assembly.
+
+a) we need to install the FluentValidation.DependencyInjectionExtensions NuGet package.
+
+    cmd: dotnet add package FluentValidation.DependencyInjectionExtensions
+
+b) Then, we can register all validators, as follows:
+
+    builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
+
+    -> This line scans the entire assembly where UserValidator is defined and registers all validators
+        (including InvoiceValidator, UserValidator, etc.) that inherit from AbstractValidator<T>.
+
+c)  Now, we can validate the model in the controller. Update the Post action, as follows:
+
+    [HttpPost]
+    public async Task<ActionResult<User>> CreateUser (User user)
+    {
+        var validationResult = await _validator.ValidateAsync(user);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(new ValidationProblemDetails(validationResult.ToDictionary()));
+        }
+        user.Id = Users.Max(u => u.Id) + 1;
+        Users.Add(user);
+        return CreatedAtRoute("", new { id = user.Id }, user);
+    }
+    -> In the preceding code, we utilize the ValidateAsync() method to validate the model. 
+    -> If the model is invalid, we return an HTTP 400 response containing a problem details object that
+        contains the associated validation error message.
+    -> request body:
+        {
+            "firstName": "ab",
+            "lastName": "xy",
+            "age": 20,
+            "email": "user-example.com",
+            "country": "New Zealand",
+            "phoneNumber": "12345678"
+        }
+
+        400 error response:
+        {
+        
+            "title": "One or more validation errors occurred.",
+            "status": 400,
+            "errors": {
+                "FirstName": [
+                "The length of LastName must be between 3 and 50."
+                ],
+                "LastName": [
+                "The length of LastName must be between 3 and 50."
+                ],
+                "Email": [
+                "The Email field is not a valid e-mail address."
+                ],
+                "": [
+                "The phone number must start with 64 for New Zealand users."
+                ]
+            }
+        }
+    
+    -> FluentValidation has more features than just built-in validation attributes. If you have complex 
+        validation rules, you can consider using FluentValidation. For more details, please refer to the 
+        official documentation: https://docs.fluentvalidation.net/en/latest/index.html

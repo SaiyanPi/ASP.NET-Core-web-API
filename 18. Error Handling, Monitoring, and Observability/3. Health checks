@@ -1,0 +1,110 @@
+Health Checks:
+
+-  ASP.NET Core provides a straightforward way to configure health checks. We can use the AddHealthChecks
+    method to add health checks to the application.
+    Open the Program.cs file and add the following code:
+
+        builder.Services.AddHealthChecks();
+        var app = builder.Build();
+        app.MapHealthChecks("healthcheck");
+
+    -> preceeding code adds a basic health check to the application. The health check's endpoint is
+        /healthcheck. Run the application and send a GET request to the /healthcheck endpoint. If 
+        successful, the application will return a 200 response with Healthy in plain text in the response
+        body. 
+
+- However, this health check is too simple. In the real world, a web API application may be more 
+    complex. It may have multiple dependencies, such as databases, message queues, and other services. 
+    We need to check the health status of these dependencies. If some core dependencies are unhealthy, 
+    the application should be unhealthy. Let’s see how to implement a more complex health check.
+
+-------------------------------------------------------------------------------------------------------------
+
+IMPLEMENTING A COMPLEX HEALTH CHECK:
+
+- A health check implementation class implements the IHealthCheck interface. The IHealthCheck interface
+    is defined as follows:
+
+    public interface IHealthCheck
+    {
+        Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
+            CancellationToken cancellationToken = default);
+    }
+
+1) We can create a custom health check implementation to ensure the proper functioning of our API. 
+    For instance, if the API depends on another service, we can create a health check implementation to 
+    verify the health status of the dependent service. If the dependent service is unhealthy, the API
+    won’t be able to function correctly. Here is an example of a health check implementation:
+
+        public class OtherServiceHealthCheck(IHttpClientFactory httpClientFactory) : IHealthCheck
+        {
+            public async Task<HealthCheckResult> CheckHealthAsync(
+                HealthCheckContext context,
+                CancellationToken cancellationToken = default)
+            {
+                var client = httpClientFactory.CreateClient("JsonPlaceholder");
+                var response = await client.GetAsync("posts", cancellationToken);
+                return response.IsSuccessStatusCode
+                    ? HealthCheckResult.Healthy("A healthy result.")
+                    : HealthCheckResult.Unhealthy("An unhealthy result.");
+            }
+        }
+
+    -> In the preceding code, we create a health check implementation to check the health status of the 
+        https://jsonplaceholder.typicode.com/posts endpoint. If the endpoint returns a 200 response, the
+        health check returns healthy. Otherwise, the health check returns unhealthy.
+
+2) Next, we need to register the health check implementation in the application. Open the Program.cs
+    file and add the following code:
+
+        builder.Services.AddHealthChecks()
+            .AddCheck<OtherServiceHealthCheck>("OtherService");
+        // Omitted other code for brevity
+
+        var app = builder.Build();
+        // omitted
+        app.MapHealthChecks("/other-service-health-check",
+            new HealthCheckOptions() { Predicate = healthCheck => healthCheck.Name == "OtherService" });
+
+    -> This code is similar to the previous health check. First, we use the AddHealthChecks method to 
+        register the strongly typed health check implementation. Then, we use the MapHealthCheck method 
+        to map the /other-service-health-check endpoint to the health check implementation.
+    -> We also use the 'HealthCheckOptions' object to specify the name of the health check, which is 
+        used to filter the health checks. If we do not specify the name of the health check, all health 
+        check implementations will be executed.
+
+    -> Run the application and send a GET request to the /other-service-health-check endpoint. 
+        If the dependent service, https://jsonplaceholder.typicode.com/posts, is healthy, the application
+        will return a 200 response with Healthy in plain text in the response body.
+
+-------------------------------------------------------------------------------------------------------------
+
+HEATH CHECKING MULTIPLE DEPENDENT SERVICES:
+
+- Sometimes, we need to check multiple dependent services. We can register multiple health check 
+    implementations with a specific tag, at which point we can use this tag to filter the health checks.
+    The following code shows how to register multiple health check implementations:
+
+        builder.Services.AddHealthChecks()
+            .AddCheck<OtherServiceHealthCheck>("OtherService", tags: new[] { "other-service" })
+            .AddCheck<OtherService2HealthCheck>("OtherService2", tags: new[] { "other-service" })
+            .AddCheck<OtherService3HealthCheck>("OtherService3", tags: new[] { "other-service" });
+
+    ->  In the preceding code, we register three health check implementations with the same tag – that is, 
+        other-service. Now, we can use the tag to filter the health checks. The following code shows 
+        how to filter the health checks:
+
+        app.MapHealthChecks("/other-services-health-checks",
+            new HealthCheckOptions() { Predicate = healthCheck => healthCheck.Tags.Contains("other-service") });
+
+        -> Like the Name property, we can use the Tags property to filter the health checks. When we send a 
+            GET request to the /other-services-health-check endpoint, the application will return a 200 OK
+            response with Healthy in plain text in the response body if all dependent services are healthy.
+        -> But if one of the dependent services is unhealthy, the health check will return a 503 Service 
+            Unavailable response with Unhealthy in plain text in the response body.
+
+
+
+- IMPORTANT NOTE:
+    If the MapHealthChecks() method does not use the HealthCheckOptions parameter, the health check
+    endpoint will run all registered health checks by default.

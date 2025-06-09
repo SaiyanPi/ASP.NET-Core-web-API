@@ -1,0 +1,82 @@
+Model validation:
+
+- ASP.NET Core offers a built-in model validation feature to validate the request model. This feature 
+    is enabled using validation attributes, which are defined in the System.ComponentModel.DataAnnotations
+    namespace.
+    The following table outlines some available validation attributes
+
+    ----------------------------------------------------------------------------------------------------------------
+    Attribute name                      |                      Description
+    ------------------------------------------------------------------------------------------------------------
+    Required                                    Specifies that a data field is required    
+
+    Range                                       Specifies that a numeric field must be in a specified range
+
+    StringLength                                Specifies the minimum and maximum length of a string field
+
+    EmailAddress                                Specifies that a data field must be a valid email address
+
+    RegularExpression                           Specifies that a data field must match the specified regular expression
+
+    Url                                         Specifies that a data field must be a valid URL
+    ---------------------------------------------------------------------------------------------------------------------------
+
+-  We can apply these validation attributes as follows:
+
+    public class User
+    {
+        public int Id { get; set; }
+
+        [Required]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "The length of FirstName must be between 3 and 50.")]
+        public string FirstName { get; set; } = string.Empty;
+        
+        [Required]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "The length of LastName must be between 3 and 50.")]
+        public string LastName { get; set; } = string.Empty;
+        
+        [Required]
+        [Range(1, 120, ErrorMessage = "The value of Age must be between 1 and 120.")]
+        public int Age { get; set; }
+        
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+        
+        [Required]
+        [Phone]
+        public string PhoneNumber { get; set; } = string.Empty;
+    }
+
+-  Run the application and send a POST request to the /users endpoint with an invalid request body, 
+    like this
+    {
+        "firstName": "ab",
+        "lastName": "xy",
+        "age": 20,
+        "email": "user-example.com",
+        "phoneNumber": "abcxyz"
+    }
+
+-  The application will return an HTTP 400 response with a problem details object, as follows:
+
+    {
+        "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+        "title": "One or more validation errors occurred.",
+        "status": 400,
+        "errors": {
+            "Email": [
+            "The Email field is not a valid e-mail address."
+            ],
+            "LastName": [
+            "The length of LastName must be between 3 and 50."
+            ],
+            "FirstName": [
+            "The length of FirstName must be between 3 and 50."
+            ],
+            "PhoneNumber": [
+            "The PhoneNumber field is not a valid phone number."
+            ]
+        },
+        "traceId": "00-8bafbe8952051318d15ddb570d2872b0-369effbb9978122b-00"
+    }

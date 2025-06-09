@@ -47,6 +47,8 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 
 // Model validation
 //builder.Services.AddScoped<IValidator<User>, UserValidator>();
+
+// Register all validators in the assembly where UserValidator is defined
 builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
 
 // Health checks
@@ -114,7 +116,7 @@ app.MapHealthChecks("/database-health-checks",
 app.MapPrometheusScrapingEndpoint();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsProduction())
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();

@@ -1,0 +1,41 @@
+Implementing a database health check:
+
+-  In the previous section, we discussed how to implement a health check for a dependent service. 
+    As databases are a common component of web API applications, this section will focus on how to 
+    implement a database health check.  
+
+1)  If you use EF Core to access the database, you can use the
+    Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore package to implement a database 
+    health check. This package provides a health check implementation for EF Core, so we do not need 
+    to write the health check implementation ourselves.
+
+    cmd: dotnet add package Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore
+
+2) In the sample project, we have an InvoiceDbContext class to access the database. The following 
+    code shows how to register the InvoiceDbContext class in the application:
+
+        builder.Services.AddDbContext<InvoiceDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+3) Register the EF Core DbContext health check implementation, as follows:
+
+        builder.Services.AddHealthChecks().
+            AddDbContextCheck<InvoiceDbContext>("Database", tags: new[] { "database" });
+        // omitted
+
+        var app = builder.Build();
+
+        // omitted
+        app.MapHealthChecks("/database-health-checks",
+            new HealthCheckOptions() { Predicate = healthCheck => healthCheck.Tags.Contains("database") });
+
+- Run the application and send a GET request to the /database-health-checks endpoint. If the 
+    database is healthy, the application will return a 200 OK response with Healthy in plain text in the 
+    response body. Additionally, you can register multiple health checks for different databases if
+    necessary.
+
+
+IMPORTANT NOTE:
+    If you are using other ORMs to access the database, you can create a custom health check 
+    implementation following the previous section. This can be done by executing a simple query, 
+    such as SELECT 1, to determine whether the database is functioning properly.
