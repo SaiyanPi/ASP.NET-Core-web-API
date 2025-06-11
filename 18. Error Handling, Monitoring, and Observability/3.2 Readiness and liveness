@@ -1,0 +1,151 @@
+Readiness and Liveness:
+
+- In the previous sections, we discussed how to implement health checks for ASP.NET Core web API 
+    applications. In the real world, we may need to deploy the applications to a container orchestrator, 
+    such as Kubernetes.
+- Kubernetes is a popular container orchestrator that can manage containerized applications, monitor
+    health statuses, and scale up or down based on workload.
+- Kubernetes uses the term probe, which is similar to health checks, to monitor the health status of the
+    applications. While this book does not cover the details of Kubernetes, it will discuss how to
+    implement Kubernetes probes in ASP.NET Core web API applications.
+
+- Kubernetes has three types of probes: readiness, liveness, and startup. Let’s take a closer look:
+
+    1. liveness: 
+    This probe indicates whether the application is running correctly. Kubernetes performs a liveness
+    probe every few seconds. If the application does not respond to the liveness probe for a specified
+    period, the container will be killed and Kubernetes will create a new one to replace it. The liveness
+    probe can execute either an HTTP request, a command, or a TCP socket check. It also supports gRPC
+    health checks.
+
+    2. readiness:
+    This probe is used to determine whether the application is ready to receive traffic. 
+    Some applications need to perform some initialization tasks before they can receive traffic, such 
+    as connecting to the database, loading configuration, checking the dependent services, and so on.
+    During this period, the application cannot receive traffic, but this does not mean that the 
+    application is unhealthy. Kubernetes should not kill the application and restart it. After the 
+    initialization is complete and all dependent services are healthy, the readiness probe will 
+    inform Kubernetes that the application is ready to receive traffic.
+
+    3. startup:
+    This probe is similar to the readiness probe. However, the difference is that the 
+    startup probe is only executed once the application starts. It is used to determine whether the 
+    application has completed the initialization process. If this probe is configured, the liveness 
+    and readiness probes will not be executed until the startup probe is successful.
+
+- Configuring the probes incorrectly may cause cascading failures.
+    For example, service A depends on service B and service B depends on service C. If the liveness probes
+    are misconfigured incorrectly to check the dependent services when service C is unhealthy, service A
+    and service B will be restarted, which does not solve the problem. This is a cascading failure. In
+    this case, service A and service B should not be restarted. Instead, only service C should be restarted.
+
+
+1)  Here’s an example of a liveness HTTP probe configuration for Kubernetes:
+
+    livenessProbe:
+        httpGet:
+            path: /liveness
+            port: 8080
+            httpHeaders:
+                - name: Custom-Header
+                value: X-Health-Check
+        initialDelaySeconds: 3
+        periodSeconds: 5
+        timeoutSeconds: 1
+        successThreshold: 1
+        failureThreshold: 3
+
+    -> In the configuration, we define the following properties:
+
+        • path, port, and httpHeaders:
+            These properties are used to configure the HTTP request. 
+            In the preceding example, we specify a custom HTTP header called Custom-Header with a 
+            value of X-Health-Check. The application can use this HTTP header to identify whether 
+            the request is a health check request. If the request does not have this HTTP header, the 
+            application can deny the request.
+        • initialDelaySeconds:
+            This property is used to specify the number of seconds after 
+            the container has started before the first probe is executed. The default value is 0.
+            Do not use a high value for this property. You can use the startup probe to check the
+            initialization of the application instead.
+        • periodSeconds:
+            This property is used to specify the number of seconds between each probe. The default value
+            is 10. The minimum value is 1. You can adjust this value based on your scenarios. Make sure
+            Kubernetes can discover the unhealthy container as soon as possible.
+        • timeoutSeconds:
+            This property is used to specify the number of seconds after which the probe times out.
+            The default value is 1 and the minimum value is also 1. Make sure the probe is fast.
+        • successThreshold:
+            This property is used to determine the number of consecutive successful responses required for
+            a probe to be considered successful after having previously failed. The value must be 1 for
+            liveness probes.
+        • failureThreshold:
+            This property is used to specify the number of consecutive failures for the probe to be
+            considered failed after having succeeded. Do not use a high value for this property; otherwise,
+            Kubernetes needs to wait a long time to restart the container.
+    
+    -> Keep in mind that the liveness probe should not depend on other services. In other words, do 
+        not check the health status of other services in the liveness probe. Instead, this probe should
+        only check whether the application can respond to the request.
+
+2) An example of a readiness HTTP probe’s configuration is as follows:
+
+    readinessProbe:
+        httpGet:
+            path: /readiness
+            port: 8080
+            httpHeaders:
+                - name: Custom-Header
+                value: X-Health-Check
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        timeoutSeconds: 1
+        successThreshold: 3
+        failureThreshold: 2
+
+    -> There are a few different considerations for the readiness probe:
+
+        • successThreshold:
+            The default value is 1. However, we can increase this value to make sure the application is
+            ready to receive traffic.
+        • failureThreshold:
+            After at least failureThreshold probes have failed, Kubernetes will stop sending traffic to
+            the container. As the application may have temporary problems, we can allow a few failures
+            before the application is considered unhealthy. However, do not use a high value for this
+            property.
+
+3) An example of a startup HTTP probe configuration is shown here:
+
+    - If the application takes a long time to initialize, we can use the startup probe to check the
+        initialization of the application.
+
+        startupProbe:
+            httpGet:
+                path: /startup
+                port: 8080
+                httpHeaders:
+                    - name: Custom-Header
+                    value: X-Health-Check
+            periodSeconds: 5
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 30
+
+        -> In this configuration, the startup probe will be executed every 5 seconds, and the application
+            will have a maximum of 150 seconds (5 * 30 = 150 seconds) to complete the initialization.
+        ->  successThreshold must be 1 so that once the startup probe is successful, the liveness and
+            readiness probes will be executed.
+        ->  If the startup probe fails after 150 seconds (about 2 and a half minutes), Kubernetes will
+            kill the container and start a new one.
+        -> So, ensure that the startup probe has enough time to complete the initialization.
+
+-  Configuring Kubernetes probes is not a simple task. We need to consider many factors. For example, 
+    should we check the dependent services in the readiness probe? If the application can partially 
+    operate without a specific dependent service, it can be considered as degraded instead of unhealthy. 
+    In this case, if the application has mechanisms to handle transient failures gracefully, it might be 
+    acceptable to omit specific dependent services in the readiness probe. So, please consider your 
+    scenarios carefully; you may need a compromise when configuring the probes.
+- This section is not intended to cover all the details of Kubernetes probes. For more details, please
+    refer to the following official documentation:
+    • Kubernetes documentation: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/.
+    • Health checks in ASP.NET Core: https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks.
