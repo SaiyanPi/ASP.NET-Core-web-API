@@ -107,3 +107,16 @@ C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability
 C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\obj\Debug\net8.0\MyWebApiDemo.pdb
 C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\obj\Debug\net8.0\MyWebApiDemo.genruntimeconfig.cache
 C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\obj\Debug\net8.0\ref\MyWebApiDemo.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.Configuration.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.Logging.Configuration.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.Options.ConfigurationExtensions.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
+C:\Users\zlams\source\REST API\18. Error Handling, Monitoring, and Observability\MyWebApiDemo\MyWebApiDemo\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll

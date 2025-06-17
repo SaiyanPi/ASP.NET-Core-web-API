@@ -155,7 +155,7 @@
             },
             "OpenTelemetry.Exporter.Prometheus.AspNetCore": {
               "target": "Package",
-              "version": "[1.6.0-rc.1, )"
+              "version": "[1.12.0-beta.1, )"
             },
             "OpenTelemetry.Extensions.Hosting": {
               "target": "Package",
@@ -163,7 +163,7 @@
             },
             "OpenTelemetry.Instrumentation.AspNetCore": {
               "target": "Package",
-              "version": "[1.5.1-beta.1, )"
+              "version": "[1.7.0, )"
             },
             "OpenTelemetry.Instrumentation.Http": {
               "target": "Package",

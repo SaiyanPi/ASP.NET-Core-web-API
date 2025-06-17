@@ -72,17 +72,8 @@ builder.Services.AddOpenTelemetry()
             .AddMeter("MyWebApiDemo.Invoice")
             .AddConsoleExporter()
             .AddPrometheusExporter();
-    })
-    .WithTracing(tracing =>
-    {
-        tracing.AddAspNetCoreInstrumentation()
-            .AddHttpClientInstrumentation()
-            .AddConsoleExporter()
-            .AddOtlpExporter(options =>
-            {
-                options.Endpoint = new Uri("http://localhost:4317");
-            });
     });
+
 
 builder.Services.AddSingleton<InvoiceMetrics>();
 
@@ -113,6 +104,7 @@ app.MapHealthChecks("/other-services-health-checks",
 app.MapHealthChecks("/database-health-checks",
     new HealthCheckOptions() { Predicate = healthCheck => healthCheck.Tags.Contains("database") });
 
+// Add the Prometheus scraping endpoint
 app.MapPrometheusScrapingEndpoint();
 
 // Configure the HTTP request pipeline.

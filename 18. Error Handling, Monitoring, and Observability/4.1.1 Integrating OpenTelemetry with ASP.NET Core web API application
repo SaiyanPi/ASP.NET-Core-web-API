@@ -1,0 +1,268 @@
+Integrating OpenTelemetry with ASP.NET Core web API applications:
+
+- In this section, we will explore how to use metrics in ASP.NET Core web API applications. In the 
+    sample project, we have an InvoiceController class to manage invoices. We want to know how many
+    requests are executed and the duration of each request.
+    We have several steps to perform:
+        1. Define the metrics for these activities.
+        2. Generate and collect instrumentation data.
+        3. Visualize the data in a dashboard.
+
+1) Install NuGet packages:
+
+    cmd: dotnet add package OpenTelemetry.Instrumentation.AspNetCore --prerelease
+    cmd: otnet add package OpenTelemetry.Instrumentation.Http --prerelease
+    cmd: dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol
+    cmd: dotnet add package OpenTelemetry.Exporter.Console
+    cmd: dotnet add package OpenTelemetry.Extensions.Hosting
+
+    NOTE: exclude the --prerelease option if stable versions are available.
+
+2) Next, we must define the metrics. In this example, we want to know how many requests are executed 
+    for each action for the /api/Invoices endpoint.
+    Create a new class named InvoiceMetrics in the \OpenTelemetry\Metrics folder. 
+
+    public class InvoiceMetrics
+    {
+        private readonly Counter<long> _invoiceCreateCounter;
+        private readonly Counter<long> _invoiceReadCounter;
+        private readonly Counter<long> _invoiceUpdateCounter;
+        private readonly Counter<long> _invoiceDeleteCounter;
+
+        public InvoiceMetrics(IMeterFactory meterFactory)
+        {
+            var meter = meterFactory.Create("MyWebApiDemo.Invoice");
+            _invoiceCreateCounter = meter.CreateCounter<long>("mywebapidemo.invoices.created");
+            _invoiceReadCounter = meter.CreateCounter<long>("mywebapidemo.invoices.read");
+            _invoiceUpdateCounter = meter.CreateCounter<long>("mywebapidemo.invoices.updated");
+            _invoiceDeleteCounter = meter.CreateCounter<long>("mywebapidemo.invoices.deleted");
+
+        }
+
+        public void IncrementCreate()
+        {
+            _invoiceCreateCounter.Add(1);
+        }
+
+        public void IncrementRead()
+        {
+            _invoiceReadCounter.Add(1);
+        }
+        // omitted
+    }
+
+    -> The IMeterFactory interface is registered in ASP.NET Core's DI container by default and is used to
+        create a meter. This meter is called MyWebApiDemo.Invoice.
+    -> This meter is used to record the metrics. Additionally, four counters are created to record the
+        number of requests for each action. To facilitate this, four public methods are exposed to
+        increment the counters.
+    -> The name of the metric must be unique. When we create a metric or a counter, it is recommended 
+        to follow the OpenTelemetry naming guidelines: https://github.com/open-telemetry/semantic-conventions/blob/main/docs/general/metrics.md#general-guidelines.
+
+3) Next, we need to register the metrics in the application.
+
+    builder.Services.AddOpenTelemetry()
+    .ConfigureResource(config =>
+    {
+        config.AddService(nameof(MyWebApiDemo));
+    })
+    //.UseAzureMonitor()
+    .WithMetrics(metrics =>
+    {
+        metrics.AddAspNetCoreInstrumentation()
+            .AddMeter("Microsoft.AspNetCore.Hosting")
+            .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+            .AddMeter("MyWebApiDemo.Invoice")
+            .AddConsoleExporter()
+            .AddPrometheusExporter();
+    })
+    .WithTracing(tracing =>
+    {
+        tracing.AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddConsoleExporter()
+            .AddOtlpExporter(options =>
+            {
+                options.Endpoint = new Uri("http://localhost:4317");
+            });
+    });
+
+    builder.Services.AddSingleton<InvoiceMetrics>();
+
+    -> we used the AddOpenTelemetry() method to register the OpenTelemetry services.
+    -> The ConfigureResource() method registers the service name.
+    -> Inside the WithMetrics() method, we use the AddConsoleExporter() method to add a console exporter.
+        This console exporter is useful for local development and debugging.
+    -> We also added three meters, including the ASP.NET Core hosting and Kestrel server, so that we can
+        collect the metrics from the ASP.NET Core web API framework.
+    -> Finally, we registered the InvoiceMetrics class in the dependency injection container as a
+        singleton.
+
+4) Next, we can use the InvoiceMetrics class to record the metrics.
+    Open the InvoiceController class and call the IncrementCreate() method in the Post action, as follows:
+
+    [HttpPost]
+    public async Task<ActionResult<Invoice>> Post(Invoice invoice)
+    {
+        // Omitted for brevity
+        await dbContext.SaveChangesAsync();
+        // Instrumentation
+        _invoiceMetrics.IncrementCreate();
+        return CreatedAtAction(nameof(Get), new { id = invoice.Id }, invoice);
+    }
+
+    -> The other actions are similar. 
+
+5) Before we check the metrics in the console, we need to install the dotnet-counters tool, a
+    command-line tool for viewing live metrics. 
+
+    cmd: dotnet tool install --global dotnet-counters
+
+6) First Run the application and then in the new terminal, we can use the dotnet counters command to view
+    the metrics.
+
+    a) We can check the metrics from Microsoft.AspNetCore.Hosting using the following command:
+    
+        cmd: dotnet-counters monitor -n MyWebApiDemo --counters Microsoft.AspNetCore.Hosting
+
+        Send some request to api/Invoices endpoint, we will see the metric: (metric.png)
+
+        -> Here, we can see the metrics for the HTTP actions, including the active requests and the request
+            duration.
+        -> we can use this tool to observe more performance metrics, such as CPU usage or the rate 
+            of exceptions being thrown in the application.
+        ->  For more information about this tool, please refer to the official documentation: 
+            https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-counters
+    
+    b) To check the custom metric(metric we defined in the invoiceMetrics class) via InvoiceMetrics,
+        we need to specify the --counters option in the command as:
+
+        cmd: dotnet-counters monitor -n MyWebApiDemo --counters MyWebApiDemo.Invoice
+
+        output : (metric2.png)
+
+        -> Note that you can include multiple counters in the --counters option, separated by commas.
+            For example, you can use the following command to check the metrics for both
+            Microsoft.AspNetCore.Hosting and MyWebApiDemo.Invoice:
+
+            cmd:  dotnet-counters monitor -n MyWebApiDemo --counters Microsoft.AspNetCore.Hosting,MyWebApiDemo.Invoice
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+- In the InvoiceMetrics class, we defined four counters. There are more types of instruments in 
+    OpenTelemetry, such as Gauge, Histogram, and others. Here are some of the different types of 
+    instruments that are available:
+
+    • Counter:
+    A counter is used to track a value that can only increase over time – for example, the number of
+    requests after the application starts.
+
+    • UpDownCounter:
+    An up-down counter is similar to a counter, but it can increase or decrease over time.
+    An example of this is the number of active requests. When a request starts, the counter increases by 1.
+    When the request ends, the counter decreases by 1. It can also be used to monitor the size of a queue.
+
+    • Gauge:
+    A gauge measures a current value at a specific point in time, such as CPU usage or memory usage.
+
+    • Histogram:
+    A histogram measures the statistical distribution of values using aggregations. 
+    For example, a histogram can measure how many requests are processed longer than a specific duration.
+
+- We can define more metrics to monitor the application.
+
+1) Define an UpDownCounter instrument to track howmany active requests there are for the /api/Invoices
+    endpoint.
+
+    public class InvoiceMetrics
+    {
+        // omitted
+
+        private readonly UpDownCounter<long> _invoiceRequestUpDownCounter;
+
+        public InvoiceMetrics(IMeterFactory meterFactory)
+        {
+            // Omitted for brevity
+            _invoiceRequestUpDownCounter = meter.CreateUpDownCounter<long>("mywebapidemo.invoices.requests");
+
+        }
+
+        public void IncrementRequest()
+        {
+            _invoiceRequestUpDownCounter.Add(1);
+        }
+
+        public void DecrementRequest()
+        {
+            _invoiceRequestUpDownCounter.Add(-1);
+        }
+        // omitted
+    }
+
+2)  Then, update the InvoiceController class so that it increments and decrements the counter. For
+    simplicity, we’ll just call the IncrementRequest() and DecrementRequest() methods in the controller.
+    In the real world, it is recommended to use an ASP.NET Core middleware to handle this.
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Invoice>> Get(Guid id)
+    {
+        _invoiceMetrics.IncrementRequest();
+        // Omitted for brevity
+        _invoiceMetrics.DecrementRequest();
+        return Ok(result);
+    }
+
+------------------------------------------------------------------------------------------------------------
+
+- example of Histogram:
+
+1) 
+    public class InvoiceMetrics
+    {
+        // omitted
+
+        private readonly Histogram<double> _invoiceRequestDurationHistogram;
+
+        public InvoiceMetrics(IMeterFactory meterFactory)
+        {
+            // Omitted for brevity
+            _invoiceRequestDurationHistogram = meter.CreateHistogram<double>("mywebapidemo.invoices.request_duration");
+
+        }
+
+        public void IncrementCreate()
+        {
+            _invoiceCreateCounter.Add(1);
+        }
+
+        public void IncrementRead()
+        {
+            _invoiceReadCounter.Add(1);
+        }
+        // omitted
+        public void RecordRequestDuration(double duration)
+        {
+            _invoiceRequestDurationHistogram.Record(duration);
+        }
+    }
+
+2) Then, update the InvoiceController class so that it records the request’s duration. Similarly, we can
+    just use the RecordRequestDuration() method in the controller. 
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Invoice>> Get(Guid id)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        // Omitted for brevity
+        // Simulate a latency
+        await Task.Delay(_random.Next(0, 500));
+        // Omitted for brevity
+        stopwatch.Stop();
+        _invoiceMetrics.RecordRequestDuration(stopwatch.Elapsed.TotalMilliseconds);
+        return Ok(result);
+    }
+
+    -> we use a Task.Delay() method to simulate latency.
+    ->  Run the application and send some requests to the /api/Invoices endpoint. Then, check the metrics
+        using the dotnet-counters tool.

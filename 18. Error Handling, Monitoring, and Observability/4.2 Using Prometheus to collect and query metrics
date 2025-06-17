@@ -1,0 +1,107 @@
+4.2 Using Prometheus to collect and query metrics:
+
+- Prometheus is a widely used open-source monitoring system. Prometheus was originally developed by
+    SoundCloud (https://soundcloud.com/), then joined the Cloud Native Computing Foundation
+    (https://cncf.io/) in 2016.
+- Prometheus is capable of collecting metrics from a variety of sources, including applications,
+    databases, operating systems, and more. It also offers a powerful query language for querying the
+    collected metrics, as well as a dashboard to visualize them.
+- To install Prometheus, navigate to the official website: https://prometheus.io/download/. Download the
+    latest version of Prometheus for your operating system.
+
+1) we need to configure the ASP.NET web API application to export metrics for Prometheus. Install 
+    he OpenTelemetry.Exporter.Prometheus.AspNetCore package in the ASP.NET Core web API project using
+    the following command:
+
+    cmd:  dotnet add package OpenTelemetry.Exporter.Prometheus.AspNetCore --prerelease
+    ( currently no stable version so --prerelease option)
+
+2) Then, register the Prometheus exporter in the Program.cs file, as follows:
+
+    builder.Services.AddOpenTelemetry()
+    .ConfigureResource(config =>
+    {
+        config.AddService(nameof(MyWebApiDemo));
+    })
+    .WithMetrics(metrics =>
+    {
+        metrics.AddAspNetCoreInstrumentation()
+            .AddMeter("Microsoft.AspNetCore.Hosting")
+            .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+            .AddMeter("MyWebApiDemo.Invoice")
+            .AddConsoleExporter()
+            .AddPrometheusExporter();
+    });
+
+    // Omitted for brevity
+
+    // Add the Prometheus scraping endpoint
+    app.MapPrometheusScrapingEndpoint();
+
+    -> Now, we have two exporters: the console exporter and the Prometheus exporter. If you don’t need the 
+        console exporter, you can remove it.
+    -> We’re also using the MapPrometheusScrapingEndpoint() method to map the /metrics endpoint for the
+        Prometheus exporter. This endpoint is used by Prometheus to scrape metrics from the application.
+
+3)  Next, we need to configure Prometheus to collect metrics from the ASP.NET Core web API application. 
+    Find the port number of the ASP.NET Core web API application. In the sample project, we use port 
+    number 5125 for HTTP.
+    Open the prometheus.yml file in the Prometheus folder. Add a job at the end of the file, as follows:
+
+    - job_name: 'MyWebApiDemo'
+        scrape_interval: 5s # Set the scrape interval to 5 seconds so we can see the metrics update immediately.
+        static_configs:
+        - targets: ['localhost:5125']
+
+    -> The scrape_interval property is set to specify the interval at which metrics should be scrapped. 
+        For testing purposes, this can be set to 5 seconds so that you can view metrics immediately.
+        However, in production scenarios, it is recommended to set this to a higher value, such as 15 
+        seconds.
+    -> Additionally, ensure that the targets property is set to the correct port number before saving the
+        file.
+
+    NOTE: If you use HTTPS for the ASP.NET Core web API application, you need to specify the schema 
+            property, as follows:
+
+            - job_name: 'MyWebApiDemo'
+                scrape_interval: 5s # Set the scrape interval to 5 seconds so we can 
+                see the metrics update immediately.
+                scheme: https
+                static_configs:- targets: ['localhost:7003']
+
+4) Run the application and send some requests to the /api/Invoices endpoint.
+    Navigate to the /metrics endpoint; you will see the relevant metrics:
+
+5) Now, we can run Prometheus by executing the prometheus.exe file. In the output, you will find the
+    following line in the terminal.
+
+    ts=2023-10-14T10:44:55.133Z caller=web.go:566 level=info component=web 
+    msg="Start listening for connections" address=0.0.0.0:9090
+
+    -> This means that Prometheus is running on port 9090. Navigate to http://localhost:9090. 
+        ou will see the Prometheus dashboard (prometheus_dashboard.png)
+
+    Click Status|Target health at the top, you will see the status of the ASP.NET Core web API application.
+    (prometheus_dashboard2.png)
+
+    In the Enter expression bar click on the three dots and on the explore metrics options to see the
+    metric list(metric_list.png). Choose one metric, such as 'mywebapidemo_invoices_read_total' and click the execute
+    button. Then click on the Graph tab; you will see the metric graph(metric_graph.png)
+
+- Prometheus provides a powerful query language to query the metrics.
+    For example, we can use the following query to get the mywebapidemo.invoices.read counter per minute:
+
+    rate(mywebapidemo_invoices_read_total[1m])
+
+    -> add the query in the bottom right 'Add query' option and execute.
+
+    The following query can get the requests that take longer than 100 milliseconds:
+
+    histogram_quantile(0.95, sum(rate(mywebapidemo_invoices_request_duration_bucket[1m])) by (le)) > 100
+
+- For more information about the querying language syntax, please refer to the official documentation:
+    https://prometheus.io/docs/prometheus/latest/querying/basics/.
+
+- Prometheus is a powerful tool for collecting and querying metrics. To gain better visualization of these 
+    metrics, Grafana can be used to create dashboards. In the following section, we will explore how to 
+    use Grafana to read metrics from Prometheus and create informative dashboards.

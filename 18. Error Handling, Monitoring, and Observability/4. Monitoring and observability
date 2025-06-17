@@ -1,0 +1,42 @@
+Monitoring and observability:
+
+-  In the real world, building an application is just the first step. We also need to monitor and observe 
+    how the application is performing. This is where the concept of observability comes in.
+
+-  In this section, we will discuss observability and how to use OpenTelemetry to monitor and observe
+    applications.
+
+
+WHAT IS OBASERVABILITY ?
+
+-> In Chapter 5, we introduced logging in ASP.NET Core web API applications. We learned how to use 
+    the built-in logging framework to log messages to different logging providers. 
+
+-> Observability is a more comprehensive concept than logging. Besides logging, observability allows
+    us to gain a deeper understanding of how the application is performing. For instance, we can determine
+    how many requests are processed in a given hour, what the request latency is, and how requests are
+    handled by multiple services in a microservice architecture. All of these are part of observability.
+
+-> In general, observability has three pillars:
+
+    • Logs:
+    Logs are used to record what is happening within the application, such as incoming requests, outgoing
+    responses, important business logic executions, exceptions, errors, warnings, and so on
+
+    • Metrics:
+    Metrics are used to measure the performance of the application, such as the number of requests, the
+    request latency, error rates, resource usage, and so on. These metrics can be used to trigger alerts
+    when the application is not performing well.
+
+    • Traces:
+    Traces are used to track the flow of requests across multiple services to identify where the 
+    time is spent or where the errors occur. This is especially useful in the microservice architecture.
+
+- There are a few different ways to implement observability in ASP.NET Core web API applications – we can
+    update the source code to add logging, metrics, and traces or use tools to monitor and observe the
+    application without changing the code.
+    In this section, we will discuss the first approach by using OpenTelemetry to implement 
+    observability in ASP.NET Core web API applications. This gives us more flexibility to customize the 
+    observability aspect.
+
+

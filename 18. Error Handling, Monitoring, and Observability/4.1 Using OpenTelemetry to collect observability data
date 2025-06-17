@@ -1,0 +1,28 @@
+Using OpenTelemetry to collect observability data:
+
+- OpenTelemetry is a popular cross-platform, open-source standard for collecting observability data. 
+    It provides a set of APIs, SDKs, and tools to instrument, generate, collect, and export telemetry 
+    data so that we can analyze the application’s performance and behavior. 
+- It supports many platforms and languages, as well as popular cloud providers. You can find more details
+    about OpenTelemetry at https://opentelemetry.io/.
+    
+- The .NET OpenTelemetry implementation consists of the following components:
+    • Core API:
+    The core API is a set of interfaces and classes that define the OpenTelemetry API. It is a
+    platform-independent API that can be used to instrument the application.
+
+    • Instrumentation:
+    This is a set of libraries that can be used to collect instrumentation from the application.
+    This component includes multiple packages for different frameworks and platforms, such as ASP.NET
+    Core, gRPC, HTTP calls, SQL database operations, and so on.
+
+    • Exporters:
+    Exporters are used to export the collected telemetry data to different targets, such as console and
+    Application Performance Monitoring (APM) systems, including Prometheus, Zipkin, and so on.
+
+-  In Chapter 5, we introduced using Serilog and Seq to collect logs.
+    In the next few sections, we will focus on how to use OpenTelemetry to collect metrics and traces.
+    We will use Prometheus to collect metrics and Grafana to visualize the metrics. 
+    We will also use Jaeger to collect traces. 
+    All these tools are open-source.
+    In addition, we will explore Azure Application Insights, a powerful APM system provided by Microsoft.
