@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/y5DjaOm//o=",
+  "dgSpecHash": "11dxcQxC59s=",
   "success": true,
-  "projectFilePath": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter16\\MyWebApiDemo\\ProductService\\ProductService.csproj",
+  "projectFilePath": "C:\\Users\\zlams\\source\\REST API\\18. Error Handling, Monitoring, and Observability\\MyWebApiDemo\\ProductService\\ProductService.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\zlams\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\zlams\\.nuget\\packages\\azure.monitor.opentelemetry.aspnetcore\\1.0.0-beta.8\\azure.monitor.opentelemetry.aspnetcore.1.0.0-beta.8.nupkg.sha512",

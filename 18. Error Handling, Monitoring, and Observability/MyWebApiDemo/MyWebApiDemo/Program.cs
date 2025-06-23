@@ -31,7 +31,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<InvoiceDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()
+    ));
 
 // Use EF Core health checks
 builder.Services.AddHealthChecks().AddDbContextCheck<InvoiceDbContext>("Database", tags: new[] { "database" });
@@ -72,6 +75,16 @@ builder.Services.AddOpenTelemetry()
             .AddMeter("MyWebApiDemo.Invoice")
             .AddConsoleExporter()
             .AddPrometheusExporter();
+    })
+    .WithTracing(tracing =>
+    {
+        tracing.AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddConsoleExporter()
+            .AddOtlpExporter(options =>
+            {
+                options.Endpoint = new Uri("http://localhost:4317");
+            });
     });
 
 
