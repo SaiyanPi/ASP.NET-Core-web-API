@@ -1,0 +1,140 @@
+Using Jaeger to collect traces:
+
+- Traces are important for understanding how requests are handled by the application.
+- In a microservice architecture, a request will be handled by multiple services. Distributed tracing can
+    be used to track the flow of requests across multiple services.
+    In this section, we will learn about the basic concepts of distributed tracing and how to use
+    OpenTelemetry and Jaeger to collect traces.
+- For example, in a microservice architecture, service A calls service B, and service B calls service C 
+    and service D. When a client sends a request to service A, the request will be passed through service 
+    B, service C, and service D. In this case, if any of these services fails to process the request, or the 
+    request takes too long to process, we need to know which service is responsible for the failure and 
+    which part of the request contributes to the latency or errors. Distributed tracing can give us the big 
+    picture of how the request is processed by these services.
+- We have not discussed microservice architecture in detail. To demonstrate distributed tracing, we added
+    two web API projects to the sample project; CustomerService and ProductService.
+    The POST action of OrdersController:
+    call two external services:
+    • CustomerService: A service to check whether the customer exists
+    • ProductService: A service to check whether the product exists
+    To create an order, we must ensure the customer ID is valid by calling the /api/customers/{id}
+    endpoint of CustomerService. Additionally, we must verify that the products are valid by calling the
+    /api/products/{id} endpoint of ProductService.
+    
+    Note that these services are for demonstration purposes only and should not be used for production 
+    purposes. As such, there is no real database access layer; instead, a static list is used to store the 
+    temporary data. Additionally, there is no consideration for transaction and concurrency management.
+
+1) First, let’s enable tracing in the MyWebApiDemo project. Open the Program.cs file and add the 
+    following code to the MyWebApiDemo project:
+
+    builder.Services.AddOpenTelemetry()
+        .ConfigureResource(config =>
+            {
+                config.AddService(nameof(MyWebApiDemo));
+            })
+            .WithMetrics(metrics =>
+            {
+                // Omitted for brevity
+            })
+            .WithTracing(tracing =>
+            {
+                tracing.AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddConsoleExporter();
+            });
+
+    -> we enabled tracing in our code using the WithTracing method.
+    -> To further instrument our application, we added ASP.NET Core and HTTP client instrumentation.
+        The HTTP client instrumentation is used to trace the HTTP calls to the external services.
+        Finally, we added a console exporter to export the traces to the console.
+
+2) Run the application and send some requests to the api/orders endpoint. You will see some tracing 
+    information in the terminal output.
+    In the console trace, you will find two important properties: Activity.TraceId and Activity.SpanId.
+    The Activity.TraceId property is used to identify a trace, which is a collection of spans. A span
+    is a unit of work in a trace. For example, if we send a POST request to the api/Orders endpoint to
+    create an order, the application will call ProductService and CustomerService. Each call is a span.
+    However, it is not convenient to search for a specific span in the console output.
+    Next, we will use Jaeger to collect and visualize the traces.
+
+--------------------------------------------------------------------------------------------------------------------
+
+- Jaeger is an open-source distributed tracing platform that is used to monitor and troubleshoot
+    distributed workflows and identify performance bottlenecks.
+- Jaeger was originally developed by Uber Technologies (http://uber.github.io/) and joined the Cloud
+    Native Computing Foundation in 2017.
+- we will run Jaeger with docker
+
+1) Run Jaeger (All-in-One) with Docker
+
+    cmd: docker run -d --name jaeger ^
+        -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 ^
+        -p 5775:5775/udp ^
+        -p 6831:6831/udp ^
+        -p 6832:6832/udp ^
+        -p 5778:5778 ^
+        -p 16686:16686 ^
+        -p 14268:14268 ^
+        -p 14250:14250 ^
+        -p 9411:9411 ^
+        jaegertracing/all-in-one:latest
+
+    -> Use ^ at the end of each line in PowerShell or CMD to continue multiline commands.
+    -> jaeger-collector utilizes port 4317 to receive data via the gRPC protocol and port 4318 via 
+        the HTTP protocol. This allows for efficient communication between jaeger-collector and other
+        services.
+    -> Once it is running open http://localhost:16686/search.
+
+
+2) Next, we need to configure the ASP.NET Core web API project so that it exports the OTLP traces to 
+    Jaeger. Open the Program.cs file and update the WithTracing() method, as follows:
+
+    .WithTracing(tracing =>
+    {
+        tracing.AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddConsoleExporter()
+            .AddOtlpExporter(options =>
+            {
+                options.Endpoint = new Uri("http://localhost:4317");
+            });
+    });
+
+    -> We use the AddOtlpExporter method to add the exporter for Jaeger.
+    -> As a best practice, it is recommended to use the configuration system to set the URL, rather than
+        hard-coding it. As an example, you can define it in the appsettings.json file.
+
+3) Restart the three applications and send some POST requests to the /api/Orders endpoint. Here is a
+    payload example:
+
+    {
+        "id": 0,
+        "orderNumber": "string",
+        "contactName": "string",
+        "description": "string",
+        "amount": 0,
+        "customerId": 1,
+        "orderDate": "2023-10-15T08:57:54.724Z",
+        "dueDate": "2023-10-15T08:57:54.724Z",
+        "orderItems": [
+            {
+            "id": 1,
+            "orderId": 0,
+            "productId": 1,
+            "quantity": 0,
+            "unitPrice": 0
+            }
+        ],
+        "status": 0
+    }
+
+4) Navigate to http://localhost:16686/; you will see the Jaeger UI. In the Search tab, choose Service,
+    then Operation, and then click the Find Traces button. You will see the traces(jaeger_traces.png).
+    
+    Click on a trace to view its details(trace_detail.png). You will see that this request includes three
+    spans. The parent is the inbound request, and it has two outbound requests to other services.
+
+5) We can enable traces in the dependent services to better understand how these requests are processed. 
+    Configure ProductService and CustomerService following the same methods. These traces should be sent
+    to one Jaeger instance so that Jaeger can correlate the requests across different services.
