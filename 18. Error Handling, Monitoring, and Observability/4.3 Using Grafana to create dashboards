@@ -1,0 +1,64 @@
+Using Grafana to create dashboards:
+
+- Grafana is a popular opensource analytics and dashboarding tool. It can visualize metrics from 
+    multiple data sources, such as Prometheus, Elasticsearch, Azure Monitor, and others.
+- Grafana can create beautiful dashboards to help us understand the application’s performance and behavior. In 
+    this section, we will use Grafana to create dashboards for the ASP.NET Core web API application.
+-  Grafana also provides a managed service called Grafana Cloud. The free tier of Grafana Cloud has 
+    a limit of 10,000 metrics, 3 users, and 50 GB of logs. You can check the pricing here: https://grafana.com/pricing/.
+- Here, we will install Grafana locally. Download the latest version of Grafana from the official website:
+    https://grafana.com/oss/grafana/. 
+
+1) Run Grafana by executing the grafana-server.exe file inside bin folder if you’re using Windows. 
+
+    INFO [10-15|12:31:31] Validated license 
+    token                  
+    logger=licensing appURL=http://localhost:3000/ 
+    source=disk status=NotFound
+
+    -> this means that Grafana is running on port 3000. 
+    -> Navigate to http://localhost:3000. The default username and password are both admin.
+        Once you’ve logged in, you will be prompted to change the password.
+
+2) In the menu, click on Connection. This page shows the data sources that Grafana supports.
+    Search for Prometheus and click on it. Then, click the Add new data source button
+    Use http://localhost:9090 as the URL. Then, click the Save & Test button. If the data source 
+    has been configured correctly, you will see a message box that states Successfully queried 
+    the Prometheus API. At this point, we can create dashboards to visualize the metrics.
+
+3)  Navigate to the Dashboards page and click the New button. From the drop-down list, click New 
+    Dashboard. You will be navigated to the new dashboard page. Click the Add visualization button, 
+    then choose Prometheus as the data source
+
+4)  Then, we can use the query language to query the metrics. In the Query tab, you can choose the 
+    relevant metrics from the drop-down list. You can also filter the metrics by job name. For example, 
+    we can use the (query.png) to get the number of mywebapidemo.invoices.read requests 
+    for the /api/Invoices endpoint
+    Click the Run queries button; you will see the output in the panel
+
+5) Then, click the Save dashboard button; you will see the graph in the dashboard: (dashboard.png)
+
+-----------------------------------------------------------------------------------------------------------
+
+-  To simplify the process of creating Grafana dashboards, James Newton-King, the esteemed author 
+    of JSON.NET, has provided a Grafana dashboard template for ASP.NET Core web API applications. 
+    You can find the template here: https://github.com/dotnet/aspire/tree/main/src/Grafana
+
+    • ASP.NET Core.json: This dashboard shows an overview of the ASP.NET Core web API application
+    • ASP.NET Core Endpoint.json: This dashboard shows the details for specific endpoints
+
+3) Create a new dashboard and click the Import button this time. Then, upload the ASP.NET Core.
+    json file or paste the content of the file into the textbox or just simply drag and drop the
+    downloaded json file. On the next page, choose the Prometheus data source and then click the
+    Import button. you will see the dashboard(template.png)
+
+4) You can choose the endpoint from the drop-down list. Once you’ve done this, you will see the metrics 
+    for the endpoint. 
+
+- Grafana offers many options to customize dashboards. On any dashboard panel, you can click the 
+    three dots in the top-right corner and then click Edit to edit the panel. You can change the title,
+    the visualization type, the query, and so on.
+    You can also use the Builder or Code editor to edit the query(builder_code.png)
+- Grafana provides a better visualization of the metrics. You can learn more about Grafana by reading 
+    the official documentation: https://grafana.com/docs/grafana/latest/.
+- In the next section, we will explore how to use OpenTelemetry and Jaeger to collect traces.
