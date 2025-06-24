@@ -10,7 +10,8 @@ STRUCTURED LOGGING:
 
     BUT WE CAN'T HAVE AN ACCESS TO THE VALUES OF THE PARAMETER.
 
-    (run the application and request to an 'structured-logging' endpoint on the Logging controller.
+    (run the application and request to an 'http://localhost:5180/logging/structured-logging' endpoint on the
+    Logging controller.
     see the log messages for difference between logging message with args and logging message with
     string concatenation on console)
 
@@ -19,11 +20,13 @@ STRUCTURED LOGGING:
         "MessageTemplate":"This is a logging message with args: Today is {Week}. It is {Time}.",
         "TraceId":"1f450cb42807b229422252c0a51e0083",
         //}
+
                             (logging message with string concatenation)
         {"Timestamp":"2024-08-15T18:45:20.6174805+05:45","Level":"Information",
         "MessageTemplate":"This is a logging message with string concatenation: Today is Thursday. 
         It is 6:45:20 PM.", "TraceId":"1f450cb42807b229422252c0a51e0083",
         //}
+
         -> note that logging message with args(structured logging) has 'week' and 'time' properties
         -> while the string concatenation does not have 'week' and 'time' properties.
         -> structured logging is more flexible and easier to process
@@ -53,8 +56,13 @@ STRUCTURED LOGGING:
 
 INTEGRATING SEQ WITH SERILOG:
 
-- Seq is a great tool to analyze structured logging messages.
-    i) install Seq:
+- A great tool to analyze structured logging messages is Seq (https://datalust.co/seq). Seq is a powerful log
+    management tool that creates the visibility you need to quickly identify and diagnose problems in your
+    applications. It is a commercial product, but it provides a free trial. You can download it here:
+    https://datalust.co/download.
+
+    i) install Seq in local machine.please take note of the Listen URI value. We will configure it for Serilog
+        later. It uses the default port 5341.
         Listen URI http://localhost:5341/
 
     ii) configure Serilog to send message to Seq. Serilog has a sink for Seq:
@@ -68,3 +76,9 @@ INTEGRATING SEQ WITH SERILOG:
         .WriteTo.Console(new JsonFormatter())
         .WriteTo.Seq("http://localhost:5341")
         .CreateLogger();
+
+    iv) Run the application and request the http://localhost:5180/logging/structured-logging endpoint. we should
+        be able to see log messages in Seq (Seq_log.png)
+
+        We can search the Week property to filter log messages (Seq_log_search.png) This is why structured
+        logging is more powerful than string concatenation when we send log.

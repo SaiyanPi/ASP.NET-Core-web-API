@@ -1,0 +1,5 @@
+Using HTTP Logging:
+
+- In Chapter 5, we discussed how to use the ILogger interface to log messages. Sometimes, we want 
+    to log the HTTP requests and responses for troubleshooting purposes. In this section, we will discuss 
+    HTTP logging.
