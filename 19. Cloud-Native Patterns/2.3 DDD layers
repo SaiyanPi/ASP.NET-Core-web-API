@@ -1,0 +1,45 @@
+DDD layers:
+
+- A DDD solution is often represented as a layered architecture. Each layer has a specific responsibility. 
+    The typical layers of a DDD application are:
+
+    1. Presentation layer
+        This layer is responsible for presenting the data to the user and receiving user input. Normally, this
+        layer is implemented as a user interface, such as a web application, a mobile application, or a desktop
+        application.
+        In this book, we mainly focus on web API applications that do not have a user interface. In this case,
+        the presentation layer can be a client application that consumes the web API.
+
+    2. Application layer
+        This layer is responsible for coordinating the application’s activity. It receives user input from the
+        presentation layer, invokes the domain layer to perform business logic, and returns the results to the
+        presentation layer.
+        In our case, the application layer is the web API application, which receives HTTP requests from the
+        client application, invokes the domain layer to execute business logic, and returns the results to the
+        client application.
+    
+    3. Domain layer
+        This layer is the heart of the application. It contains the domain model and domain logic, which is
+        independent of the application layer and the infrastructure layer. In other words, the domain layer
+        does not depend on any other layers.
+        For example, if we need to implement a Deposit method for the SavingAccount class, the logic in the
+        domain layer does not have any knowledge of how to save data to the database. Instead, it only focuses
+        on the business logic of the Deposit method using abstractions and interfaces. This layer often 
+        contains entities, value objects, aggregates, repositories, and domain services.
+
+    4. Infrastructure layer
+        This layer implements the application infrastructure, such as data access, caching, logging, messaging,
+        and so on.
+        It often integrates with external systems as dependencies, such as database, message queues, and so on.
+        In our case, the infrastructure layer can include the data access layer, which uses EF Core to access
+        the database.
+
+- DDD focuses primarily on the domain and application layers. This is because the UI layer and the 
+    infrastructure layer are not specific to DDD and can be implemented with any technology or framework. 
+    For example, the UI layer can be implemented using ASP.NET Core MVC, Blazor, React, WPF, or any 
+    other UI framework on various platforms, while the core domain logic remains the same. Similarly, DDD 
+    does not dictate data storage, which can be a relational database, a NoSQL database, or any other data 
+    storage.
+    The domain layer uses the repository pattern to access the data, which is independent of data 
+    storage. Another example is the logging mechanism, which is also not specific to DDD, as the domain 
+    layer needs to log the business events but does not care about the logging system used.

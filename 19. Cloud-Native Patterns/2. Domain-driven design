@@ -1,0 +1,25 @@
+Domain-driven design:
+
+- The term domain-driven design, also known as DDD, was coined by Eric Evans in his book Domain
+    Driven Design: Tackling Complexity in the Heart of Software, published in 2003.
+
+- DDD consists of a set of principles and practices that focus on the domain model and domain logic,
+    which help developers manage the complexity and build flexible and maintainable software. DDD is not
+    bound to any particular technology or framework.
+
+- In Eric Evans’ book, he defines three important principles of DDD:
+    • Focusing on the core domain and domain logic
+    • Basing complex designs on the domain models
+    • Collaborating with technical and domain experts to iteratively refine the model that solves 
+        domain problems
+
+    -> A domain is a subject area that the software system is built for.
+    -> The domain model is a conceptual model of the domain, which incorporates both data and behavior.
+    -> Developers build the domain model based on the domain knowledge from domain experts. The domain model
+        is the core of the software system that can be used to solve domain problems.
+
+-  In the following subsections, we will introduce the basic concepts of DDD and how to apply them 
+    to web API development. Note that domain-driven design is a comprehensive topic that cannot be 
+    covered in a single chapter. So, the subsections are not intended to be a complete guide to DDD. 
+    Instead, it will provide a high-level overview of DDD and explain some of the key concepts of DDD. If 
+    you want to learn more about DDD, you can refer to other resources, such as Eric Evans’ DDD book.
