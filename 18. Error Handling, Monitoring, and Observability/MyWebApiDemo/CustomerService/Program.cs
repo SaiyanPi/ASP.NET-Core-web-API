@@ -40,14 +40,18 @@ builder.Services.AddOpenTelemetry()
         tracing.AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
             .AddConsoleExporter()
-        .AddOtlpExporter(options =>
-        {
-            options.Endpoint = new Uri("http://localhost:4317");
-        });
+            .AddOtlpExporter(options =>
+            {
+                options.Endpoint = new Uri("http://localhost:4317");
+            });
     });
 
-var logger = new LoggerConfiguration().WriteTo.Seq("http://localhost:5341").CreateLogger();
+var logger = new LoggerConfiguration()
+    .WriteTo.Seq("http://localhost:5341")
+    .CreateLogger();
+    
 builder.Logging.AddSerilog(logger);
+
 builder.Services.AddHttpLogging(logging =>
 {
     logging.LoggingFields = HttpLoggingFields.All;

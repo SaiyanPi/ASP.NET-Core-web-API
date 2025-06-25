@@ -1,0 +1,11 @@
+Cloud-Native Pattern Introdcution:
+
+- As we wrap up our exploration of the fundamental concepts of web API development using ASP.NET Core,
+    it is time to embark on a journey to explore more advanced topics. In this chapter, we will transition
+    from the basics to delve into topics that are important for developers aspiring to master web API
+    development. 
+- We will delve into the following topics in this chapter:
+    • Domain-driven design
+    • Clean architecture
+    • Microservices
+    • Web API design patterns
