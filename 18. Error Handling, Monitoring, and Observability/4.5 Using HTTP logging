@@ -2,4 +2,64 @@ Using HTTP Logging:
 
 - In Chapter 5, we discussed how to use the ILogger interface to log messages. Sometimes, we want 
     to log the HTTP requests and responses for troubleshooting purposes. In this section, we will discuss 
+<<<<<<< HEAD
     HTTP logging.
+=======
+    HTTP logging.
+
+- as mentioned in chapter 5, we can use Serilog to send logs to Seq. 
+
+1) configure Serilog to send message to Seq. Serilog has a sink for Seq:
+    
+    cmd: dotnet add package Serilog.Sinks.Seq
+
+
+2) To enable HTTP logging, we need to use the HTTP logging middleware. The middleware will log the inbound 
+    requests and outbound responses. The updated code is as follows:
+
+    var logger = new LoggerConfiguration()
+    .WriteTo.Seq("http://localhost:5341")
+    .CreateLogger();
+    builder.Logging.AddSerilog(logger);
+
+    builder.Services.AddHttpLogging(logging =>
+    {
+        logging.LoggingFields = HttpLoggingFields.All;
+    });
+
+    // omitted
+
+    app.UseHttpLogging();
+
+    ->  In the preceding code, we specify HttpLoggingFields to log all fields. Be careful when you use this 
+        option in production because it may potentially impact the performance and log sensitive information. 
+        We should not log personally identifiable information (PII) and any sensitive information. We’re 
+        using it for demonstration purposes only here.
+
+3) We can also update the appsettings.json file to specify the log levels. Add the following code 
+    to the LogLevel section of the appsettings.json file so that we can see information logs:
+
+    "Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware": "Information"
+
+4) Configure the logging in the CustomerService and ProductService projects using the same methods.
+
+5) Run the three applications and send some requests to the /api/Orders endpoint. we will see the 
+    logs in the Seq dashboard (Seq_log.png)
+
+    -> In the logs, we will find details about the HTTP requests and responses. 
+    -> If we want to change the logging fields, we can change the LoggingFields property of HttpLoggingOptions
+        in the AddHttpLogging() method. 
+    -> The LoggingFields property is an enum. we can choose RequestPath, RequestQuery, RequestMethod,
+        RequestStatusCode, RequestBody, RequestHeaders, ResponseHeaders, ResponseBody, Duration, and so on.
+    -> The HttpLoggingOptions class has other properties, such as RequestHeaders, ResponseHeaders, 
+        RequestBodyLogLimit, ResponseBodyLogLimit, and others. You can use these properties to configure the
+        logging system.
+    -> Since we enabled HTTP logging for all requests, we can filter the logs by trace ID. Check the Jaeger UI
+        and click on a trace. You will find the trace ID in the URL.(TraceId_in_Jaeger.png)
+
+6) Copy the Trace ID and use the following query in the Seq dashboard
+
+    @TraceId = '8c7ab3bccf13135f27baf11c161e17ca'
+
+    Click the green Go button to filter the logs. we will see the logs for this trace (TraceId_logs.png)
+>>>>>>> CloudNativePattern
