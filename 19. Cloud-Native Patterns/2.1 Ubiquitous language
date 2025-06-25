@@ -1,0 +1,21 @@
+Ubiquitous language:
+
+- One of the core concepts of DDD is that to build a software system for a complex business domain,
+    we need to build a ubiquitous language and a domain model that reflects the business domain.
+
+- Under DDD, the sofware structure and code, such as a class names, class methods, and so on, should match
+    the business domain. The domain terms should be embedded in the code. When developers talk to domain
+    experts, they should use the same terms.
+    For example, if we are building a web API for a banking system, we may have a Banking domain. When we
+    discuss the requirements with domain experts, we may hear terms such as Account, Transaction, Deposit,
+    Withdrawal, and so on. In a banking system, an Account object can have different types, such 
+    as SavingAccount, LoanAccount, CreditCardAccount, and so on. A SavingAccount may have a Deposit() method
+    and a Withdrawal() method. In the code of the system, we should use the same terms as the domain experts.
+
+- The use of a ubiquitous language is an essential pillar of DDD. This language provides a common 
+    understanding between domain experts, developers, and users, allowing them to effectively communicate 
+    system requirements, design, and implementation. 
+
+- By consciously using the ubiquitous language in  the code, developers can build a domain model that accurately
+    reflects the business domain. Without this, the code may become disconnected from the business domain and
+    become difficult to manage.

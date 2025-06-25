@@ -1,0 +1,19 @@
+Bounded context:
+
+- A bounded context is a boundary that defines a domain model and serves as a delineated area of
+    responsibility within a software system. It is like a linguistic territory in which a specific
+    model holds meaning and relevance.
+
+- In the realm of DDD, the concept of a bounded context is essential. By encapsulating a distinct
+    understanding of the domain, bounded contexts promote clarity and precision in communication between
+    domain experts and developers.
+
+- Consider a scenario where we are building a web API for a banking system. Without bounded contexts, 
+    the term Account could be interpreted differently in the Banking domain and the customer 
+    relationship management (CRM) domain. This ambiguity can lead to confusion, misaligned 
+    expectations, and ultimately, a fragmented understanding of the entire system. To avoid this, bounded 
+    contexts should be used to clearly define the scope of the domain model.
+
+- In many cases, a domain consists of several subdomains, each of which may refer to a distinct part of 
+    the business domain, thus creating different bounded contexts. These bounded contexts communicate 
+    with each other through programmatic interfaces, such as web APIs and message queues.
