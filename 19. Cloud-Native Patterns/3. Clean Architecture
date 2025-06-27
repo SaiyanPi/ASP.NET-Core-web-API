@@ -1,0 +1,32 @@
+Clean architecture:
+
+- Clean architecture is a software architecture that was proposed by Robert C. Martin (also known as 
+    Uncle Bob) in his book Clean Architecture: A Craftsman’s Guide to Software Structure and Design, 
+    published in 2017.
+- It is a layered architecture that focuses on the separation of concerns. Similar to DDD, clean
+    architecture is not a specific technology or framework. It is a set of principles and practices 
+    that can be applied to any software project.
+    Clean architecture is also called onion architecture because the layers are arranged in a circular
+    shape, like an onion. (Onion_architecture.png)
+
+    i) At the center of the architecture lies the application core layer, which contains the entities and
+        interfaces for business logic. Additionally, this layer contains domain services that implement the
+        interfaces. It does not depend on any other layers. 
+    ii) Surrounding the application core layer is the Infrastructure Layer and UI layer, both of which
+        depend on the application core layer. This architecture ensures that the application core layer
+        is unaware of how the data are stored or presented to the user. In addition, THE INFRASTRUCTURE
+        LAYER AND UI LAYER CAN BE REPLACED WITHOUT IMPACTING THE APPLICATION CORE LAYER.
+
+- Clean architecture shares some similarities with DDD. Both of them are layered architectures that 
+    focus on the separation of concerns. They both use dependency injection (or inversion of control) 
+    to decouple the layers.
+
+- DDD focuses on the domain layer, while clean architecture prioritizes the importance of isolating the
+    core business logic from the external dependencies. The separation of concerns allows for modifications
+    to external components without affecting the core business logic, making it easier to adapt to evolving
+    requirements.
+
+- DDD and clean architecture complement each other and can be used together. While DDD guides how 
+    to build a domain model and understand the business domain, clean architecture offers a blueprint 
+    for organizing and structuring the codebase. Combining these approaches can lead to a flexible and 
+    maintainable software system.

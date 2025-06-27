@@ -1,0 +1,304 @@
+DDD building blocks:
+
+- DDD has a set of building blocks that can be used to build the domain model. These building blocks 
+    include entities, value objects, aggregates, repositories, and domain services.
+
+1) Entity
+    - OOP is a programming paradigm based on the concept of "objects" which can contain Data, in the
+        form of fields(often called properties or attributes) and Code in the form of procedures
+        (often called methods)
+        In OOP, an object is an instance of a class. An object has a state and behavior. The state is
+        represented by the properties of the object, while the behavior is represented by the methods
+        of the object.
+    - ORM(Object-relational mapping) is a programming technique that allows you to interact with a
+        relational database (like SQL Server, PostgreSQL, MySQL, etc.) using object-oriented code,
+        instead of writing raw SQL queries.
+    - In DDD, the entity is similar to an object in OOP, but it is more than that. An entity is an object
+        that has a unique identity and is defined by its identity, not its attributes. Normally, an entity
+        is mapped to a table in the database.
+    - The identity of an entity is normally represented by an ID property. The ID property is immutable, 
+        which means that once it is set, it cannot be changed. The ID property can be a primitive type,
+        such as an integer, a string, or a GUID. It can also be composite keys.
+    - If two entities have the same properties but different identities, they are considered different
+        entities.
+    - For example, in a banking system, Account is an entity. It has a unique identity that can be
+        represented by an Id property. Two accounts cannot have the same Id property.
+
+2. Value object
+    - A value object is another type of object in DDD. It is identified by its properties, rather than a
+        unique identity.
+    - Normally, a value object is immutable, which means that its properties cannot be changed once 
+        it is created.
+    - If two value objects have the same properties, they are considered the same value object.
+    - For example, Address is a value object. It is identified by its properties, such as Street, City, 
+        State, and ZipCode. If two addresses have the same Street, City, State, and ZipCode, 
+        they are considered the same address.
+
+3) Aggregate:
+    - An aggregate is a cluster of associated objects, including entities and value objects, which are
+        treated as a unit for data changes.
+    - An aggregate has a root entity, which is the only object that can be accessed from outside the
+        aggregate. The root entity is responsible for maintaining the consistency and integrity 
+        of the aggregate. It is important to note that if the external objects need to access the objects
+        inside the aggregate or modify the objects inside the aggregate, they must go through the root
+        entity.
+    - For example, in an invoicing system, an Invoice entity is an aggregate root. It contains a list of 
+        InvoiceItem entities, which are the items of the invoice. To add an item to the invoice, the
+        external objects must go through the Invoice entity, as shown in the following code:
+
+        public class Invoice
+        {
+            public int Id { get; private set; } // Aggregate root Id, which  should not be changed once it is set
+            public DateTime Date { get; set; }
+            public InvoiceStatus Status { get; private set; }
+            public decimal Total { get; private set; } // The total amount of the invoice, which should be updated when an item is added or removed, but cannot be changed directly
+            
+            // Other properties
+            public List<InvoiceItem> Items { get; private set; }
+
+            public void AddItem(InvoiceItem item)
+            {
+                // Add the item to the invoice
+                Items.Add(item);
+                // Update the invoice total, etc.
+                // ...
+            }
+            public void RemoveItem(InvoiceItem item)
+            {
+                // Remove the item from the invoice
+                Items.Remove(item);
+                // Update the invoice total, etc.
+                // ...
+            }
+            public void Close()
+            {
+                // Close the invoice
+                Status = InvoiceStatus.Closed;
+            }
+        }
+
+        -> In the preceding example, if we need to add or remove an item from the invoice, we must get the 
+            Invoice entity first, and then call the AddItem() or RemoveItem() method to add or remove 
+            the item.
+        -> We cannot directly add or remove an item from the Items property because the Items property is
+            private and can only be accessed from inside the Invoice entity. In this way, the domain 
+            logic is encapsulated inside the Invoice entity, and the consistency and integrity of the
+            invoice are maintained.
+        -> Similarly, we cannot change the Total property directly. Instead, the AddItem or RemoveItem
+            method can update the Total property.
+
+4) repository
+    - A repository is an abstraction layer used to access the data persistence layer. It encapsulates the
+        data access logic and provides a way to query and save data.
+    - To ensure the domain layer does not depend on any specific data access technology, a repository is
+        typically implemented as an interface.
+    - The infrastructure layer can then use a specific data access technology, such as EF Core or Dapper,
+        to implement the repository interface and access different data sources, such as relational
+        databases or NoSQL databases. This decouples the domain layer from the data access technology and
+        data storage.
+    - An example of a repository interface is shown in the following code:
+
+        public interface IInvoiceRepository
+        {
+            Task<Invoice> GetByIdAsync(Guid id);
+            Task<List<Invoice>> GetByCustomerIdAsync(Guid customerId);
+            Task AddAsync(Invoice invoice);
+            Task UpdateAsync(Invoice invoice);
+            Task DeleteAsync(Invoice invoice);
+        }
+
+    -  We introduced the repository pattern in Chapter 10. It is not a specific DDD pattern. However, it is 
+        often used in DDD to decouple the domain layer from the data access layer.
+
+5) Domain service
+    - A domain service is a stateless service that contains domain logic that does not belong to any
+        specific entity or value object. It is often used to implement complex domain logic that involves
+        multiple entities or value objects. 
+    - To access the data persistence layer, a domain service may depend on one or more repositories.
+        Additionally, it may also depend on other external services. These dependencies are injected
+        into the domain service through the dependency injection mechanism.
+    -  For example, in a banking system, the TransferService domain service is responsible for the logic 
+        of transferring money from one account to another. To do this, it relies on the AccountRepository 
+        to access the Account entity. Additionally, it may need to use an external service to send a
+        notification to the account holder after the transfer is complete. If the accounts are in different
+        banks, the TransferService domain service may also need to use an external service to transfer
+        money between them.
+    -  The following code shows an example of a domain service:
+
+        public class TransferService
+        {
+            private readonly IAccountRepository _accountRepository;
+            private readonly ITransactionRepository _transactionRepository;
+            private readonly INotificationService _notificationService;
+            private readonly IBankTransferService _bankTransferService;
+            public TransferService(IAccountRepository accountRepository, 
+            ITransactionRepository transactionRepository, INotificationService 
+            notificationService, IBankTransferService bankTransferService)
+            {
+                _accountRepository = accountRepository;
+                _transactionRepository = transactionRepository;
+                _notificationService = notificationService;
+                _bankTransferService = bankTransferService;
+            }
+
+            public async Task TransferAsync(Guid fromAccountId, Guid toAccountId, decimal amount)
+            {
+                // Get the account from the repository
+                var fromAccount = await _accountRepository.GetByIdAsync(fromAccountId);
+                var toAccount = await _accountRepository.GetByIdAsync(toAccountId);
+                // Transfer money between the accounts
+                fromAccount.Withdraw(amount);
+                toAccount.Deposit(amount);
+                // Save the changes to the repository
+                await _accountRepository.UpdateAsync(fromAccount);
+                await _accountRepository.UpdateAsync(toAccount);
+                // Create transaction records
+                await _transactionRepository.AddAsync(new Transaction
+                {
+                    FromAccountId = fromAccountId,
+                    ToAccountId = toAccountId,
+                    Amount = amount,
+                    Date = DateTime.UtcNow
+                });
+                await _transactionRepository.AddAsync(new Transaction
+                {
+                    FromAccountId = toAccountId,
+                    ToAccountId = fromAccountId,
+                    Amount = -amount,
+                    Date = DateTime.UtcNow
+                });
+                // Send a notification to the account holder
+                await _notificationService.SendAsync(fromAccount.HolderId, 
+                    $"You have transferred {amount}to {toAccount.HolderId}");
+                await _notificationService.SendAsync(toAccount.HolderId,
+                    $"You have received {amount} from{fromAccount.HolderId}");
+                // Transfer money between the banks
+                // await _bankTransferService.TransferAsync(fromAccount.BankId, toAccount.BankId, amount);
+            }
+        }
+
+        -> The preceding code shows a TransferService domain service. It has four dependencies: 
+            IAccountRepository, ITransactionRepository, INotificationService, and IBankTransferService. 
+        -> The TransferAsync method transfers money from one account to another. It first obtains the
+            accounts from IAccountRepository, and then transfers money between the accounts. After that,
+            it saves the changes to IAccountRepository and creates transaction records in
+            ITransactionRepository. 
+        -> Finally, it sends a notification to the account holders using INotificationService.
+    
+    NOTE:
+    The preceding example is simplified for demonstration purposes. The actual implementation 
+    to transfer money between two accounts is much more complicated. For example, it may need 
+    to check the balance of the accounts, check the daily transfer limit, and so on. It may also need 
+    to transfer money between different banks, which involves a lot of complex logic to handle 
+    any errors that may occur during the transfer. If any error occurs, it may need to roll back the 
+    transaction. This is a typical example of a domain service that implements complex domain logic.
+
+6) Unit of work:
+    - In the preceding example, when transferring money between two accounts, the process involves
+        multiple steps. What if an error occurs during the process? In order to prevent any money from
+        being lost during the process of transferring funds between two accounts, it is necessary to wrap
+        the process in a transaction. This will ensure that in the event of an error occurring, the
+        transaction will be rolled back, and the funds will remain secure.
+        For example, if the TransferAsync() method throws an exception after the money has been withdrawn
+        from fromAccount but before it is deposited to toAccount, the transaction will be rolled back,
+        and the money will not be lost.
+    - The term transaction is often used in the context of databases. This kind of transaction is called a 
+        unit of work in DDD.
+    - A unit of work is a sequence of operations that must be performed as a whole. All the steps in a unit
+        of work must succeed or fail together. If any step fails, the entire unit of work must be rolled
+        back. This prevents the data from being left in an inconsistent state.
+    - A unit of work can be implemented in various ways. In many scenarios, a unit of work is implemented 
+        as a database transaction. Another example is a message queue. When a message is received, it is 
+        processed as a unit of work. If the process is successful, the message is removed from the queue. 
+        Otherwise, the message remains in the queue and will be processed again at a later time.
+
+7) Application service:
+    - The application service is responsible for managing the application process. It receives user input
+        from the presentation layer, invokes the domain service to execute business logic, and returns the
+        results to the Presentation Layer.
+    - In a web API application, the Application Service can be implemented as a web API controller or a
+        separate service that is invoked by the web API controller.
+    - The application service should be thin and delegate most of the work to the domain service.
+        Typically, the application service uses data transfer objects (DTOs) to transfer data between the
+        presentation layer and the domain layer. A DTO is a simple object that contains data and does not
+        have any behavior. The DTOs are often mapped to the entities using mapping tools such as AutoMapper.
+        For example, an InvoiceDto class may contain the properties of an invoice, such as Id, Date, Status,
+        Total, and so on. It does not have any method to add or remove an invoice item or close the invoice.
+        It is purely a data container. If a property of the Invoice entity is not needed in the Presentation
+        layer, it should not be included in InvoiceDto.
+    - The presentation layer can send a DTO to the application service when it needs to create or update 
+        an entity. The application service will then map the DTO to the entity and invoke the domain
+        service to execute the necessary business logic. Finally, the application service will map the
+        entity back to the DTO and return it to the presentation layer.
+
+    -  Here is a simple example of an application service:
+
+            [Route("api/[controller]")]
+            [ApiController]
+            public class InvoicesController : ControllerBase
+            {
+                private readonly IInvoiceService _invoiceService;
+                public InvoicesController(IInvoiceService invoiceService)
+                {
+                    _invoiceService = invoiceService;
+                }
+                [HttpPost]
+                public async Task<IActionResult> CreateAsync(InvoiceDto invoiceDto)
+                {
+                    var invoice = await _invoiceService.CreateAsync(invoiceDto);
+                    return Ok(invoice);
+                }
+                // Omitted other methods
+            }
+
+            public interface IInvoiceService
+            {
+                Task<InvoiceDto> CreateAsync(InvoiceDto invoiceDto);
+                // Omitted other methods
+            }
+
+            public class InvoiceService : IInvoiceService
+            {
+                private readonly IInvoiceRepository _invoiceRepository;
+                private readonly IMapper _mapper;
+                public InvoiceService(IInvoiceRepository invoiceRepository, IMapper mapper)
+                {
+                    _invoiceRepository = invoiceRepository;
+                    _mapper = mapper;
+                }
+                public async Task<InvoiceDto> CreateAsync(InvoiceDto invoiceDto)
+                {
+                    var invoice = _mapper.Map<Invoice>(invoiceDto);
+                    await _invoiceRepository.AddAsync(invoice);
+                    return _mapper.Map<InvoiceDto>(invoice);
+                }
+                // Omitted other methods
+            }
+        
+        ->  In the preceding example, the IInvoiceService interface defines the methods of the application 
+            service. The InvoiceService class implements the IInvoiceService interface. It has two 
+            dependencies: IInvoiceRepository and IMapper. IInvoiceRepository is used to 
+            access the Invoice entity, while IMapper is used to map InvoiceDto to the Invoice entity 
+            and vice versa. The CreateAsync() method receives InvoiceDto from the presentation layer 
+            via the controller, maps it to the Invoice entity, and then invokes the AddAsync() method of 
+            IInvoiceRepository to add the Invoice entity to the database. Finally, it maps the Invoice 
+            entity back to InvoiceDto and returns it to the presentation layer.
+        
+        NOTE:
+        In the preceding example, there is no domain service. This is because the logic to create an 
+        invoice is simple. In this case, the application service layer can directly invoke the repository 
+        to add the invoice to the database. However, if the logic is more complex, involving multiple 
+        entities or aggregates, it is better to use a domain service to implement the logic.
+
+- DDD focuses on how to build a domain model that reflects the business domain and how to maintain 
+    the consistency and integrity of the domain model. It is not used to produce reports or user interfaces. 
+    Reports may need complex queries that are not suitable for the domain model. For this case, you may 
+    need to use a separate reporting database or reporting service. Similarly, the user interface may need 
+    to display data in a different way than the domain model. However, the domain model should remain 
+    the same no matter how the data are displayed.
+
+- DDD can help you to manage the complexity and build a flexible and maintainable software system. 
+    But keep in mind that DDD is not a silver bullet. Typically, DDD is used for complex business domains. 
+    Developers must implement a lot of isolation, abstraction, and encapsulation to maintain the model. 
+    This may lead to a lot of effort and complexity. If your project is simple, DDD may be a bit overkill. 
+    In this case, a simple layered architecture may be a better choice.
