@@ -1,0 +1,110 @@
+4. Microservices:
+
+-  Many traditional applications are built as a monolith. A monolithic application is deployed as a 
+    single unit on a single server. The monolithic application is easy to develop and deploy. However, as 
+    the application grows, it becomes more and more difficult to maintain and scale. A small change in 
+    the application may require the entire application to be rebuilt, retested, and redeployed. Moreover, 
+    if one part of the application needs to be scaled, the application must be scaled as a whole, which is 
+    not cost-effective. In addition, if one part of the application fails, it may affect the entire
+    application.
+- This is where microservices come in. A microservice is a small, independent service that is responsible 
+    for a specific business domain. Each microservice has its own database and dependencies. It can be 
+    developed, deployed, and scaled independently. These microservices communicate with each other 
+    through programmatic interfaces, such as web APIs or message queues.
+
+- Microservice provide several benefits:
+    • Single responsibility:
+        Each microservice is responsible for a specific business domain. It has its own dependencies and
+        database.
+    • Resilience and fault tolerance:
+        Microservices are designed to be resilient and fault tolerant. If one microservice fails, it does not
+        affect other microservices.
+    • Scalability:
+        Microservices can be scaled independently based on demand. If one microservice has a high workload,
+        we can increase the number of instances of that microservice to handle the workload.
+    • Technology diversity:
+        Each microservice can be built using different technologies and frameworks as long as they
+        communicate with each other through standard interfaces, such as HTTP APIs or gRPC.
+    • CI/CD:
+        Microservices facilitate CI/CD by allowing individual microservices to be built, tested, and
+        deployed independently, minimizing disruption to the entire system.
+
+- Microservices is not a new concept; it has been around for decades. However, it has become more popular 
+    in recent years, especially with the rise in cloud computing. Cloud computing provides a scalable and 
+    cost-effective infrastructure for microservices. In addition, the emergence of container technology, 
+    such as Docker, makes it easier to build and deploy microservices. By using containers and container 
+    orchestration tools, such as Kubernetes, developers can easily build and deploy microservices to the 
+    cloud. The orchestration tools can automatically scale the microservices based on the workload. This 
+    makes it easier to build a scalable and cost-effective software system.
+
+- For example, in an online shopping system, we may have the following microservices:
+    • Product service:
+        This service is responsible for managing the products, such as adding a new product, updating a product,
+        deleting a product, and so on. It has its own database to store the product data.
+    • Order service:
+        This service is responsible for managing the orders, such as creating a new order, updating an order,
+        deleting an order, and so on. It also has its own database to store the order data.
+    • Payment service:
+        This service is responsible for processing payments, such as credit card payments, PayPal payments, and
+        so on. It has its own database to store the payment data. It may also need to integrate with external
+        payment services, such as PayPal, Stripe, online banking services, and so on.
+    • Shipping service:
+        This service is responsible for shipping the products, such as shipping a product to a customer and
+        tracking the shipment. It needs to integrate with external shipping services, such as FedEx, UPS, and
+        so on.
+    • Notification service:
+        This service is responsible for sending notifications to the customers, such as sending an email or a
+        text message notification, and so on. It needs to integrate with external notification services, such as
+        SendGrid, Twilio, and so on.
+    • Identity service:
+        This service is responsible for managing users, such as creating a new user, updating a user, deleting
+        a user, and so on. It may provide third-party authentication, such as from Microsoft, Google, Facebook,
+        and so on.
+    • Gateway service:
+        This service is responsible for routing the requests to the appropriate microservices. It is the entry
+        point of the system. It does not have its own database. Instead, it routes the requests to the appropriate
+        microservices based on the request URL. It can also implement rate-limiting, authentication, authorization,
+        and so on.
+    • Client applications:
+        These are the client applications that consume the microservices. They can be web applications, mobile
+        applications, or desktop applications.
+
+-  Each service is responsible for a specific business domain and has its own dependencies. Developers 
+    can use different technologies and frameworks to build the services because they communicate with 
+    each other through standard HTTP APIs or gRPC. If one service needs to be scaled, it can be scaled 
+    independently. For example, if the Order service has a high workload, we can increase the number of 
+    instances of the Order service to handle the workload. This is much more cost-effective than scaling 
+    the entire application. Moreover, if one service fails, it does not affect other services. For example, if 
+    the Payment service fails, the Order service and Product service can still work. It can still receive 
+    orders and allow users to view products. When the Payment service is back online, it can process 
+    the orders that have not been processed.
+
+- Microservices have become more and more popular in recent years. However, it increases the complexity 
+    of the system. Before adopting microservices, you should carefully consider whether it is suitable for 
+    your project. Consider the following challenges to microservices:
+    • Distributed system complexity:
+        Microservices are distributed systems. They are more complex than monolithic applications.
+        For example, if one service needs to call another service, you need to consider how to handle the
+        communication between the services and how to maintain the consistency of the data. In addition, you
+        need to handle network failures, partial failures, cascading failures, and so on.
+    • Data management:
+        Each microservice has its own database. This makes it difficult to maintain data consistency, as
+        transactions that span multiple microservices are not supported. To query data from multiple
+        microservices, a distributed query mechanism must be implemented, which can be a complex process.
+    • Service discovery:
+        In a microservice architecture, each service has its own URL. They need to know the URLs of other
+        services in order to communicate with them. This is called service discovery. There are many ways to
+        implement service discovery, such as using a service registry, using a service mesh, and so on. The
+        container orchestration tools, such as Kubernetes, can also be used to implement service discovery,
+        as they can maintain the internal service URLs of the microservices.
+    • Testing:
+        Testing a microservice architecture is more complex than testing a monolithic application. In addition to
+        unit testing, integration testing, and end-to-end testing, you also need to test the communication
+        between the microservices.
+    • Monitoring:
+        Monitoring a microservice architecture requires a well-designed monitoring system. You need to monitor the
+        health of each microservice, as well as the communication between the microservices. The tracing mechanism
+        can be used to trace the requests between the microservices.
+    
+- In summary, if your application is simple, do not overcomplicate it by using microservices. As your 
+    application grows, you can consider refactoring it into microservice architecture step by step.
