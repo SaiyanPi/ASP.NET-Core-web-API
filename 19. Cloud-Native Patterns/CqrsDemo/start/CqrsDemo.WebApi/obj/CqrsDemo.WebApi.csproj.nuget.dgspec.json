@@ -1,0 +1,263 @@
+{
+  "format": 1,
+  "restore": {
+    "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.WebApi\\CqrsDemo.WebApi.csproj": {}
+  },
+  "projects": {
+    "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Core\\CqrsDemo.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Core\\CqrsDemo.Core.csproj",
+        "projectName": "CqrsDemo.Core",
+        "projectPath": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Core\\CqrsDemo.Core.csproj",
+        "packagesPath": "C:\\Users\\zlams\\.nuget\\packages\\",
+        "outputPath": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Core\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\zlams\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Infrastructure\\CqrsDemo.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Infrastructure\\CqrsDemo.Infrastructure.csproj",
+        "projectName": "CqrsDemo.Infrastructure",
+        "projectPath": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Infrastructure\\CqrsDemo.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\zlams\\.nuget\\packages\\",
+        "outputPath": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\zlams\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Core\\CqrsDemo.Core.csproj": {
+                "projectPath": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Core\\CqrsDemo.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Azure.Identity": {
+              "target": "Package",
+              "version": "[1.10.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.WebApi\\CqrsDemo.WebApi.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.WebApi\\CqrsDemo.WebApi.csproj",
+        "projectName": "CqrsDemo.WebApi",
+        "projectPath": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.WebApi\\CqrsDemo.WebApi.csproj",
+        "packagesPath": "C:\\Users\\zlams\\.nuget\\packages\\",
+        "outputPath": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.WebApi\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\zlams\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Core\\CqrsDemo.Core.csproj": {
+                "projectPath": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Core\\CqrsDemo.Core.csproj"
+              },
+              "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Infrastructure\\CqrsDemo.Infrastructure.csproj": {
+                "projectPath": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Infrastructure\\CqrsDemo.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

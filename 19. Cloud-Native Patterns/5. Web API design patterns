@@ -1,0 +1,19 @@
+Web API design patterns:
+
+-  To build a flexible, scalable, and maintainable web API application, leveraging well-established design 
+    patterns is essential. These patterns address common challenges encountered in web API development, 
+    providing effective solutions.
+- Microsoft’s comprehensive guide offers insights into these design patterns, and you can find more details at
+    the following link: https://learn.microsoft.com/en-us/azure/architecture/patterns/.
+- These design patterns are not exclusive to ASP.NET Core; they can be applied to any web API, regardless 
+    of the underlying technology or framework. In the following sub-sections, we will introduce some key 
+    design patterns, outlining the problems they solve, their implementation details, and considerations 
+    for their usage. These patterns cover solution design and implementation, messaging, reliability, and 
+    so on, including the following:
+    • Command query responsibility segregation (CQRS)
+    • Publish/subscribe (pub/sub)
+    • Backend for frontend (BFF)
+    • Timeout
+    • Rate limiting
+    • Retry
+    • Circuit breaker

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "MxifRrUuZbI=",
+  "success": true,
+  "projectFilePath": "X:\\Yan X. Web API Development with ASP.NET Core 8. Learn techniques,patterns,..2024\\yanAPI\\Web-API-Development-with-ASP.NET-Core-8-main\\samples\\chapter17\\CqrsDemo\\start\\CqrsDemo.Core\\CqrsDemo.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\zlams\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
+    "C:\\Users\\zlams\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512"
+  ],
+  "logs": []
+}

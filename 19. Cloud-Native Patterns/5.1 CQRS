@@ -1,0 +1,237 @@
+CQRS:
+
+- CQRS is a powerful tool for addressing the challenge of scaling and optimizing read and write operations. 
+    By separating the responsibilities for handling commands (writes) and queries (reads), CQRS enables 
+    each operation to be optimized independently, resulting in improved scalability and efficiency.
+- Traditionally, the data model of an application is designed to support both read and write operations.
+    However, the requirements for read and write operations are often different. The read operations may 
+    execute different queries, resulting in different DTO models. The write operations may need to update 
+    multiple tables in the database.This may lead to a complex data model that is difficult to maintain. 
+    In addition, the read operations and write operations may have different performance requirements.
+- CQRS divides the application’s data model into separate models for reading and writing. This enables 
+    the use of different storage mechanisms and optimizations tailored to the specific needs of each 
+    operation.
+- CQRS uses queries to read data and commands to update data. Queries do not change the state of the system,
+    while commands do.
+    For example, the read store can use multiple read-only replicas of the write store, which 
+    can improve the performance of the read operations. The replicas must be kept in sync with the write 
+    store, which can be done by using built-in database replication features or an event-driven mechanism.
+    (SEE 5.1_CQRS_ARCHITECTURE.png)
+
+- To implement CQRS in ASP.NET Core web API applications, you can use the MediatR library, 
+    which is a simple mediator implementation in .NET. This library is a simple mediator implementation 
+    in .NET that enables the use of the mediator pattern. The mediator pattern is a behavioral design 
+    pattern that enables objects to interact without having to refer to each other explicitly. Instead, they 
+    communicate through the mediator, which decouples the objects and allows for greater flexibility.
+    (see 5.1_CQRS_architecture_using_MediatR_library.png)
+    -> the mediator is responsible for receiving the commands and queries from the business logic layer and then
+        invoking the corresponding handlers to execute the commands and queries.
+    -> Then, the handlers can use the repositories to access the data persistence layer for reading and writing
+        data.
+    -> The business logic layer does not need to know how the mediator invokes the handlers. It only needs to
+        send the commands and queries to the mediator.
+    ->  This decouples the business logic layer from the data persistence layer. This pattern also makes it
+        easier to send commands and queries to multiple handlers. For example, if we have a command to send an
+        email notification to the customer and we need to add a text message notification, we can simply add a
+        new handler to handle the command without changing the client code.
+
+- Sample application (CqrsDemo\start)
+
+    IMPORTANT NOTE:
+        The sample project has a separate infrastructure project to implement the data persistence layer 
+        by following clean architecture. When you run the dotnet ef command to add a migration or 
+        update the database, you need to specify the startup project.
+        for eg, to add a migration, you need to navigate to the CqrsDemo.Infrastructure project and run the
+        following command:
+        cmd:  dotnet ef migrations add InitialCreate --startup-project ../CqrsDemo.WebApi
+        cmd:  dotnet ef database update --startup-project ../CqrsDemo.WebApi
+
+    This project contains a basic ASP.NET Core web API application to manage the invoices. It contains the
+    following projects:
+    • CqrsDemo.WebApi: This is the ASP.NET Core web API project. It contains the controllers and application 
+        configurations.
+    • CqrsDemo.Core: This is the core project that contains the domain models, interfaces of repositories,
+        services, and so on.
+    • CqrsDemo.Infrastructure: This project contains the implementation of the repositories.
+
+--------------------------------------------------------------------------------------------------------------------
+
+# Implementing the model mapping:
+
+- In the core project, note that the service layer uses DTOs, as shown in the following:
+
+    public interface IInvoiceService
+    {
+        Task<InvoiceDto?> GetAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<List<InvoiceWithoutItemsDto>> GetPagedListAsync(int pageIndex, int pageSize,
+            CancellationToken cancellationToken = default);
+        Task<InvoiceDto> AddAsync(CreateOrUpdateInvoiceDto invoice, 
+            CancellationToken cancellationToken = default);
+        Task<InvoiceDto?> UpdateAsync(Guid id, CreateOrUpdateInvoiceDto invoice,
+            CancellationToken cancellationToken = default);
+        // Omitted
+    }
+
+    -> These methods use different DTO types for reading and writing.
+    -> a) To map the entities to DTOs and vice versa, we can use AutoMapper, which is a popular object-to-object
+        mapper library. The following code shows how to configure AutoMapper in the InvoiceProfile.cs file:
+
+        public InvoiceProfile()
+        {
+            CreateMap<CreateOrUpdateInvoiceItemDto, InvoiceItem>();
+            CreateMap<InvoiceItem, InvoiceItemDto>();
+            CreateMap<CreateOrUpdateInvoiceDto, Invoice>();
+            CreateMap<Invoice, InvoiceWithoutItemsDto>();
+            CreateMap<Invoice, InvoiceDto>();
+        }
+
+    -> b) Then, we can register AutoMapper in the Program.cs file as follows:
+
+        builder.Services.AddAutoMapper(typeof(InvoiceProfile));
+
+    -> c) to use the mapper, simply inject the IMapper interface into the service layer as:
+
+        public class InvoiceService(IInvoiceRepository invoiceRepository, IMapper mapper) : IInvoiceService
+        {
+            public async Task<InvoiceDto?> GetAsync(Guid id, CancellationToken cancellationToken = default)
+            {
+                var invoice = await invoiceRepository.GetAsync(id, cancellationToken);
+                return invoice == null ? null : mapper.Map<InvoiceDto>(invoice);
+            }
+            // Omitted
+        }
+
+        Using AutoMapper can save us a lot of time for mapping the entities to DTOs and vice versa. Next, 
+        we can implement the queries and commands using the MediatR library.
+
+----------------------------------------------------------------------------------------------------------------------
+
+# Implementing queries:
+
+- Next, we will implement the CQRS pattern using the MediatR library. Follow these steps:
+
+1) First, we need to install the MediatR NuGet package. Install the MediatR package to the CqrsDemo.Core project
+    and the CqrsDemo.WebApi project.
+
+    cmd:  dotnet add package MediatR
+
+    -> IMediator:
+        This is the main interface of the MediatR library. It can be used to send requests to the handlers.
+        It can also be used to publish events to multiple handlers.
+    -> ISender:
+        This interface is used to send a request through the mediator pipeline to be handled by a single handler.
+    -> IPublisher:
+        This interface is used to publish a notification or event through the mediator pipeline to be handled by
+        multiple handlers.
+    -> The IMediator interface can be used to send all requests or events. For a clearer indication of the
+        purpose of the request or event, it is recommended to use the ISender interface for requests handled
+        by a single handler and the IPublisher interface for notifications or events that require multiple
+        handlers.
+
+2) Create a Queries folder in the CqrsDemo.Core project. Then, create a GetInvoiceByIdQuery.cs file in the
+    Queries folder with the following code:
+
+    public class GetInvoiceByIdQuery(Guid id) : IRequest<InvoiceDto?>
+    {
+        public Guid Id { get; set; } = id;
+    }
+
+    -> The preceding code defines a GetInvoiceByIdQuery class that implements the IRequest<InvoiceDto?> interface.
+    -> This interface is used to indicate that this is a query that returns an InvoiceDto object.
+        The Id property is used to specify the ID of the invoice to be retrieved.
+
+3) Similarly, create a GetInvoiceListQuery.cs file in the Queries folder with the following code:
+
+    public class GetInvoiceListQuery(int pageIndex, int pageSize) : IRequest<List<InvoiceWithoutItemsDto>>
+    {
+        public int PageIndex { get; set; } = pageIndex;
+        public int PageSize { get; set; } = pageSize;
+    }
+
+    -> Note that the GetInvoiceListQuery query returns a list of InvoiceWithoutItemsDto objects. This is because
+        we do not need the invoice items when listing the invoices.
+    -> This is an example to show how to use different DTOs for reading and writing.
+
+
+4) Next, create a Handlers folder in the Queries folder. Then, create a GetInvoiceByIdQueryHandler.cs file in
+    the Handlers folder with the following code:
+
+    public class GetInvoiceByIdQueryHandler(IInvoiceService invoiceService) : 
+        IRequestHandler<GetInvoiceByIdQuery, InvoiceDto?>
+    {
+        public Task<InvoiceDto?> Handle(GetInvoiceByIdQuery request, CancellationToken cancellationToken)
+        {
+            return invoiceService.GetAsync(request.Id, cancellationToken);
+        }
+    }
+
+    -> The GetInvoiceByIdQueryHandler class implements the IRequestHandler<GetInvoiceByIdQuery, InvoiceDto?>
+        interface.
+    -> This interface is used to indicate that this handler handles the GetInvoiceByIdQuery query and returns an
+        InvoiceDto object.
+    -> The Handle() method receives the GetInvoiceByIdQuery query and invokes the GetAsync() method of
+        IInvoiceService to get the invoice by using the ID.
+    -> Alternatively, you may choose to inject the IInvoiceRepository interface directly into the handler and
+        implement business logic there. Ultimately, it is your decision where to store the logic. It is
+        important to keep in mind that the goal is to separate business logic from the data persistence layer.
+
+5) Similarly, create a GetInvoiceListQueryHandler.cs file in the Handlers folder with the following code:
+
+    public class GetInvoiceListQueryHandler(IInvoiceService invoiceService) : 
+        IRequestHandler<GetInvoiceListQuery, List<InvoiceWithoutItemsDto>>
+    {
+        public Task<List<InvoiceWithoutItemsDto>> Handle(GetInvoiceListQuery request, CancellationToken cancellationToken)
+        {
+            return invoiceService.GetPagedListAsync(request.PageIndex, request.PageSize, cancellationToken);
+        }
+    }
+
+- Now, we have two handlers to handle the GetInvoiceByIdQuery query and the GetInvoiceListQuery query. Next, we
+    need to update the controllers to use the MediatR library.
+
+
+6) Update the InvoicesController.cs file in the CqrsDemo.WebApi project with the following code:
+
+    [Route("api/[controller]")]
+    [ApiController]
+    public class InvoicesController(IInvoiceService invoiceService, ISender mediatorSender) : ControllerBase
+    {
+        // Omitted
+    }
+
+
+7) Update the GetInvoice() method of the InvoicesController class with the following code:
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<InvoiceDto>> GetInvoice(Guid id)
+    {
+        var invoice = await mediatorSender.Send(new GetInvoiceByIdQuery(id));
+        return invoice == null ? NotFound() : Ok(invoice);
+    }
+
+    -> preceding code creates a GetInvoiceByIdQuery object that contains the id parameter.
+    -> ISender interface will invoke the GetInvoiceByIdQueryHandler handler to handle the query. 
+    -> Then, the handler will invoke the GetAsync method of the IInvoiceService to get the invoice via the ID.
+        SO, THE CONTROLLER IS DECOUPLED FROM THE SERVICE LAYER.
+
+
+8) Similarly, update the GetInvoices method of the InvoicesController class with the following code:
+
+    [HttpGet]
+    [Route("paged")]
+    public async Task<ActionResultIEnumerableInvoiceWithoutItemsDto>>> GetInvoices(int pageIndex, int pageSize)
+    {
+        var invoices = await mediatorSender.Send(new GetInvoiceListQuery(pageIndex, pageSize));
+        return Ok(invoices);
+    }
+
+
+9) Next, we need to register the MediatR in the Program.cs file as follows:
+
+    builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetInvoiceByIdQueryHandler).
+        Assembly));
+
+    ->  preceding code registers all three MediatR interfaces and the handlers in the CqrsDemo.Core project.
+
+- Now, we use the queries to implement the read operations. You can run the application and test the 
+    endpoints, such as /api/invoices/{id} and /api/invoices/paged. These endpoints should work as before.
