@@ -19,4 +19,8 @@ public class Invoice
     public InvoiceStatus Status { get; set; }
 
     public List<InvoiceItem> InvoiceItems { get; set; } = new();
+
+
+    public string ContactEmail { get; set; } = string.Empty;
+    public string ContactPhone { get; set; } = string.Empty;
 }

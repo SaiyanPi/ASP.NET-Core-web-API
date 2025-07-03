@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CqrsDemo.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fda46346d77042ff87d522a49091b34859b8803b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8b1343e5efc25027fbfe264b06a488836c439e5f")]
 [assembly: System.Reflection.AssemblyProductAttribute("CqrsDemo.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CqrsDemo.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

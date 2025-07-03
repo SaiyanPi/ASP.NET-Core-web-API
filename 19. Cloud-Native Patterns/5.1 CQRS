@@ -235,3 +235,215 @@ CQRS:
 
 - Now, we use the queries to implement the read operations. You can run the application and test the 
     endpoints, such as /api/invoices/{id} and /api/invoices/paged. These endpoints should work as before.
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+# Implementing Commands:
+
+- Next, we will implement the write operations using commands. Follow these steps:
+
+1) Create a Commands folder in the CqrsDemo.Core project. Then, create a CreateInvoiceCommand.cs file
+    in the Commands folder with the following code:
+
+    public class CreateInvoiceCommand(CreateOrUpdateInvoiceDto invoice) : IRequest<InvoiceDto>
+    {
+        public CreateOrUpdateInvoiceDto Invoice { get; set; } = invoice;
+    }
+
+    -> preceding code defines a CreateInvoiceCommand class that implements the IRequest<InvoiceDto>
+        interface.
+    
+2) Create a Handlers folder in the Commands folder. Then, create a CreateInvoiceCommandHandler.cs file
+    in the Handlers folder with the following code:
+
+    public class CreateInvoiceCommandHandler(IInvoiceService invoiceService) : 
+    IRequestHandler<CreateInvoiceCommand, InvoiceDto>
+    {
+        public Task<InvoiceDto> Handle(CreateInvoiceCommand request, CancellationToken cancellationToken)
+        {
+            return invoiceService.AddAsync(request.Invoice, cancellationToken);
+        }
+    }
+
+3) Update the InvoicesController class with the following code:
+
+    [HttpPost]
+    public async Task<ActionResult<InvoiceDto>> CreateInvoice(CreateOrUpdateInvoiceDto invoiceDto)
+    {
+        var invoice = await mediatorSender.Send(new CreateInvoiceCommand(invoiceDto));
+        return CreatedAtAction(nameof(GetInvoice), new { id = invoice.Id }, invoice);
+    }
+
+- Now, run the application and send a POST request to the /api/invoices endpoint. You should be able
+    to create a new invoice.
+
+----------------------------------------------------------------------------------------------------------------------
+
+- MediatR makes it easy to implement the CQRS pattern in ASP.NET Core web API applications. 
+    However, it is not the only way to implement CQRS. You can also implement CQRS without using 
+    the MediatR library.
+
+- One benefit of using the MediatR library is that it can send requests to multiple handlers.
+    for example, we can create a command to send an email notification and a text message notification
+    to the customer. 
+    Then, we can create two handlers to handle the command. Follow these steps to implement this
+    feature:
+
+    a) Add the two properties to the invoice models, as shown in the following:
+
+        public string ContactEmail { get; set; } = string.Empty;
+        public string ContactPhone { get; set; } = string.Empty;
+
+        -> You need to update the Invoice class, CreateOrUpdateInvoiceDto class, InvoiceWithoutItemsDto
+            class, and InvoiceDto class.
+        -> You can also define a Contact class for better encapsulation.
+
+    b) Add the database migration and update the database. You may also need to update the seed data. 
+        Note that you need to specify the startup project when running the dotnet ef command. 
+        For example, to add a migration, you need to navigate to the CqrsDemo.Infrastructure project
+        and run the following command:
+
+        cmd: dotnet ef migrations add AddContactInfo --startup-project ../CqrsDemo.WebApi
+        cmd: dotnet ef database update --startup-project ../CqrsDemo.WebApi
+
+    c) Create a Notification folder in the CqrsDemo.Core project. Then, create a 
+        SendInvoiceNotification class in the Notification folder with the following code:
+
+        public class SendInvoiceNotification(Guid invoiceId) : INotification
+        {
+            public Guid InvoiceId { get; set; } = invoiceId;
+        }
+
+        -> INotification interface is used to indicate that this is a notification that does not
+            return any result.
+
+    d) Create a Handlers folder in the Notification folder. Then, create a
+        SendInvoiceEmailNotificationHandler class in the Handlers folder with the following code:
+
+        public class SendInvoiceEmailNotificationHandler(IInvoiceService invoiceService) :
+            INotificationHandler<SendInvoiceNotification>
+        {
+            public async Task Handle(SendInvoiceNotification notification, CancellationToken cancellationToken)
+            {
+                // Send email notification
+                var invoice = await invoiceService.GetAsync(notification.InvoiceId, cancellationToken);
+                if (invoice is null || string.IsNullOrWhiteSpace(invoice.ContactEmail))
+                {
+                    return;
+                }
+                // Send email notification
+                Console.WriteLine($"Sending email notification to {invoice.ContactEmail} for invoice {invoice.Id}");
+            }
+        }
+
+        -> we use IInvocieService to obtain the invoice via the ID. Then, we check if the invoice
+            exists and if the contact email is specified. If so, we send an email notification 
+            to the customer. For simplicity, we just print a message to the console.
+
+    e) Similarly, create a SendInvoiceTextMessageNotificationHandler class in the Handlers folder with
+        the following code:
+
+        SendInvoiceTextMessageNotificationHandler(IInvoiceService invoiceService) : 
+            INotificationHandler<SendInvoiceNotification>
+        {
+            public async Task Handle(SendInvoiceNotification notification, CancellationToken cancellationToken)
+            {
+                // Send text message notification
+                var invoice = await invoiceService.GetAsync(notification.InvoiceId, cancellationToken);
+                if (invoice is null || string.IsNullOrWhiteSpace(invoice.ContactPhone))
+                {
+                    return;
+                }
+                // Send text message notification
+                Console.WriteLine($"Sending text message notification to {invoice.ContactPhone} for invoice {invoice.Id}");
+            }
+        }
+
+    f) Inject the IPublisher interface into the InvoicesController class
+
+        public class InvoicesController(IInvoiceService invoiceService, ISender mediatorSender,
+            IPublisher mediatorPublisher) : ControllerBase
+        {
+            // omitted
+        }
+
+        -> The IPublisher interface is used to publish a notification or event through the mediator 
+            pipeline to be handled by multiple handlers.
+
+    g) Update the CreateInvoice method in the InvoicesController class with the following code:
+
+        [HttpPost]
+        public async Task<ActionResult<InvoiceDto>> CreateInvoice(CreateOrUpdateInvoiceDto invoiceDto)
+        {
+            var invoice = await mediatorSender.Send(new CreateInvoiceCommand(invoiceDto));
+
+            // send(publish) request to multiple handler
+            await mediatorPublisher.Publish(new SendInvoiceNotification(invoice.Id));
+
+            return CreatedAtAction(nameof(GetInvoice), new { id = invoice.Id }, invoice);
+
+        }
+
+        -> In the preceding code, when creating a new invoice,
+            * we send a SendInvoiceNotification notification to the IPublisher interface. 
+            * The IPublisher interface will invoke the SendInvoiceEmailNotificationHandler handler and
+                the SendInvoiceTextMessageNotificationHandler handler to handle the notification. 
+                Then, they will send the email notification and text message notification to the
+                customer.
+        -> If we need more notifications, we can simply add more handlers to handle the notification
+            without changing the controller code.
+
+- Run the application and send a POST request to the /api/invoices endpoint to create a new invoice.
+    You should be able to see the console messages for the email notification and text message
+    notifications.
+
+    Console :
+                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                    Executed DbCommand (12ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p2='?' (Size = 4000), @p3='?' (Size = 32), @p4='?' (Size = 4000), @p5='?' (Size = 256), @p6='?' (DbType = DateTimeOffset), @p7='?' (DbType = DateTimeOffset), @p8='?' (Size = 32) (DbType = AnsiString), @p9='?' (Size = 16), @p10='?' (DbType = Guid), @p11='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p12='?' (Size = 256), @p13='?' (DbType = Guid), @p14='?' (Size = 64), @p15='?' (Precision = 8) (Scale = 2) (DbType = Decimal), @p16='?' (Precision = 8) (Scale = 2) (DbType = Decimal)], CommandType='Text', CommandTimeout='30']
+                    SET NOCOUNT ON;
+                    INSERT INTO [Invoices] ([Id], [Amount], [ContactEmail], [ContactName], [ContactPhone], [Description], [DueDate], [InvoiceDate], [InvoiceNumber], [Status])
+                    VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9);
+                    INSERT INTO [InvoiceItems] ([Id], [Amount], [Description], [InvoiceId], [Name], [Quantity], [UnitPrice])
+                    VALUES (@p10, @p11, @p12, @p13, @p14, @p15, @p16);
+                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                    Executed DbCommand (6ms) [Parameters=[@__invoice_Id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']    
+                    SELECT [t].[Id], [t].[Amount], [t].[ContactEmail], [t].[ContactName], [t].[ContactPhone], [t].[Description], [t].[DueDate], [t].[InvoiceDate], [t].[InvoiceNumber], [t].[Status], [i0].[Id], [i0].[Amount], [i0].[Description], [i0].[InvoiceId], [i0].[Name], [i0].[Quantity], [i0].[UnitPrice]
+                    FROM (
+                        SELECT TOP(2) [i].[Id], [i].[Amount], [i].[ContactEmail], [i].[ContactName], [i].[ContactPhone], [i].[Description], [i].[DueDate], [i].[InvoiceDate], [i].[InvoiceNumber], [i].[Status]
+                        FROM [Invoices] AS [i]
+                        WHERE [i].[Id] = @__invoice_Id_0
+                    ) AS [t]
+                    LEFT JOIN [InvoiceItems] AS [i0] ON [t].[Id] = [i0].[InvoiceId]
+                    ORDER BY [t].[Id]
+                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                    Executed DbCommand (4ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+                    SELECT [t].[Id], [t].[Amount], [t].[ContactEmail], [t].[ContactName], [t].[ContactPhone], [t].[Description], [t].[DueDate], [t].[InvoiceDate], [t].[InvoiceNumber], [t].[Status], [i0].[Id], [i0].[Amount], [i0].[Description], [i0].[InvoiceId], [i0].[Name], [i0].[Quantity], [i0].[UnitPrice]
+                    FROM (
+                        SELECT TOP(2) [i].[Id], [i].[Amount], [i].[ContactEmail], [i].[ContactName], [i].[ContactPhone], [i].[Description], [i].[DueDate], [i].[InvoiceDate], [i].[InvoiceNumber], [i].[Status]
+                        FROM [Invoices] AS [i]
+                        WHERE [i].[Id] = @__id_0
+                    ) AS [t]
+                    LEFT JOIN [InvoiceItems] AS [i0] ON [t].[Id] = [i0].[InvoiceId]
+                    ORDER BY [t].[Id]
+            ->  Sending email notification to string for invoice 429ebf20-a9f9-44d1-aa57-c86dcb72420f
+                info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+                    Executed DbCommand (1ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+                    SELECT [t].[Id], [t].[Amount], [t].[ContactEmail], [t].[ContactName], [t].[ContactPhone], [t].[Description], [t].[DueDate], [t].[InvoiceDate], [t].[InvoiceNumber], [t].[Status], [i0].[Id], [i0].[Amount], [i0].[Description], [i0].[InvoiceId], [i0].[Name], [i0].[Quantity], [i0].[UnitPrice]
+                    FROM (
+                        SELECT TOP(2) [i].[Id], [i].[Amount], [i].[ContactEmail], [i].[ContactName], [i].[ContactPhone], [i].[Description], [i].[DueDate], [i].[InvoiceDate], [i].[InvoiceNumber], [i].[Status]
+                        FROM [Invoices] AS [i]
+                        WHERE [i].[Id] = @__id_0
+                    ) AS [t]
+                    LEFT JOIN [InvoiceItems] AS [i0] ON [t].[Id] = [i0].[InvoiceId]
+                    ORDER BY [t].[Id]
+            ->  Sending text message notification to string for invoice 429ebf20-a9f9-44d1-aa57-c86dcb72420f
+
+- This is just a simple example to demonstrate how to use the MediatR library to implement the 
+    CQRS pattern. CQRS and MediatR allow us to separate the read and write concerns and decouple 
+    the business logic layer from the data persistence layer. You can also try to use different databases 
+    for reading and writing or even for different projects. However, note that using different databases 
+    may lead to data consistency issues. You can use the event-sourcing pattern with the CQRS pattern 
+    to maintain data consistency and full audit trails. We will not cover the event-sourcing pattern in this 
+    book. You can find more details about the event-sourcing pattern at the following link: https://
+    learn.microsoft.com/en-us/azure/architecture/patterns/event-sourcing.
