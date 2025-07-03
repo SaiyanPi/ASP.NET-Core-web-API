@@ -1,4 +1,5 @@
 ﻿namespace CqrsDemo.Core.Models.Dto;
+
 public class InvoiceDto
 {
     public Guid Id { get; set; }
@@ -18,4 +19,8 @@ public class InvoiceDto
     public InvoiceStatus Status { get; set; }
 
     public List<InvoiceItemDto> InvoiceItems { get; set; } = new();
+    
+
+    public string ContactEmail { get; set; } = string.Empty;
+    public string ContactPhone { get; set; } = string.Empty;
 }

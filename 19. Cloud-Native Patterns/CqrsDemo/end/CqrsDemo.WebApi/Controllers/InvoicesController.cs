@@ -1,4 +1,6 @@
-﻿using CqrsDemo.Core.Models.Dto;
+﻿using CqrsDemo.Core.Commands;
+using CqrsDemo.Core.Models.Dto;
+using CqrsDemo.Core.Notification;
 using CqrsDemo.Core.Queries;
 using CqrsDemo.Core.Services.Interfaces;
 using MediatR;
@@ -8,7 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace CqrsDemo.WebApi.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class InvoicesController(IInvoiceService invoiceService, ISender mediatorSender) : ControllerBase
+public class InvoicesController(IInvoiceService invoiceService, ISender mediatorSender,
+    IPublisher mediatorPublisher) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<InvoiceWithoutItemsDto>>> GetInvoices()
@@ -43,8 +46,17 @@ public class InvoicesController(IInvoiceService invoiceService, ISender mediator
     [HttpPost]
     public async Task<ActionResult<InvoiceDto>> CreateInvoice(CreateOrUpdateInvoiceDto invoiceDto)
     {
-        var invoice = await invoiceService.AddAsync(invoiceDto);
+        // var invoice = await invoiceService.AddAsync(invoiceDto);
+        // return CreatedAtAction(nameof(GetInvoice), new { id = invoice.Id }, invoice);
+
+        // decouple the controller from the service layer (controller -> Commands -> Handlers(AddAsync()))
+        var invoice = await mediatorSender.Send(new CreateInvoiceCommand(invoiceDto));
+
+        // send(publish) request to multiple handler
+        await mediatorPublisher.Publish(new SendInvoiceNotification(invoice.Id));
+
         return CreatedAtAction(nameof(GetInvoice), new { id = invoice.Id }, invoice);
+
     }
 
     [HttpPut("{id}")]

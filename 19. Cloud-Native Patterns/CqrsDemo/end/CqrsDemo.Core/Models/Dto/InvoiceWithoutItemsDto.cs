@@ -1,4 +1,5 @@
 ﻿namespace CqrsDemo.Core.Models.Dto;
+
 public class InvoiceWithoutItemsDto
 {
     public Guid Id { get; set; }
@@ -16,4 +17,8 @@ public class InvoiceWithoutItemsDto
     public DateTimeOffset DueDate { get; set; }
 
     public InvoiceStatus Status { get; set; }
+    
+
+    public string ContactEmail { get; set; } = string.Empty;
+    public string ContactPhone { get; set; } = string.Empty;
 }
