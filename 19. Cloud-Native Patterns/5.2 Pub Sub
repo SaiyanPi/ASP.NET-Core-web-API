@@ -1,0 +1,53 @@
+Pub/Sub:
+
+- In a microservice architecture, the microservices communicate with each other through standard 
+    interfaces, such as HTTP APIs or gRPC.
+- Sometimes, a microservice may need to communicate with other services in an asynchronous way. It may
+    also need to broadcast an event to multiple services. The pub/sub pattern can be used to address the
+    need for loosely coupled communication between microservices.
+- It facilitates broadcasting events or messages to multiple subscribers without them being directly
+    aware of each other.
+- The pub/sub pattern is a communication model that facilitates the exchange of messages between 
+    publishers and subscribers without requiring them to be aware of each other. It consists of three 
+    components: publishers, subscribers, and a message broker.
+    i) Publishers are responsible for publishing events or messages to the message broker, which then
+        distributes them to subscribers.
+    ii) Subscribers, in turn, subscribe to the message broker and receive the events or messages that
+        have been published.
+    This pattern allows for asynchronous communication between publishers and subscribers, enabling 
+    them to remain independent of each other.
+
+- Many message brokers can be used to implement the pub/sub pattern. Some popular message brokers 
+    include the following:
+    • RabbitMQ:
+        RabbitMQ is an open-source, cross-platform message broker that is widely used in microservice
+        architectures. It is lightweight and easy to deploy on-premises and in the cloud. 
+        For more details, refer to the following link: https://rabbitmq.com/.
+
+    • Redis:
+        Redis is an open-source in-memory data structure store. It is versatile and has high performance.
+        Redis is a popular choice for various use cases, such as key-value databases, caches, and message
+        brokers. We learned how to use Redis as a cache in Chapter 15. It can also be used as a message
+        broker to implement the pub/sub pattern. For more details, refer to the following link:
+        https://redis.io/.
+
+    • Apache Kafka:
+        Apache Kafka is an open-source, distributed event-streaming platform. It is a reliable and
+        scalable message broker that can be used to implement the pub/sub pattern. It ensures the
+        durable and reliable storage of event streams in a scalable, fault-tolerant, and secure manner.
+        You can manage it yourself or use a managed service provided by a variety of cloud providers.
+        For more details, refer to the following link: https://kafka.apache.org/.
+
+    • Azure Service Bus:
+        Azure Service Bus is a fully managed enterprise message broker provided by Microsoft Azure.
+        It supports message queues and topics. For more details, refer to the following link: 
+        https://learn.microsoft.com/en-us/azure/service-busmessaging/.
+
+- The pub/sub pattern decouples the microservices from each other. It also improves the scalability 
+    and reliability. 
+- All the messages or events are handled in an asynchronous way. This helps the service continue to
+    function even if the workload increases or one of the services fails. However, it also increases
+    the complexity of the system. You need to manage the message ordering, message priority, message
+    duplication, message expiration, dead-letter queues, and so on.
+- To learn more about the pub/sub pattern, you can refer to the following link: 
+    https://learn.microsoft.com/en-us/azure/architecture/patterns/publisher-subscriber.

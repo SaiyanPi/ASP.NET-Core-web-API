@@ -1,0 +1,33 @@
+Backends for frontends(BFFs):
+
+- Backends for frontends (BFFs) address the challenge of efficiently serving diverse client interfaces 
+    with distinct requirements.
+- This is useful when applications need to serve multiple client types, such as web, mobile, and desktop.
+    Each client type may need a different data format. In this case, a monolithic backend may struggle
+    to cater to the unique needs of each client. Specifically, if the backend includes multiple
+    microservices, each microservice may need to provide multiple endpoints to serve different client
+    types. This can lead to a complex and inefficient system.
+- BFF architecture is a useful solution for applications that need to serve multiple client types, such as 
+    web, mobile, and desktop. Each client type may have distinct requirements for a data format, which 
+    can be difficult to manage with a monolithic backend. If the backend includes multiple microservices, 
+    each microservice may need to provide multiple endpoints to serve different client types, resulting in
+    a complex and inefficient system. BFFs can help address this challenge by efficiently serving diverse 
+    client interfaces with distinct requirements.
+-  BFF introduces dedicated backend services tailored for specific frontend clients. Each frontend client 
+    has its corresponding backend, enabling fine-grained control over data retrieval, processing, and 
+    presentation. This allows for a more efficient and flexible system that can better meet the needs of 
+    each client.
+
+- BFF_architecture.png
+
+- BFF service is responsible for a specific frontend client. It can retrieve data from multiple microservices
+    and combine the data into a single response. Each BFF service is fine-tuned to meet the specific needs of
+    the frontend client.
+
+- BFF_architecture.png illustrates how each BFF service is responsible for a particular frontend client.
+    Each BFF service is tailored to meet the specific requirements of the frontend client. It can retrieve
+    data from multiple microservices and combine them into a single response.
+
+-  BFFs should be lightweight. They can contain client-specific logic but should not contain business 
+    logic. The main purpose of BFFs is to tailor the data for each frontend client. However, this may lead to 
+    code duplication. If the data format is similar for multiple frontend clients, BFFs may not be required.

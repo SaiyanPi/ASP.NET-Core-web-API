@@ -1,0 +1,38 @@
+Resilience patterns:
+
+- In a microservice architecture, resilience and reliability are essential for a successful system. web APIs 
+    are often subject to unpredictable environments, such as network latency, transient failures, service 
+    unavailability, high traffic, and so on.
+    To ensure that these APIs are resilient and reliable, several patterns can be implemented. These include:
+    • Timeout
+    • Rate limiting
+    • Retry
+    • Circuit breaker and so on.
+
+    In this section, we will discuss how to use the Polly library to implement these patterns in ASP.NET Core 
+    web API applications.
+
+- Sample project: PollyDemo This project contains two basic ASP.NET Core web API application.
+    • PollyServerWebApi, which behaves as a server
+    • PollyClientWebApi, which is also a web API application but also behaves as a client
+
+    We will use these two applications to demonstrate how to use the Polly library to implement the 
+    rate-limiting, retry, timeout, and circuit breaker. Polly is a popular .NET resilience and transient
+    fault-handling library. You can find more details about Polly at the following link:
+    https://www.thepollyproject.org/.
+
+- Polly is a popular .NET resilience and transientfault-handling library. You can find more details about
+    Polly at the following link: https://www.thepollyproject.org/.
+
+#) Navigate to the PollyClientWebApi project and run the following command in the terminal window to
+    install the Polly package:
+
+    cmd: dotnet add package Polly.Core
+
+    -> Polly provides a resilience pipeline builder to build a resilience pipeline. A resilience
+        pipeline runs a series of resilience policies. Each policy is responsible for handling a
+        specific type of issue. The following code shows how to create a resilience pipeline builder
+
+            var pipeline = new ResiliencePipelineBuilder();
+
+- Next, we will explore several resilience policies provided by Polly.
