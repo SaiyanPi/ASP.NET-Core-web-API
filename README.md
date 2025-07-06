@@ -37,21 +37,24 @@ A multi-tenant task management application built with ASP.NET Core and Entity Fr
 - SpecialMember
   
 ### Permissions per role
-#### SuperAdmin
+#### 1. SuperAdmin
 - lives outside tenant scope
 - manages tenants(CREATE, DELETE, UPDATE Tenants)
 
-#### Admin
+#### 2. Admin
 - lives inside Tenant
 - manages User(UPDATE, DELETE Users from Tenant)
 - manage Projects(CREATE, DELETE, UPDATE Projects)
 
-#### Manager
+#### 3. Manager
+- lives inside Tenant
 - manages Projects(CREATE, DELETE, UPDATE, Assign Manager, SpecialMember, and Member Users, Update Project status)
 - manages Tasks(CREATE, DELETE, UPDATE, Assign User, Update Task status)
 
-#### SpecialMember
+#### 4. SpecialMember
+- lives inside Tenant
 - manages Tasks(CREATE, DELETE, UPDATE, Assign Member User, Update Task status)
 
-#### Member
+#### 5. Member
+- lives inside Tenant
 - view Tasks
