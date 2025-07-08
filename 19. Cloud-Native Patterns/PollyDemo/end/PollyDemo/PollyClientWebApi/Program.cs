@@ -1,3 +1,5 @@
+using Polly;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,6 +12,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient("PollyServerWebApi", client =>
 {
     client.BaseAddress = new Uri("http://localhost:5062");
+});
+
+// Add a timeout policy globally
+builder.Services.AddResiliencePipeline("timeout-5s-pipeline", configure =>
+{
+    configure.AddTimeout(TimeSpan.FromSeconds(5));
 });
 
 var app = builder.Build();
