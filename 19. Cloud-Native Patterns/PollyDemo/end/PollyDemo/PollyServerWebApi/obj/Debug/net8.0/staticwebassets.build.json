@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "OmQAH3Yrt0ngjr3HlUWHFDtbmCYdXapNhwu2nbR2u9A=",
+  "Source": "PollyServerWebApi",
+  "BasePath": "_content/PollyServerWebApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

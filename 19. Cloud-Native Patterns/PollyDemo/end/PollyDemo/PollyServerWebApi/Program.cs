@@ -39,4 +39,13 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.UseRateLimiter();
+
+app.MapGet("/api/slow-response", async () =>
+{
+    var random = new Random();
+    var delay = random.Next(1, 20);
+    await Task.Delay(delay * 1000);
+    return Results.Ok($"Response delayed by {delay} seconds");
+});
+
 app.Run();

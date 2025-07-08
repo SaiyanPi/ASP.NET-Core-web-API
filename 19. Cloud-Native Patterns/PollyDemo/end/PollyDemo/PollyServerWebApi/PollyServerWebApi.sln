@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PollyServerWebApi", "PollyServerWebApi.csproj", "{3926B992-C980-AB33-2E9E-0FCADD6A492A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3926B992-C980-AB33-2E9E-0FCADD6A492A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3926B992-C980-AB33-2E9E-0FCADD6A492A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3926B992-C980-AB33-2E9E-0FCADD6A492A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3926B992-C980-AB33-2E9E-0FCADD6A492A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BB2A50BB-88CE-456D-AF5F-B81EC18C105E}
+	EndGlobalSection
+EndGlobal

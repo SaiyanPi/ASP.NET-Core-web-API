@@ -1,2 +1,172 @@
 Timeout:
 
+- The timeout pattern is a common pattern used to handle slow or unresponsive services. When a service 
+    is slow or unresponsive, the client may wait for an extended period before receiving a response. To 
+    avoid this, a timeout can be set for the service. If the service cannot respond within the given time 
+    frame, the client can return an error to the user, thus preventing them from waiting unnecessarily.
+- In Chapter 5/2.3, we introduced a RequestTimeout middleware to set the timeout for the ASP.NET 
+    Core web API application. The RequestTimeout middleware is applied to the endpoints or actions 
+    that need to be timed out. Sometimes, we may need to set the timeout for a specific method call, such 
+    as calling a REST API or querying a database. Let us explore other ways to set the timeout.
+
+--------------------------------------------------------------------------------------------------------------
+
+- The HttpClient class in .NET Core provides a timeout feature. You can set the timeout for the 
+    HttpClient object by setting the Timeout property. The following code shows how to set the 
+    timeout for the HttpClient object:
+
+    var httpClient = httpClientFactory.CreateClient();
+    httpClient.Timeout = TimeSpan.FromSeconds(10);
+
+    -> The preceding code creates an HttpClient object and sets the timeout to 10 seconds.
+    -> If the service does not respond within 10 seconds, the HttpClient object will throw an exception.
+        You can catch the exception and return an error to the user.
+
+- Setting the timeout for the HttpClient object is useful for simple tasks, such as calling a REST API. 
+    However, it is not suitable for more complex tasks that do not use HttpClient, such as a database 
+    query. For other tasks, such as a database query, you can use the CancellationToken to set the 
+    timeout. The following code shows how to set the timeout for a database query:
+
+    var cancellationToken = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+    var invoice = await invoiceRepository.GetAsync(id, cancellationToken.Token);
+
+    - The preceding code creates a CancellationTokenSource object and sets the timeout to 10 
+        seconds. If the database query is not complete within 10 seconds, the GetAsync() method will throw 
+        an exception. This prevents the client from waiting for an extended period before receiving a
+        response.
+
+POLLY:
+
+- Sometimes, there may be multiple services that need to be called. Moreover, setting the timeout for each 
+    service call may be tedious. To simplify this, we can use the Polly library to implement the timeout
+    policy.
+- Polly provides a timeout policy that can be used to set the timeout for a service. Follow these steps 
+    to implement the timeout policy:
+
+1) Create an endpoint in the PollyServerWebApi application to simulate a slow service. Open the Program.cs
+    file and add the following code:
+
+    app.MapGet("/api/slow-response", async () =>
+    {
+        var random = new Random();
+        var delay = random.Next(1, 20);
+        await Task.Delay(delay * 1000);
+        return Results.Ok($"Response delayed by {delay} seconds");
+    });
+
+    -> The preceding code defines a minimal API endpoint that simulates a slow service. It generates 
+        a random delay between 1 and 20 seconds. This endpoint will return a response after the delay. 
+    -> This is just an example of simulating a slow service. In a real-world application, the service may 
+        be slow due to network latency, high traffic, and so on.
+
+2) Create a controller in the PollyClientWebApi application to call the slow service. Add a PollyController
+    class in the Controllers folder with the following code:
+
+    [Route("api/[controller]")]
+    [ApiController]
+    public class PollyController(ILogger<PollyController> logger,IHttpClientFactory httpClientFactory) : ControllerBase
+    {
+        [HttpGet("slow-response")]
+        public async Task<IActionResult> GetSlowResponse()
+        {
+            var client = httpClientFactory.CreateClient("PollyServerWebApi");
+            var response = await client.GetAsync("api/slow-response");
+            var content = await response.Content.ReadAsStringAsync();
+            return Ok(content);
+        }
+    }
+
+    -> This controller uses the IHttpClientFactory to create an HttpClient object. Then, it calls the slow
+        service and returns the response to the client.
+
+3) Run the two applications and send a request to the http://localhost:5114/api/polly/slow-response endpoint
+    of the PollyClientWebApi application. You should be able to see the response after a random delay between
+    1 and 20 seconds.
+
+4) Next, we will implement the timeout policy using Polly. For example, we can set the timeout to 5 seconds,
+    which means if the service does not respond within 5 seconds, the client will return an error to the
+    user instead of waiting for a long time.
+    Update the GetSlowResponse() method of the PollyController class as follows:
+
+    [HttpGet("slow-response")]
+    public async Task<IActionResult> GetSlowResponse()
+    {
+        var client = httpClientFactory.CreateClient("PollyServerWebApi");
+        var pipeline = new ResiliencePipelineBuilder().AddTimeout(TimeSpan.FromSeconds(5)).Build();
+        try
+        {
+            var response = await pipeline.ExecuteAsync(async cancellationToken =>
+                await client.GetAsync("api/slow-response", cancellationToken));
+
+            var content = await response.Content.ReadAsStringAsync();
+            return Ok(content);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e.Message);
+            return Problem(e.Message);
+        }
+    }
+
+    -> preceding code uses Polly to create a ResiliencePipelineBuilder object. Then, it adds a timeout
+        policy with a timeout of 5 seconds.
+    -> The ExecuteAsync() method is used to execute the pipeline. If the service does not respond within 5
+        seconds, the ExecuteAsync() method will throw an exception. The catch block is used to catch the
+        exception and return an error to the user.
+
+5) NOTE:
+    In the ExecuteAsync() method, the cancellation token is passed to the GetAsync() method of the
+    HttpClient object. If cancellation token is not passed, the HttpClient will continue to wait even if the 
+    timeout occurs. 
+    It is important to respect the cancellation token from the Polly resilience pipeline.
+
+6) Run the two applications and send a request to the http://localhost:5114/api/polly/slow-response endpoint
+    of the PollyClientWebApi application. You should be able to see the error message after 5 seconds.
+
+    error message:
+        
+        {"type":"https://tools.ietf.org/html/rfc9110#section-15.6.1","title":"An error occurred while
+        processing your request.","status":500,"detail":"The operation didn't complete within the allowed
+        timeout of '00:00:05'.","traceId":"00-a3db9576b68855ca2d4fdbcd6dd33efd-96136ee98665f9a9-00"}
+
+-----------------------------------------------------------------------------------------------------------------
+
+REUSING THE TIMEOUT POLICY/ GLOBAL TIMEOUT POLICY:
+
+- In the preceding example, we defined the timeout policy in the controller. To reuse the timeout policy, 
+    we can define a global timeout policy in the Program.cs file and then use dependency injection 
+    to inject the policy into the controller. Follow these steps to implement the global timeout policy:
+
+A) Install the Polly.Extensions NuGet package. Navigate to the PollyClientWebApi project and run the
+    following command in the terminal window to install the Polly.Extensions package:
+
+    cmd: dotnet add package Polly.Extensions
+
+B) Open the Program.cs file of the PollyClientWebApi application and add the following code:
+
+    builder.Services.AddResiliencePipeline("timeout-5s-pipeline", configure =>
+    {
+        configure.AddTimeout(TimeSpan.FromSeconds(5));
+    });
+    
+    -> The preceding code defines a global timeout policy with a timeout of 5 seconds. The policy is named 
+        timeout-5s-pipeline. You can use any name you like. The AddResiliencePipeline() method is used to
+        add the timeout policy to the pipeline.
+
+C) Inject the ResiliencePipelineProvider<string> class into the PollyController class, as shown in the
+    following:
+
+    public class PollyController(ILogger<PollyController> logger, IHttpClientFactory httpClientFactory, 
+        ResiliencePipelineProvider<string> resiliencePipelineProvider) : ControllerBase
+    {
+        // omitted
+    }
+    
+    -> The string type parameter specifies the type of the policy name.
+
+D) Update the GetSlowResponse() method of the PollyController class as follows:
+
+    var pipeline = resiliencePipelineProvider.GetPipeline("timeout-5s-pipeline");
+    // omitted
+
+- Polly supports many other resilience patterns. Next, let us discuss rate-limiting.
