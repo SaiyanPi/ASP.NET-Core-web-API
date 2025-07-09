@@ -33,3 +33,4 @@ C:\Users\zlams\source\REST API\19. Cloud-Native Patterns\PollyDemo\end\PollyDemo
 C:\Users\zlams\source\REST API\19. Cloud-Native Patterns\PollyDemo\end\PollyDemo\PollyClientWebApi\obj\Debug\net8.0\PollyClientWebApi.genruntimeconfig.cache
 C:\Users\zlams\source\REST API\19. Cloud-Native Patterns\PollyDemo\end\PollyDemo\PollyClientWebApi\obj\Debug\net8.0\ref\PollyClientWebApi.dll
 C:\Users\zlams\source\REST API\19. Cloud-Native Patterns\PollyDemo\end\PollyDemo\PollyClientWebApi\bin\Debug\net8.0\Polly.Extensions.dll
+C:\Users\zlams\source\REST API\19. Cloud-Native Patterns\PollyDemo\end\PollyDemo\PollyClientWebApi\bin\Debug\net8.0\Polly.RateLimiting.dll

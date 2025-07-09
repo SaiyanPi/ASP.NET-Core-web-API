@@ -1,0 +1,195 @@
+Rate-limiting:
+
+- The rate-limiting pattern is a common pattern used to limit the number of requests that can be made 
+    to a service. The rate should be set to a reasonable value to avoid overloading the service.
+- we can run a performance test to determine the optimal rate limit. The performance of the service depends
+    on many factors, such as the hardware, network, and the complexity of business logic.
+    Once we have determined the optimal rate limit, you can apply it to the service to ensure that it can
+    handle the workload.
+- For example, if a service can handle 100 requests per second when the number of requests exceeds 100, the 
+    service may become slow or even unavailable. The client may encounter a timeout error. To avoid this, we 
+    can set the rate limit for the service. When the number of requests exceeds the rate limit, the service
+    will reject the requests and return an error to the client. This can prevent the service from being
+    overloaded.
+- ASP.NET Core provides a rate-limiting middleware that can be used to configure rate-limiting in various 
+    policies, such as fixed window, sliding window, token bucket, and concurrency. we introduced rate-limiting
+    midleware in Chapter 5/2.3. Find more details about rate-limiting middleware at 
+    https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit?view=aspnetcore-9.0
+
+1) In the Program file of the server app.
+
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.AddFixedWindowLimiter("FiveRequestsInThreeSeconds", limiterOptions =>
+        {
+            limiterOptions.PermitLimit = 5;
+            limiterOptions.Window = TimeSpan.FromSeconds(3);
+        });
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        options.OnRejected = async (context, _) =>
+        {
+            await context.HttpContext.Response.WriteAsync("Too many requests. Please try later.", CancellationToken.None);
+        };
+    });
+
+    // Omitted
+    app.UseRateLimiter();
+
+    ->  The preceding code configures a fixed window rate limiter with a rate limit of five requests per
+        3 seconds.
+    -> When the PollyClientWebApi application sends more than five requests per 3 seconds to the
+        PollyServerWebApi application, the PollyServerWebApi application will return a 429 Too Many Requests
+        error to the client.
+    -> The OnRejected callback is used to handle the rejected requests. In this example, we simply return a
+        message to the client.
+
+2)  The rate-limiting policy is applied to the WeatherForecastController class of the server app:
+
+    [EnableRateLimiting("FiveRequestsInThreeSeconds")]
+    [ApiController]
+    [Route("[controller]")]
+    public class WeatherForecastController(ILogger<WeatherForecastController> logger) : 
+    ControllerBase
+    {
+        // Omitted
+    }
+
+3) Update the Get method in the WeatherForecastController of the Client app as:
+
+    [HttpGet(Name = "GetWeatherForecast")]
+    public async Task<ActionResult<IEnumerable<WeatherForecast>>> Get()
+    {
+        var httpClient = httpClientFactory.CreateClient("PollyServerWebApi");
+        var response = await httpClient.GetAsync("/WeatherForecast");
+        if (response.IsSuccessStatusCode)
+        {
+            var weatherForecasts = await response.Content.ReadFromJsonAsync<IEnumerable<WeatherForecast>>();
+            return Ok(weatherForecasts);
+        }
+
+        return StatusCode((int)response.StatusCode);
+    }
+
+4) Run both app and reqest to the client endpoint http://localhost:5114/weatherforecast.
+    Then, send more than five requests per 3 seconds to the /weatherforecast endpoint of the
+    PollyClientWebApi application. You should be able to see the 429 Too Many Requests error in the
+    PollyClientWebApi application. In this way, we can limit the number of requests to the
+    PollyServerWebApi service so that it can handle the workload without being overloaded.
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+POLLY FOR RATE-LIMITING:
+
+- We can also use Polly to implement the rate-limiting pattern. Follow these steps to implement the 
+    rate-limiting pattern using Polly:
+
+A) Install the Polly.RateLimiting NuGet package for the PollyClientWebApi project 
+
+    cmd: dotnet add package Polly.RateLimiting
+
+    -> The Polly.RateLimiting package is a wrapper for the System.Threading.RateLimiting package provided by
+        Microsoft.
+    -> It also depends on the Polly.Core package. So, if you have not installed the Polly.Core package, it
+        will be installed automatically.
+
+B) Create a /api/normal-response endpoint in the PollyServerWebApi application to simulate a normal service.
+    Open the Program.cs file and add the following code:
+
+    app.MapGet("/api/normal-response", async () =>
+    {
+        var random = new Random();
+        var delay = random.Next(1, 1000);
+        await Task.Delay(delay);
+        return Results.Ok($"Response delayed by {delay} milliseconds");
+    });
+
+    -> This endpoint will return a response after a random delay between 1 and 1000 milliseconds, which 
+        means, in the worst case, it may take 1 second to return a response. 
+    -> To limit the number of requests to this endpoint, we can use the rate-limiting policy for the
+        PollyClientWebApi application.
+
+C) We will use the dependency injection to inject the rate-limiting policy for convenience. Define 
+    a rate-limiting policy in the Program.cs of client app as follows:
+
+    builder.Services.AddResiliencePipeline("rate-limit-5-requests-in-3-seconds", configure =>
+    {
+        configure.AddRateLimiter(new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions
+        { PermitLimit = 5, Window = TimeSpan.FromSeconds(3) }));
+    });
+
+    -> The preceding code defines a fixed window rate limiter with a rate limit of 5 requests per 3 
+        seconds. The policy is named rate-limit-5-requests-in-3-seconds.
+    -> In this example, we create a separate Polly pipeline for the rate-limiting policy.
+        we can also combine multiple policies into a single pipeline. For example, you can combine the
+        rate-limiting policy and the timeout policy into a single pipeline using the following code:
+
+            builder.Services.AddResiliencePipeline("combined-resilience
+            policy", configure =>
+            {
+                configure.AddRateLimiter(
+                    // Omitted
+                );
+                configure.AddTimeout(
+                    // Omitted
+                );
+                // You can add more policies here
+            });
+
+D) Inject the ResiliencePipelineProvider<string> class into the PollyController class of the
+    PollyClientWebApi project, as shown in the following:
+
+    [HttpGet("rate-limit")]
+    public async Task<IActionResult> GetNormalResponseWithRateLimiting()
+    {
+        var client = httpClientFactory.CreateClient("PollyServerWebApi");
+        try
+        {
+            var pipeline = resiliencePipelineProvider.GetPipeline("rate-limit-5-requests-in-3-seconds");
+            var response = await pipeline.ExecuteAsync(async cancellationToken =>
+                await client.GetAsync("api/normal-response", cancellationToken));
+            var content = await response.Content.ReadAsStringAsync();
+            return Ok(content);
+        }
+        catch (Exception e)
+        {
+            logger.LogError($"{e.GetType()} {e.Message}");
+            return Problem(e.Message);
+        }
+    }
+
+E) Run the two applications and send more than 5 requests per 3 seconds to the
+    http://localhost:5114/api/polly/rate-limit endpoint of the PollyClientWebApi application. Sometimes, you
+    may see an error message in the console window of the PollyClientWebApi application as follows:
+
+    response: {"type":"https://tools.ietf.org/html/rfc9110#section-15.6.1","title":"An error occurred while
+                processing your request.","status":500,"detail":"The operation could not be executed because
+                it was rejected by the rate limiter. It can be retried after '00:00:03'.","traceId":"00-0c22
+                b4b6e3d146662d73094896f70472-2220667239b54cad-00"}
+
+F) Similarly, you can use Polly to implement other rate-limiting policies, such as sliding window,
+    concurrency, and token bucket. Here is an example of the sliding window rate limiter:
+
+    configure.AddRateLimiter(new SlidingWindowRateLimiter(new SlidingWindowRateLimiterOptions
+    { PermitLimit = 100, Window = TimeSpan.FromMinutes(1) }));
+
+    -> The preceding code defines a sliding window rate limiter with a rate limit of 100 requests per minute.
+
+G) As the Polly RateLimiter is a disposable resource, it is a good practice to dispose of it when it is no
+    longer needed.
+    Polly provides an OnPipelineDisposed callback that can be used to dispose of the RateLimiter object.
+    For example, we can dispose of the RateLimiter object in the OnPipelineDisposed callback as follows:
+
+    builder.Services.AddResiliencePipeline("rate-limit-5-requests-in-3-seconds", (configure, context) =>
+    {
+        var rateLimiter = new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions
+        { PermitLimit = 5, Window = TimeSpan.FromSeconds(3) });
+        configure.AddRateLimiter(rateLimiter);
+        // Dispose the rate limiter when the pipeline is disposed
+        context.OnPipelineDisposed(() => rateLimiter.Dispose());
+    });
+
+    -> In this way, we can dispose of the RateLimiter object when the pipeline is disposed of so that it 
+        does not consume resources unnecessarily.
+ 
