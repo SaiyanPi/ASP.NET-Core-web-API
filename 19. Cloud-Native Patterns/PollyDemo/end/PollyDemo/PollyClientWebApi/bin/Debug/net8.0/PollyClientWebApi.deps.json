@@ -10,6 +10,7 @@
         "dependencies": {
           "Polly.Core": "8.6.1",
           "Polly.Extensions": "8.6.1",
+          "Polly.RateLimiting": "8.6.1",
           "Swashbuckle.AspNetCore": "6.4.0"
         },
         "runtime": {
@@ -59,6 +60,18 @@
           }
         }
       },
+      "Polly.RateLimiting/8.6.1": {
+        "dependencies": {
+          "Polly.Core": "8.6.1",
+          "System.Threading.RateLimiting": "8.0.0"
+        },
+        "runtime": {
+          "lib/net8.0/Polly.RateLimiting.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.6.1.4745"
+          }
+        }
+      },
       "Swashbuckle.AspNetCore/6.4.0": {
         "dependencies": {
           "Microsoft.Extensions.ApiDescription.Server": "6.0.5",
@@ -96,7 +109,8 @@
             "fileVersion": "6.4.0.0"
           }
         }
-      }
+      },
+      "System.Threading.RateLimiting/8.0.0": {}
     }
   },
   "libraries": {
@@ -161,6 +175,13 @@
       "path": "polly.extensions/8.6.1",
       "hashPath": "polly.extensions.8.6.1.nupkg.sha512"
     },
+    "Polly.RateLimiting/8.6.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Ujf1Yv0mPwUc2UZWM+0hlbKIx3B4Wneg6FhV9MuiQpqwNYJvCc5Cjzc2GDfaXEsZ5rRXkUJ5dQEe9ZWY6kgylw==",
+      "path": "polly.ratelimiting/8.6.1",
+      "hashPath": "polly.ratelimiting.8.6.1.nupkg.sha512"
+    },
     "Swashbuckle.AspNetCore/6.4.0": {
       "type": "package",
       "serviceable": true,
@@ -188,6 +209,13 @@
       "sha512": "sha512-1Hh3atb3pi8c+v7n4/3N80Jj8RvLOXgWxzix6w3OZhB7zBGRwsy7FWr4e3hwgPweSBpwfElqj4V4nkjYabH9nQ==",
       "path": "swashbuckle.aspnetcore.swaggerui/6.4.0",
       "hashPath": "swashbuckle.aspnetcore.swaggerui.6.4.0.nupkg.sha512"
+    },
+    "System.Threading.RateLimiting/8.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-7mu9v0QDv66ar3DpGSZHg9NuNcxDaaAcnMULuZlaTpP9+hwXhrxNGsF5GmLkSHxFdb5bBc1TzeujsRgTrPWi+Q==",
+      "path": "system.threading.ratelimiting/8.0.0",
+      "hashPath": "system.threading.ratelimiting.8.0.0.nupkg.sha512"
     }
   }
 }

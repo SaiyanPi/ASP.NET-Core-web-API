@@ -24,7 +24,7 @@ public class PollyController(ILogger<PollyController> logger, IHttpClientFactory
     public async Task<IActionResult> GetSlowResponse()
     {
         var client = httpClientFactory.CreateClient("PollyServerWebApi");
-        
+
         // var pipeline = new ResiliencePipelineBuilder().AddTimeout(TimeSpan.FromSeconds(5)).Build();
 
         // global timeout policy
@@ -40,6 +40,25 @@ public class PollyController(ILogger<PollyController> logger, IHttpClientFactory
         catch (Exception e)
         {
             logger.LogError(e.Message);
+            return Problem(e.Message);
+        }
+    }
+    
+    [HttpGet("rate-limit")]
+    public async Task<IActionResult> GetNormalResponseWithRateLimiting()
+    {
+        var client = httpClientFactory.CreateClient("PollyServerWebApi");
+        try
+        {
+            var pipeline = resiliencePipelineProvider.GetPipeline("rate-limit-5-requests-in-3-seconds");
+            var response = await pipeline.ExecuteAsync(async cancellationToken =>
+                await client.GetAsync("api/normal-response", cancellationToken));
+            var content = await response.Content.ReadAsStringAsync();
+            return Ok(content);
+        }
+        catch (Exception e)
+        {
+            logger.LogError($"{e.GetType()} {e.Message}");
             return Problem(e.Message);
         }
     }

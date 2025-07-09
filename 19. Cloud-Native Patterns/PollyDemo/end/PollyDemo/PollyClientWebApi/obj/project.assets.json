@@ -128,6 +128,23 @@
           }
         }
       },
+      "Polly.RateLimiting/8.6.1": {
+        "type": "package",
+        "dependencies": {
+          "Polly.Core": "8.6.1",
+          "System.Threading.RateLimiting": "8.0.0"
+        },
+        "compile": {
+          "lib/net8.0/Polly.RateLimiting.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Polly.RateLimiting.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
       "Swashbuckle.AspNetCore/6.4.0": {
         "type": "package",
         "dependencies": {
@@ -190,6 +207,22 @@
         "frameworkReferences": [
           "Microsoft.AspNetCore.App"
         ]
+      },
+      "System.Threading.RateLimiting/8.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/System.Threading.RateLimiting.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/System.Threading.RateLimiting.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "buildTransitive/net6.0/_._": {}
+        }
       }
     }
   },
@@ -682,6 +715,35 @@
         "polly.extensions.nuspec"
       ]
     },
+    "Polly.RateLimiting/8.6.1": {
+      "sha512": "Ujf1Yv0mPwUc2UZWM+0hlbKIx3B4Wneg6FhV9MuiQpqwNYJvCc5Cjzc2GDfaXEsZ5rRXkUJ5dQEe9ZWY6kgylw==",
+      "type": "package",
+      "path": "polly.ratelimiting/8.6.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "lib/net462/Polly.RateLimiting.dll",
+        "lib/net462/Polly.RateLimiting.pdb",
+        "lib/net462/Polly.RateLimiting.xml",
+        "lib/net472/Polly.RateLimiting.dll",
+        "lib/net472/Polly.RateLimiting.pdb",
+        "lib/net472/Polly.RateLimiting.xml",
+        "lib/net6.0/Polly.RateLimiting.dll",
+        "lib/net6.0/Polly.RateLimiting.pdb",
+        "lib/net6.0/Polly.RateLimiting.xml",
+        "lib/net8.0/Polly.RateLimiting.dll",
+        "lib/net8.0/Polly.RateLimiting.pdb",
+        "lib/net8.0/Polly.RateLimiting.xml",
+        "lib/netstandard2.0/Polly.RateLimiting.dll",
+        "lib/netstandard2.0/Polly.RateLimiting.pdb",
+        "lib/netstandard2.0/Polly.RateLimiting.xml",
+        "package-icon.png",
+        "package-readme.md",
+        "polly.ratelimiting.8.6.1.nupkg.sha512",
+        "polly.ratelimiting.nuspec"
+      ]
+    },
     "Swashbuckle.AspNetCore/6.4.0": {
       "sha512": "eUBr4TW0up6oKDA5Xwkul289uqSMgY0xGN4pnbOIBqCcN9VKGGaPvHX3vWaG/hvocfGDP+MGzMA0bBBKz2fkmQ==",
       "type": "package",
@@ -762,12 +824,42 @@
         "swashbuckle.aspnetcore.swaggerui.6.4.0.nupkg.sha512",
         "swashbuckle.aspnetcore.swaggerui.nuspec"
       ]
+    },
+    "System.Threading.RateLimiting/8.0.0": {
+      "sha512": "7mu9v0QDv66ar3DpGSZHg9NuNcxDaaAcnMULuZlaTpP9+hwXhrxNGsF5GmLkSHxFdb5bBc1TzeujsRgTrPWi+Q==",
+      "type": "package",
+      "path": "system.threading.ratelimiting/8.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "buildTransitive/net461/System.Threading.RateLimiting.targets",
+        "buildTransitive/net462/_._",
+        "buildTransitive/net6.0/_._",
+        "buildTransitive/netcoreapp2.0/System.Threading.RateLimiting.targets",
+        "lib/net462/System.Threading.RateLimiting.dll",
+        "lib/net462/System.Threading.RateLimiting.xml",
+        "lib/net6.0/System.Threading.RateLimiting.dll",
+        "lib/net6.0/System.Threading.RateLimiting.xml",
+        "lib/net7.0/System.Threading.RateLimiting.dll",
+        "lib/net7.0/System.Threading.RateLimiting.xml",
+        "lib/net8.0/System.Threading.RateLimiting.dll",
+        "lib/net8.0/System.Threading.RateLimiting.xml",
+        "lib/netstandard2.0/System.Threading.RateLimiting.dll",
+        "lib/netstandard2.0/System.Threading.RateLimiting.xml",
+        "system.threading.ratelimiting.8.0.0.nupkg.sha512",
+        "system.threading.ratelimiting.nuspec",
+        "useSharedDesignerContext.txt"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
       "Polly.Core >= 8.6.1",
       "Polly.Extensions >= 8.6.1",
+      "Polly.RateLimiting >= 8.6.1",
       "Swashbuckle.AspNetCore >= 6.4.0"
     ]
   },
@@ -826,6 +918,10 @@
             "version": "[8.6.1, )"
           },
           "Polly.Extensions": {
+            "target": "Package",
+            "version": "[8.6.1, )"
+          },
+          "Polly.RateLimiting": {
             "target": "Package",
             "version": "[8.6.1, )"
           },
