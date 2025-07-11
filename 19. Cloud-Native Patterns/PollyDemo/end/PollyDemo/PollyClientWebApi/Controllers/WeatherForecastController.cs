@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Polly;
 
 namespace PollyClientWebApi.Controllers;
 [ApiController]
@@ -7,16 +8,47 @@ public class WeatherForecastController(ILogger<WeatherForecastController> logger
     : ControllerBase
 {
     [HttpGet(Name = "GetWeatherForecast")]
+    // public async Task<ActionResult<IEnumerable<WeatherForecast>>> Get()
+    // {
+    //     var httpClient = httpClientFactory.CreateClient("PollyServerWebApi");
+    //     var response = await httpClient.GetAsync("/WeatherForecast");
+    //     if (response.IsSuccessStatusCode)
+    //     {
+    //         var weatherForecasts = await response.Content.ReadFromJsonAsync<IEnumerable<WeatherForecast>>();
+    //         return Ok(weatherForecasts);
+    //     }
+
+    //     return StatusCode((int)response.StatusCode);
+    // }
+
     public async Task<ActionResult<IEnumerable<WeatherForecast>>> Get()
     {
         var httpClient = httpClientFactory.CreateClient("PollyServerWebApi");
-        var response = await httpClient.GetAsync("/WeatherForecast");
-        if (response.IsSuccessStatusCode)
+        
+        var pollyPipeline = new ResiliencePipelineBuilder().AddRetry(new Polly.Retry.RetryStrategyOptions()
         {
-            var weatherForecasts = await response.Content.ReadFromJsonAsync<IEnumerable<WeatherForecast>>();
-            return Ok(weatherForecasts);
-        }
+            ShouldHandle = new PredicateBuilder().Handle<Exception>(),
+                MaxRetryAttempts = 3,
+                Delay = TimeSpan.FromMilliseconds(500),
+                MaxDelay = TimeSpan.FromSeconds(5),
+                OnRetry = args =>
+                {
+                    logger.LogWarning($"Retry {args.AttemptNumber}, due to: {args.Outcome.Exception?.Message}.");
+                    return default;
+                }
+        }).Build();
 
-        return StatusCode((int)response.StatusCode);
+        HttpResponseMessage? response = null;
+        await pollyPipeline.ExecuteAsync(async _ =>
+        {
+            response = await httpClient.GetAsync("/WeatherForecast");
+            response.EnsureSuccessStatusCode();
+        });
+        if (response != null & response!.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<IEnumerable<WeatherForecast>>();
+            return Ok(result);
+        }
+        return StatusCode((int)response.StatusCode, response.ReasonPhrase);
     }
 }

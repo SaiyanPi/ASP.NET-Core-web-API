@@ -1,0 +1,110 @@
+Circuit Breaker:
+
+- The circuit breaker pattern is a useful tool for preventing service overload and failure. In the event 
+    that a service is becoming seriously overloaded, a client should stop sending requests for a period of 
+    time in order to allow the service to recover. This is known as the circuit breaker pattern and can help 
+    to avoid a service crash or total failure.
+    We can use Polly to implement the circuit breaker pattern.
+
+
+1) Create a new /api/random-failure-response endpoint in the PollyServerWebApi application to simulate an
+    overloaded service. Open the Program.cs file and add the following code:
+
+    app.MapGet("/api/random-failure-response", () =>
+    {
+        var random = new Random();
+        var delay = random.Next(1, 100);
+        return Task.FromResult(delay > 20 ? Results.Ok($"Response is successful.") :
+            Results.StatusCode(StatusCodes.Status500InternalServerError));
+    });
+
+    -> This endpoint will return a 500 Internal Server Error error with an 80% chance(approximately).
+        This is just an example of simulating an overloaded service. In a real-world application, the
+        service may be overloaded due to high traffic, network latency, and so on.
+
+
+2) Add the following code to the Program.cs file of the PollyClientWebApi application:
+
+    builder.Services.AddResiliencePipeline("circuit-breaker-5-seconds", configure =>
+    {
+        configure.AddCircuitBreaker(new CircuitBreakerStrategyOptions
+        {
+            FailureRatio = 0.7,
+            SamplingDuration = TimeSpan.FromSeconds(10),
+            MinimumThroughput = 10,
+            BreakDuration = TimeSpan.FromSeconds(5),
+            ShouldHandle = new PredicateBuilder().
+            Handle<Exception>()
+        });
+    });
+
+    -> preceding code defines a circuit breaker policy named circuit-breaker-5-seconds with a failure ratio
+        of 0.7. This means if the failure ratio is greater than 0.7, the circuit breaker will open.
+    -> SamplingDuration property is used to specify the duration of the sampling over which the failure
+        ratios are calculated.
+    -> MinimumThroughput property means that at least 10 requests must be made within the sampling duration.
+    -> BreakDuration property means that the circuit breaker will stay open for 5 seconds if it opens.
+    -> ShouldHandle property is used to specify the types of errors that should be handled by the circuit
+        breaker.
+
+3) Create a new action in the PollyController class of the PollyClientWebApi application to call the
+    overloaded service. Add the following code:
+
+    [HttpGet("circuit-breaker")]
+    public async Task<IActionResult>GetRandomFailureResponseWithCircuitBreaker()
+    {
+        var client = httpClientFactory.CreateClient("PollyServerWebApi");
+        try
+        {
+            var pipeline = resiliencePipelineProvider.GetPipeline("circuit-breaker-5-seconds");
+            var response = await pipeline.ExecuteAsync(async 
+            cancellationToken =>
+            {
+                var result = await client.GetAsync("api/random-failure-response", cancellationToken);
+                result.EnsureSuccessStatusCode();
+                return result;
+            });
+            var content = await response.Content.ReadAsStringAsync();
+            return Ok(content);
+        }
+        catch (Exception e)
+        {
+            logger.LogError($"{e.GetType()} {e.Message}");
+            return Problem(e.Message);
+        }
+    }
+
+    -> The preceding code uses result.EnsureSuccessStatusCode() to throw an exception if the response status
+        code is not successful.
+    -> As the overloaded service has an 80% chance of returning an error, the circuit breaker will open after
+        a couple of requests. Then, the circuit breaker will stay open for 5 seconds. During this period, the
+        client will not send any requests to the overloaded service. After 5 seconds, the circuit breaker
+        will close, and the client will send requests to the overloaded service again.
+
+
+4) Run the two applications and send more than 10 requests to the http://localhost:5114/api/polly/circuit-breaker
+    endpoint of the PollyClientWebApi application. Sometimes, you will see a 500 Internal Server Error error
+    as follows:
+
+        {
+            "type":"https://tools.ietf.org/html/rfc9110#section-15.6.1",
+            "title":"An error occurred while processing your request.",
+            "status":500,
+            "detail":"Response status code does not indicate success: 500 (Internal Server Error).",
+            "traceId":"00-f494487616e73866d54b641afe263289-e646b715e8ce5dee-00"
+        }
+
+- Circuit breakers are not the same as the retry pattern. The retry pattern expects the operation to 
+    succeed eventually. However, the circuit breaker pattern prevents the operation from being executed 
+    if it is likely to fail, which can save resources and allow the external service to recover. You can use 
+    these two patterns together.
+    But NOTE that THE RETRY LOGIC SHOULD CHECK THE EXCEPTION TYPE THROWN BY THE CIRCUIT BREAKER. IF THE
+    CIRCUIT BREAKER INDICATES THAT THE OPERATION FAILURE IS NOT A TRANSIENT ISSUE, THE RETRY LOGIC SHOULD
+    NOT RETRY THE OPERATION.
+
+-  Polly is a powerful library that implements many resilience patterns. This section cannot cover all 
+    the patterns provided by Polly. You can find more examples at the following link: https://www.pollydocs.org/index.html.
+
+- In addition to the design patterns discussed in this chapter, there are more patterns for microservice 
+    architecture. As many of these patterns are beyond the scope of this book, we will not discuss them 
+    in detail. You can find more details about these patterns from Microsoft Learn: https://learn.microsoft.com/en-us/azure/architecture/patterns/.

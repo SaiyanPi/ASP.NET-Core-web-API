@@ -1,5 +1,6 @@
 using System.Threading.RateLimiting;
 using Polly;
+using Polly.CircuitBreaker;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,18 @@ builder.Services.AddResiliencePipeline("rate-limit-5-requests-in-3-seconds", (co
     context.OnPipelineDisposed(() => rateLimiter.Dispose());
 });
 
+builder.Services.AddResiliencePipeline("circuit-breaker-5-seconds", configure =>
+{
+    configure.AddCircuitBreaker(new CircuitBreakerStrategyOptions
+    {
+        FailureRatio = 0.7,
+        SamplingDuration = TimeSpan.FromSeconds(10),
+        MinimumThroughput = 10,
+        BreakDuration = TimeSpan.FromSeconds(5),
+        ShouldHandle = new PredicateBuilder().
+        Handle<Exception>()
+    });
+});
 
 var app = builder.Build();
 

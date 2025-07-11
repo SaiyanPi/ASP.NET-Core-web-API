@@ -1,0 +1,98 @@
+Retry:
+
+- When the client API gets an error, such as a 429 Too Many Requests error, or a 500 Internal Server Error
+    error, it can retry the request after a delay because the error may be caused by a temporary issue,
+    such as rate-limiting or a network glitch. The next time the client API sends the request, it may
+    succeed. This is called retry.
+- The retry pattern is a common approach to addressing transient failures in communication between 
+    microservices. This pattern is particularly useful in a microservice architecture, where network glitches 
+    or the temporary unavailability of a service can cause communication failures. By implementing retry 
+    mechanisms, these transient issues can be managed, and the overall reliability of the system can be
+    improved.
+- Follow these steps to implement the retry pattern using Polly:
+
+1) Update the Get() method of the WeatherForecastController class as follows:
+
+    [HttpGet(Name = "GetWeatherForecast")]
+    public async Task<ActionResult<IEnumerable<WeatherForecast>>> Get()
+    {
+        var httpClient = httpClientFactory.CreateClient("PollyServerWebApi");
+        
+        var pollyPipeline = new ResiliencePipelineBuilder().AddRetry(new Polly.Retry.RetryStrategyOptions()
+        {
+            ShouldHandle = new PredicateBuilder().Handle<Exception>(),
+                MaxRetryAttempts = 3,
+                Delay = TimeSpan.FromMilliseconds(500),
+                MaxDelay = TimeSpan.FromSeconds(5),
+                OnRetry = args =>
+                {
+                    logger.LogWarning($"Retry {args.AttemptNumber}, due to: {args.Outcome.Exception?.Message}.");
+                    return default;
+                }
+        }).Build();
+
+        HttpResponseMessage? response = null;
+        await pollyPipeline.ExecuteAsync(async _ =>
+        {
+            response = await httpClient.GetAsync("/WeatherForecast");
+            response.EnsureSuccessStatusCode();
+        });
+        if (response != null & response!.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<IEnumerable<WeatherForecast>>();
+            return Ok(result);
+        }
+        return StatusCode((int)response.StatusCode, response.ReasonPhrase);
+    }
+
+    -> preceding code creates a ResiliencePipelineBuilder object to build a resilience pipeline. Then, it
+        adds a retry policy to the pipeline.
+    ->  The retry policy will retry the request three times if it fails. The delay between retries is 500
+        milliseconds. The MaxDelay property is used to specify the maximum delay duration. The OnRetry
+        callback is used to log the retry attempts. 
+    -> Finally, it executes the pipeline to send the request to the PollyServerWebApi application.
+
+2) Run the two applications and send more than five requests per 3 seconds to the
+    http://localhost:5114/weatherforecast weatherforecast endpoint of the PollyClientWebApi application.
+    Sometimes, you may see that the request takes a longer time to complete. This is because the request is 
+    retried if it fails. You should also be able to see the retry attempts in the console window of the 
+    PollyClientWebApi application, as shown in the following:
+
+    warn: PollyClientWebApi.Controllers.WeatherForecastController[0]
+        Retry 0, due to: Response status code does not indicate success: 429 (Too Many Requests)..
+
+- In this way, we can automatically retry the request if it fails. This can improve the reliability 
+    of the system.
+
+3) The retry policy can be configured in various ways. For example, we can configure the retry policy to
+    retry the request only when the response status code is 429 as follows:
+
+        ShouldHandle = new PredicateBuilder().Handle<Exception>().
+        Or<HttpRequestException>(ex => ex.StatusCode == HttpStatusCode.TooManyRequests),
+
+    We can also delay the retry attempts with an exponential backoff strategy. This is because the service
+    may be overloaded, and the retry attempts may fail again. In this case, we can delay the retry attempts
+    to avoid overloading the service.
+
+4) To use the exponential backoff strategy, we can specify the BackoffType property of the 
+    RetryStrategyOptions object as follows:
+
+        BackoffType = DelayBackoffType.Exponential,
+
+    -> The BackoffType property is a DelayBackoffType enum that can be set to Constant, Linear, or Exponential.
+    -> The Constant strategy will delay the retry attempts with a constant delay. The Linear strategy will
+        delay the retry attempts with a linear delay. The Exponential strategy will delay the retry attempts
+        with an exponential delay. The default strategy is Constant.
+
+
+-  There are a few considerations when using the retry pattern:
+    • The retry pattern should only be used to handle transient failures. If you want to implement 
+        a repeatable operation, you should use some scheduling mechanism, such as a background 
+        service, or suitable tools, such as Quartz.NET and Hangfire. Do not use the Polly retry to 
+        implement a scheduled repeating operation.
+
+    • Consider using different retry policies for different types of errors. For example, an API call 
+        may involve HTTP requests, database queries, and JSON deserialization. If the HTTP request 
+        fails due to a network glitch, you can retry the request. However, if the JSON deserialization 
+        fails, it is unlikely to succeed even if you retry the JSON deserialization method. In this case, 
+        you can use ShouldHandle to specify the types of errors that should be retried.

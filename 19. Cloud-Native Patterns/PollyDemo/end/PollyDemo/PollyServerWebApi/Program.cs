@@ -58,4 +58,13 @@ app.MapGet("/api/normal-response", async () =>
     return Results.Ok($"Response delayed by {delay} milliseconds");
 });
 
+// for circuit break
+app.MapGet("/api/random-failure-response", () =>
+{
+    var random = new Random();
+    var delay = random.Next(1, 100);
+    return Task.FromResult(delay > 20 ? Results.Ok($"Response is successful.") :
+        Results.StatusCode(StatusCodes.Status500InternalServerError));
+});
+
 app.Run();

@@ -43,7 +43,7 @@ public class PollyController(ILogger<PollyController> logger, IHttpClientFactory
             return Problem(e.Message);
         }
     }
-    
+
     [HttpGet("rate-limit")]
     public async Task<IActionResult> GetNormalResponseWithRateLimiting()
     {
@@ -53,6 +53,30 @@ public class PollyController(ILogger<PollyController> logger, IHttpClientFactory
             var pipeline = resiliencePipelineProvider.GetPipeline("rate-limit-5-requests-in-3-seconds");
             var response = await pipeline.ExecuteAsync(async cancellationToken =>
                 await client.GetAsync("api/normal-response", cancellationToken));
+            var content = await response.Content.ReadAsStringAsync();
+            return Ok(content);
+        }
+        catch (Exception e)
+        {
+            logger.LogError($"{e.GetType()} {e.Message}");
+            return Problem(e.Message);
+        }
+    }
+    
+    [HttpGet("circuit-breaker")]
+    public async Task<IActionResult>GetRandomFailureResponseWithCircuitBreaker()
+    {
+        var client = httpClientFactory.CreateClient("PollyServerWebApi");
+        try
+        {
+            var pipeline = resiliencePipelineProvider.GetPipeline("circuit-breaker-5-seconds");
+            var response = await pipeline.ExecuteAsync(async 
+            cancellationToken =>
+            {
+                var result = await client.GetAsync("api/random-failure-response", cancellationToken);
+                result.EnsureSuccessStatusCode();
+                return result;
+            });
             var content = await response.Content.ReadAsStringAsync();
             return Ok(content);
         }
